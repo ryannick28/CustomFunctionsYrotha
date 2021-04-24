@@ -68,7 +68,7 @@ asArguments <- function(argString){
 #*********************************************************************************
 niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
                          bw='nrd0', jitFactor=0.2, add.ylim=0, ylim.cust=NULL,
-                         densScl=0.5, main=NULL, sigTest=TRUE, multCmp=FALSE){
+                         densScl=0.5, main=NULL, sigTest=FALSE, multCmp=FALSE){
   ### Check some requirements:
   stopifnot(is.numeric(numVar))
   stopifnot(is.null(ylim.cust) | length(ylim.cust)==2)   # Check valid entries for ylim.cust
@@ -102,11 +102,15 @@ niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
     if(multCmp){
       ### Filter out only significant tests:
       grCmp <- grCmp.0[grCmp.0$wilxP_bonf < 0.05,]
+      ### Have to stop in case there are no significant differences:
+      if(nrow(grCmp)==0){stop('There are no significant group differences. Set sigTest to FALSE in order to draw the plot.')}
       ### Get stars according to bonferroni corrected pvalues:
       grCmp$strs <- sapply(grCmp[,'wilxP_bonf'], function(x){ sigStr[max(which((x - sigThr) < 0))] })
     }else{
       ### Filter out only significant tests:
       grCmp <- grCmp.0[grCmp.0$wilxP < 0.05,]
+      ### Have to stop in case there are no significant differences:
+      if(nrow(grCmp)==0){stop('There are no significant group differences. Set sigTest to FALSE in order to draw the plot.')}
       ### Get stars according to uncorrected pvalues:
       grCmp$strs <- sapply(grCmp[,'wilxP'], function(x){ sigStr[max(which((x - sigThr) < 0))] })
     }
