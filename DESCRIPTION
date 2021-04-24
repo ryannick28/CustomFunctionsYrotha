@@ -1,0 +1,22 @@
+Package: CustomFunctions_yrotha
+Title: Collection of my custom functions
+Version: 1.0
+Authors@R: 
+    person(given = "Yannick",
+           family = "Rothacher",
+           role = c("aut", "cre"),
+           email = "yrothacher@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: A collection of my custom made functions.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports:
+    rgl,
+    misc3d,
+    mvtnorm,
+    grDevices,
+    stats,
+    graphics
