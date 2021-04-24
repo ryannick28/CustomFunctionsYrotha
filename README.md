@@ -5,4 +5,3 @@ This is a collection of my self-made R-functions. Mostly for creating nice univa
 Install with:
 > devtools::install_github(repo = "ryannick28/CustomFunctionsYrotha", ref = 'main')
 
-test
