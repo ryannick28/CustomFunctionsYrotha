@@ -200,7 +200,7 @@ nicePairsPlot <- function(x, breaks='Sturges', density=FALSE, jitter=FALSE, jitF
 #*********************************************************************************
 #   NICE 3D PLOT   ####
 #*********************************************************************************
-nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, pointSize = 5, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1){
+nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, pointSize = 5, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1, add = FALSE){
   #*********************************************************************************
   #   TEST CONDITIONS   ####
   #*********************************************************************************
@@ -281,8 +281,10 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
   #*********************************************************************************
   ### Set axis-length if not provided:
   if(is.null(axesLeng)){axesLeng <- c(max(dat$x), max(dat$y), max(dat$z))*1.5}else{axesLeng <- rep(axesLeng, length.out=3)}
-  ### Plot empty coordinate system:
-  .coorSystem3D(axesNames, gridCol, axesLeng, axesTicks, zoom)
+  ### Plot empty coordinate system (only if add is FALSE):
+  if(!add){
+    .coorSystem3D(axesNames, gridCol, axesLeng, axesTicks, zoom)
+  }
   ### Start plotting:
   if(grepl('P', whatToPlot[1])){
     rgl::rgl.points(dat[,1:3], color=dat$pointC, size=pointSize, alpha=pointTrans)
