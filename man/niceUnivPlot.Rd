@@ -6,7 +6,8 @@ Creates a violin plot of a numeric variable and marks the mean value. Can split 
 }
 \usage{
 niceUnivPlot(numVar, catVar = NULL, violin = TRUE, showMean = TRUE, bw = 'nrd0',
-jitFactor = 0.2, add.ylim = 0, ylim.cust = NULL, densScl = 0.5)
+jitFactor = 0.2, add.ylim = 0, ylim.cust = NULL, densScl = 0.5,
+main = NULL, sigTest = TRUE, multCmp = FALSE)
 }
 \arguments{
   \item{numVar}{The numeric vector to be plotted}
@@ -26,6 +27,12 @@ jitFactor = 0.2, add.ylim = 0, ylim.cust = NULL, densScl = 0.5)
   \item{ylim.cust}{Optionally the y-limits can be set manually. Has to be a numeric vector of length two.}
 
   \item{densScl}{An optional factor to increase/decrease the width of the violin plots.}
+
+  \item{main}{A character string defining the plot title.}
+
+  \item{sigTest}{A logical value indicating whether group comparisons should be performed (unpaired Wilcoxon tests).}
+
+  \item{multCmp}{A logical value indicating whether the pvalues of the performed group comparisons should be Bonferroni corrected.}
 
 }
 \examples{

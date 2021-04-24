@@ -68,7 +68,7 @@ asArguments <- function(argString){
 #*********************************************************************************
 niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
                          bw='nrd0', jitFactor=0.2, add.ylim=0, ylim.cust=NULL,
-                         densScl=0.5){
+                         densScl=0.5, main=NULL, sigTest=TRUE, multCmp=FALSE){
   ### Check some requirements:
   stopifnot(is.numeric(numVar))
   stopifnot(is.null(ylim.cust) | length(ylim.cust)==2)   # Check valid entries for ylim.cust
@@ -84,8 +84,40 @@ niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
   if(is.null(catVar)){
     catVar <- factor(rep(1,length(numVar)))   # 1-level factor
   }else{
-    catVar <- as.factor(catVar)
+    catVar <- factor(catVar)   # Dont use as.factor, otherwise non-present levels are not removed.
   }
+  #**********************
+  ### Run group comparisons:
+  if(nlevels(catVar) > 1 & sigTest){   # Only run if catVar has entries of multiple levels
+    ### List group comparisons in table:
+    grInd <- data.frame(t(utils::combn(1:nlevels(catVar),2)))
+    ### Apply wilcoxon tests to compare corresponding groups (collect pvalues):
+    wilxP <- apply(grInd, 1, function(x){ wilcox.test(x = numVar[as.numeric(catVar)==x[1]],
+                                                      y = numVar[as.numeric(catVar)==x[2]])$p.value })
+    ### Combine to table (add bonferonni corrected pvals and y values in plot):
+    grCmp.0 <- cbind(grInd, wilxP, 'wilxP_bonf'=wilxP*nrow(grInd))
+    ### Add stars:
+    sigStr <- c('', '*', '**', '***')
+    sigThr <- c(1.1, 0.05, 0.01, 0.001)   # 1.1 in case pvalue is rounded to 1 (difference in next line has to be negative at least once)
+    if(multCmp){
+      ### Filter out only significant tests:
+      grCmp <- grCmp.0[grCmp.0$wilxP_bonf < 0.05,]
+      ### Get stars according to bonferroni corrected pvalues:
+      grCmp$strs <- sapply(grCmp[,'wilxP_bonf'], function(x){ sigStr[max(which((x - sigThr) < 0))] })
+    }else{
+      ### Filter out only significant tests:
+      grCmp <- grCmp.0[grCmp.0$wilxP < 0.05,]
+      ### Get stars according to uncorrected pvalues:
+      grCmp$strs <- sapply(grCmp[,'wilxP'], function(x){ sigStr[max(which((x - sigThr) < 0))] })
+    }
+    ### Add y-values for plot (should not be too far apart):
+    grCmp$yVal <- max(ylms) + (abs(min(ylms)-max(ylms))*0.05 * 1:nrow(grCmp))
+    ### Adapt ylms:
+    ylms <- c(ylms[1], max(grCmp$yVal))
+  }
+  #**********************
+  ### Get title name:
+  main.nm <- deparse(substitute(main))
   ### Start plot:
   plot(x = jitter(as.numeric(catVar), factor = jitFactor),
        y = numVar,
@@ -95,7 +127,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
        col = catVar,
        ylab = deparse(substitute(numVar)),
        xlab = ifelse(catVar.nm=='NULL', '', catVar.nm),
-       main = paste0(deparse(substitute(numVar)), ' Plot'))
+       main = ifelse(main.nm=='NULL', paste0(deparse(substitute(numVar)), ' Plot'), main))
   ### Add legend:
   if(nlevels(catVar) > 1){   # Only needed with multiple levels
     legend('bottomright', legend = levels(catVar),
@@ -124,6 +156,21 @@ niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
     for(i in 1:nlevels(catVar)){
       mVal <-  mean(numVar[as.numeric(catVar)==i], na.rm = TRUE)
       segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = i, lwd = 2)
+    }
+  }
+  ### Draw lines of group comparisons:
+  if(nlevels(catVar) > 1 & sigTest){   # Only run if comparisons were performed
+    ### Draw lines:
+    for(i in 1:nrow(grCmp)){
+      xx <- as.numeric(grCmp[i,1:2])
+      yy <- rep(grCmp[i,'yVal'], 2)
+      lines(xx, yy)
+      ### Find a good ticklength:
+      tickL <- (abs(min(ylms)-max(ylms))*0.01)
+      lines(c(xx[1], xx[1]), c(yy[1], yy[1] - tickL))
+      lines(c(xx[2], xx[2]), c(yy[2], yy[2] - tickL))
+      ### Add star:
+      text(x = mean(xx), y = yy[1]+tickL, labels = grCmp[i,'strs'])
     }
   }
 }
