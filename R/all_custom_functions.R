@@ -66,9 +66,14 @@ asArguments <- function(argString){
 #*********************************************************************************
 #   NICE UNIVARIATE PLOT   ####
 #*********************************************************************************
-niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
+niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showMean=TRUE,
                          bw='nrd0', jitFactor=0.2, add.ylim=0, ylim.cust=NULL,
-                         densScl=0.5, main=NULL, sigTest=FALSE, multCmp=FALSE){
+                         densScl=0.5, main=NULL, sigTest=FALSE, multCmp=FALSE, lCol=NULL){
+
+
+  #*********************************************************************************
+  #   CHECK REQUIREMENTS AND PREPARE SOME ARGUMENTS   ####
+  #*********************************************************************************
   ### Check some requirements:
   stopifnot(is.numeric(numVar))
   stopifnot(is.null(ylim.cust) | length(ylim.cust)==2)   # Check valid entries for ylim.cust
@@ -84,42 +89,68 @@ niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
   if(is.null(catVar)){
     catVar <- factor(rep(1,length(numVar)))   # 1-level factor
   }else{
+    stopifnot(length(catVar)==length(numVar))   # Make sure lengths are same
     catVar <- factor(catVar)   # Dont use as.factor, otherwise non-present levels are not removed.
   }
-  #**********************
-  ### Run group comparisons:
-  if(nlevels(catVar) > 1 & sigTest){   # Only run if catVar has entries of multiple levels
+
+
+  #*********************************************************************************
+  #   RUN GROUP COMPARISONS   ####
+  #*********************************************************************************
+  ### Only run if catVar has entries of multiple levels:
+  drawGrCmp <- FALSE   # Indicator if group comparisons can be plotted
+  if(nlevels(catVar) > 1 & sigTest){
     ### List group comparisons in table:
     grInd <- data.frame(t(utils::combn(1:nlevels(catVar),2)))
     ### Apply wilcoxon tests to compare corresponding groups (collect pvalues):
-    wilxP <- apply(grInd, 1, function(x){ wilcox.test(x = numVar[as.numeric(catVar)==x[1]],
-                                                      y = numVar[as.numeric(catVar)==x[2]])$p.value })
-    ### Combine to table (add bonferonni corrected pvals and y values in plot):
-    grCmp.0 <- cbind(grInd, wilxP, 'wilxP_bonf'=wilxP*nrow(grInd))
+    if(is.null(pairedVar)){   # Unpaired test
+      wilxP <- apply(grInd, 1, function(x){ wilcox.test(x = numVar[as.numeric(catVar)==x[1]],
+                                                        y = numVar[as.numeric(catVar)==x[2]])$p.value })
+    }else{   # Paired test
+      ### Check whether length of pairedVar is correct:
+      stopifnot(length(pairedVar)==length(numVar), is.factor(pairedVar))
+      ### Function to perform correct pairwise test (have to be careful that same cases are paired)
+      pairSel <- function(x){
+        dd <- data.frame(numVar, catVar, pairedVar)
+        xx <- dd[as.numeric(dd$catVar)==x[1],]
+        yy <- dd[as.numeric(dd$catVar)==x[2],]
+        ### Check which cases are present in both groups:
+        lvs <- 1:nlevels(pairedVar)
+        lvsOk <- which(lvs %in% xx$pairedVar & lvs %in% yy$pairedVar)
+        xx.1 <- xx[xx$pairedVar %in% lvsOk,]
+        yy.1 <- yy[yy$pairedVar %in% lvsOk,]
+        ### Apply wilcoxon test:
+        wilcox.test(x = xx.1[order(xx.1$pairedVar),'numVar'],
+                    y = yy.1[order(yy.1$pairedVar),'numVar'], paired = TRUE)$p.value
+      }
+      wilxP <- apply(grInd, 1, pairSel)
+    }
+    ### Combine to table (and apply Bonferonni correction):
+    grCmp.0 <- cbind(grInd, wilxP)
+    if(multCmp){grCmp.0$wilxP <- wilxP*nrow(grInd)}   # Apply Bonferroni correction
     ### Add stars:
     sigStr <- c('', '*', '**', '***')
-    sigThr <- c(1.1, 0.05, 0.01, 0.001)   # 1.1 in case pvalue is rounded to 1 (difference in next line has to be negative at least once)
-    if(multCmp){
-      ### Filter out only significant tests:
-      grCmp <- grCmp.0[grCmp.0$wilxP_bonf < 0.05,]
-      ### Have to stop in case there are no significant differences:
-      if(nrow(grCmp)==0){stop('There are no significant group differences. Set sigTest to FALSE in order to draw the plot.')}
-      ### Get stars according to bonferroni corrected pvalues:
-      grCmp$strs <- sapply(grCmp[,'wilxP_bonf'], function(x){ sigStr[max(which((x - sigThr) < 0))] })
-    }else{
-      ### Filter out only significant tests:
-      grCmp <- grCmp.0[grCmp.0$wilxP < 0.05,]
-      ### Have to stop in case there are no significant differences:
-      if(nrow(grCmp)==0){stop('There are no significant group differences. Set sigTest to FALSE in order to draw the plot.')}
-      ### Get stars according to uncorrected pvalues:
-      grCmp$strs <- sapply(grCmp[,'wilxP'], function(x){ sigStr[max(which((x - sigThr) < 0))] })
-    }
-    ### Add y-values for plot (should not be too far apart):
-    grCmp$yVal <- max(ylms) + (abs(min(ylms)-max(ylms))*0.05 * 1:nrow(grCmp))
-    ### Adapt ylms:
-    ylms <- c(ylms[1], max(grCmp$yVal))
+    sigThr <- c(1.1, 0.05, 0.01, 0.001)   # 1.1 in case pvalue is rounded to 1 (difference has to be negative at least once, see below)
+    ### Add stars to table:
+    grCmp.0$strs <- symnum(grCmp.0$wilxP, corr = FALSE, cutpoints = c(0, 0.001, 0.01, 0.05, 1),
+                           symbols = c("***", "**", "*", ""), legend = FALSE)
+    ### Filter out only significant tests:
+    grCmp <- grCmp.0[grCmp.0$wilxP < 0.05,]
+    ### Only proceed if there are significant tests:
+    if(nrow(grCmp) > 0){
+      ### Add y-values for plot (should not be too far apart):
+      grCmp$yVal <- max(ylms) + (abs(min(ylms)-max(ylms))*0.05 * 1:nrow(grCmp))
+      ### Adapt ylms:
+      ylms <- c(ylms[1], max(grCmp$yVal))
+      ### Set indicator to plot to TRUE:
+      drawGrCmp <- TRUE
+    }else{warning('There were no significant group differences.')}
   }
-  #**********************
+
+
+  #*********************************************************************************
+  #   PLOT POINTS   ####
+  #*********************************************************************************
   ### Get title name:
   main.nm <- deparse(substitute(main))
   ### Start plot:
@@ -138,6 +169,32 @@ niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
            pch=1,
            col=1:nlevels(catVar))
   }
+
+
+  #*********************************************************************************
+  #   PLOT LINES IN PAIRED CASE   ####
+  #*********************************************************************************
+  ### Only run if a "pairedVar" factor was provided:
+  if(!is.null(pairedVar) & nlevels(catVar) > 1){
+    ### Make sure there are no levels with no entries:
+    pairedVar <- factor(pairedVar)
+    ### Check if every case has maximally one entry per catVar level:
+    if(max(table(catVar, pairedVar)) > 1){ warning('There are cases with multiple entries for a catVar level.') }
+    ### Draw lines per case in for-loop:
+    for(i in 1:nlevels(pairedVar)){
+      dd.0 <- data.frame(numVar, catVar, pairedVar)
+      dd <- dd.0[as.numeric(dd.0$pairedVar)==i,]   # Select entries of case i
+      dd <- dd[order(dd$catVar), ]   # Make sure order of catVar is correct
+      ### Plot line:
+      lCol.1 <- ifelse(is.null(lCol), as.numeric(dd$pairedVar)[1], lCol)
+      lines(x = dd$catVar, y = dd$numVar, col=lCol.1)
+    }
+  }
+
+
+  #*********************************************************************************
+  #   ADD VIOLIN LINES AND MEAN LINES   ####
+  #*********************************************************************************
   ### Add the violin lines:
   if(violin){
     L <- list()
@@ -151,19 +208,24 @@ niceUnivPlot <- function(numVar, catVar=NULL, violin=TRUE, showMean=TRUE,
     cexD <- densScl/maxD
     ### Now plot the densities:
     for(i in 1:nlevels(catVar)){
-      lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col=i)
-      lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=i)
+      lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col=i, lwd=3)
+      lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=i, lwd=3)
     }
   }
   ### Add the mean-value lines:
   if(showMean){
     for(i in 1:nlevels(catVar)){
       mVal <-  mean(numVar[as.numeric(catVar)==i], na.rm = TRUE)
-      segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = i, lwd = 2)
+      segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = i, lwd = 3)
     }
   }
-  ### Draw lines of group comparisons:
-  if(nlevels(catVar) > 1 & sigTest){   # Only run if comparisons were performed
+
+
+  #*********************************************************************************
+  #   ADD LINES OF GROUP COMPARISONS   ####
+  #*********************************************************************************
+  ### Only run if there are significant results:
+  if(drawGrCmp){
     ### Draw lines:
     for(i in 1:nrow(grCmp)){
       xx <- as.numeric(grCmp[i,1:2])
