@@ -116,9 +116,9 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
         yy <- dd[as.numeric(dd$catVar)==x[2],]
         ### Check which cases are present in both groups:
         lvs <- 1:nlevels(pairedVar)
-        lvsOk <- which(lvs %in% xx$pairedVar & lvs %in% yy$pairedVar)
-        xx.1 <- xx[xx$pairedVar %in% lvsOk,]
-        yy.1 <- yy[yy$pairedVar %in% lvsOk,]
+        lvsOk <- which(lvs %in% as.numeric(xx$pairedVar) & lvs %in% as.numeric(yy$pairedVar))
+        xx.1 <- xx[as.numeric(xx$pairedVar) %in% lvsOk,]
+        yy.1 <- yy[as.numeric(yy$pairedVar) %in% lvsOk,]
         ### Apply wilcoxon test:
         wilcox.test(x = xx.1[order(xx.1$pairedVar),'numVar'],
                     y = yy.1[order(yy.1$pairedVar),'numVar'], paired = TRUE)$p.value
@@ -128,11 +128,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
     ### Combine to table (and apply Bonferonni correction):
     grCmp.0 <- cbind(grInd, wilxP)
     if(multCmp){grCmp.0$wilxP <- wilxP*nrow(grInd)}   # Apply Bonferroni correction
-    ### Add stars:
-    sigStr <- c('', '*', '**', '***')
-    sigThr <- c(1.1, 0.05, 0.01, 0.001)   # 1.1 in case pvalue is rounded to 1 (difference has to be negative at least once, see below)
     ### Add stars to table:
-    grCmp.0$strs <- symnum(grCmp.0$wilxP, corr = FALSE, cutpoints = c(0, 0.001, 0.01, 0.05, 1),
+    grCmp.0$strs <- symnum(grCmp.0$wilxP, corr = FALSE, cutpoints = c(0, 0.001, 0.01, 0.05, ifelse(max(grCmp.0$wilxP) > 1, max(grCmp.0$wilxP)+1, 1)),
                            symbols = c("***", "**", "*", ""), legend = FALSE)
     ### Filter out only significant tests:
     grCmp <- grCmp.0[grCmp.0$wilxP < 0.05,]
