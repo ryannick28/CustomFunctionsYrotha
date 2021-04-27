@@ -197,11 +197,20 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
     L <- list()
     for(i in 1:nlevels(catVar)){
       d <- density(numVar[as.numeric(catVar)==i], na.rm = TRUE, bw = bw)
-      L[[i]] <- data.frame(xd=d$x, yd=d$y)
+      ### Get min and max value of numVar:
+      minNum.i <- min(numVar[as.numeric(catVar)==i], na.rm = TRUE)
+      maxNum.i <- max(numVar[as.numeric(catVar)==i], na.rm = TRUE)
+      ### Remove density values falling outside the min-max range:
+      denx <- d$x[d$x > minNum.i & d$x < maxNum.i]
+      deny <- d$y[d$x > minNum.i & d$x < maxNum.i]
+      ### Turn density values at each end to zero to cut off the density curve:
+      deny[1] <- 0
+      deny[length(deny)] <- 0
+      L[[i]] <- data.frame(xd=denx, yd=deny)
     }
     names(L) <- levels(catVar)
     ### We have to scale the densities, need the maximum value for that:
-    maxD <-  max(sapply(L, function(x){x$yd}))
+    maxD <- max(do.call(c, lapply(L, function(x){x$yd})))
     cexD <- densScl/maxD
     ### Now plot the densities:
     for(i in 1:nlevels(catVar)){
