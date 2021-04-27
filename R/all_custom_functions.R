@@ -68,7 +68,7 @@ asArguments <- function(argString){
 #*********************************************************************************
 niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showMean=TRUE,
                          bw='nrd0', jitFactor=0.2, add.ylim=0, ylim.cust=NULL,
-                         densScl=0.5, main=NULL, sigTest=FALSE, multCmp=FALSE, lCol=NULL){
+                         densScl=0.5, main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE, lCol=NULL){
 
 
   #*********************************************************************************
@@ -78,11 +78,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
   stopifnot(is.numeric(numVar))
   stopifnot(is.null(ylim.cust) | length(ylim.cust)==2)   # Check valid entries for ylim.cust
   ### Set ylim:
-  if(is.null(ylim.cust)){
-    ylms <- c(min(numVar, na.rm = TRUE), max(numVar, na.rm = TRUE))
-  }else{   # Custom ylim
-    ylms <- ylim.cust
-  }
+  ylms <- c(min(numVar, na.rm = TRUE), max(numVar, na.rm = TRUE))
   ylms <- ylms + c(-add.ylim, add.ylim)   # Add the add.ylim
   ### Generate catvar:
   catVar.nm <- deparse(substitute(catVar))   # Get name of catVar
@@ -99,7 +95,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
   #*********************************************************************************
   ### Only run if catVar has entries of multiple levels:
   drawGrCmp <- FALSE   # Indicator if group comparisons can be plotted
-  if(nlevels(catVar) > 1 & sigTest){
+  if(nlevels(catVar) > 1 & sigGroup){
     ### List group comparisons in table:
     grInd <- data.frame(t(utils::combn(1:nlevels(catVar),2)))
     ### Apply wilcoxon tests to compare corresponding groups (collect pvalues):
@@ -146,10 +142,49 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
 
 
   #*********************************************************************************
+  #   RUN MU COMPARISONS   ####
+  #*********************************************************************************
+  ### Test each group against a mean value Mu using a wilcoxon test:
+  drawMu <- FALSE   # Indicator to draw results in plot
+  if(!is.null(sigMu)){
+    ### Iterate through groups:
+    p.mu <- NA
+    for(i in 1:nlevels(catVar)){
+      dmu.i <- numVar[as.numeric(catVar)==i]
+      p.mu[i] <- wilcox.test(dmu.i, mu = sigMu)$p.value
+    }
+    # Apply Bonferroni correction:
+    if(multCmp){p.mu <- p.mu*nlevels(catVar)}
+    ### Create table:
+    d.mu <- data.frame("categ"=1:nlevels(catVar), "pmu"=p.mu)
+    ### Add stars:
+    d.mu$strs <- symnum(d.mu$pmu, corr = FALSE, cutpoints = c(0, 0.001, 0.01, 0.05, ifelse(max(d.mu$pmu) > 1, max(d.mu$pmu)+1, 1)),
+                        symbols = c("***", "**", "*", ""), legend = FALSE)
+    ### Filter out only significant tests:
+    d.mu <- d.mu[d.mu$pmu < 0.05,]
+    ### Only proceed if there are significant tests:
+    if(nrow(d.mu) > 0){
+      ### Adapt ylms:
+      if(sigMu < ylms[1]){
+        ylms[1] <- sigMu
+      }else if(sigMu > ylms[2]){
+        ylms[2] <- sigMu
+      }
+      ### Set indicator to plot to TRUE:
+      drawMu <- TRUE
+    }else{warning('There were no significant differences from tested location Mu.')}
+  }
+
+
+  #*********************************************************************************
   #   PLOT POINTS   ####
   #*********************************************************************************
   ### Get title name:
   main.nm <- deparse(substitute(main))
+  ### Plugin custom y-values:
+  if(!is.null(ylim.cust)){
+    ylms <- ylim.cust
+  }
   ### Start plot:
   plot(x = jitter(as.numeric(catVar), factor = jitFactor),
        y = numVar,
@@ -241,10 +276,34 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
       tickL <- (abs(min(ylms)-max(ylms))*0.01)
       lines(c(xx[1], xx[1]), c(yy[1], yy[1] - tickL))
       lines(c(xx[2], xx[2]), c(yy[2], yy[2] - tickL))
-      ### Add star:
+      ### Add stars:
       text(x = mean(xx), y = yy[1]+tickL, labels = grCmp[i,'strs'])
     }
   }
+
+
+  #*********************************************************************************
+  #   ADD LINES OF MU COMPARISONS   ####
+  #*********************************************************************************
+  ### Only run if there are significant results:
+  if(drawMu){
+    ### Draw lines:
+    for(i in 1:nrow(d.mu)){
+      xx <- rep(d.mu$categ[i]-0.4, 2)
+      yy <- c(mean(numVar[as.numeric(catVar)==d.mu$categ[i]], na.rm = TRUE), sigMu)
+      lines(xx,yy)
+      ### Find good ticklength:
+      tickL <- nlevels(catVar)/100
+      lines(c(xx[1], xx[1] + tickL), c(yy[1], yy[1]))
+      lines(c(xx[2], xx[2] + tickL), c(yy[2], yy[2]))
+      ### Add stars:
+      text(x = xx[1]-2*tickL, y = mean(yy), labels = d.mu[i,'strs'])
+      ### Draw Mu value as line:
+      abline(h = sigMu, lty=2)
+    }
+  }
+
+
 }
 
 

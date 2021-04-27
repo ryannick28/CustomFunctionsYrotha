@@ -7,14 +7,14 @@ Creates a violin plot of a numeric variable and marks the mean value. Can split 
 \usage{
 niceUnivPlot(numVar, catVar = NULL, pairedVar = NULL, violin = TRUE, showMean = TRUE,
 bw = 'nrd0', jitFactor = 0.2, add.ylim = 0, ylim.cust = NULL, densScl = 0.5,
-main = NULL, sigTest = FALSE, multCmp = FALSE, lCol = NULL)
+main = NULL, sigGroup = FALSE, sigMu = NULL, multCmp = FALSE, lCol = NULL)
 }
 \arguments{
   \item{numVar}{The numeric vector to be plotted}
 
   \item{catVar}{An optional factor in case numVar should be plotted separately for each factor level}
 
-  \item{pairedVar}{A factor indicating a grouping variable for repeated measures (e.g. person ID). If provided together with a catVar, lines will be plotted indicating the profile of individual cases.}
+  \item{pairedVar}{A factor indicating a grouping variable for repeated measures (e.g. person ID). If provided together with a catVar, lines will be plotted indicating the profile of individual cases. Additionally, performed group comparisons will switch to paired Wilcoxon tests.}
 
   \item{violin}{A logical value indicating whether the violin plot should be drawn}
 
@@ -32,9 +32,11 @@ main = NULL, sigTest = FALSE, multCmp = FALSE, lCol = NULL)
 
   \item{main}{A character string defining the plot title.}
 
-  \item{sigTest}{A logical value indicating whether group comparisons should be performed (unpaired Wilcoxon tests). The results will be drawn into the plot.}
+  \item{sigGroup}{A logical value indicating whether group comparisons should be performed (two-samples Wilcoxon tests). The results will be drawn into the plot.}
 
-  \item{multCmp}{A logical value indicating whether the pvalues of the performed group comparisons should be Bonferroni corrected.}
+  \item{sigMu}{A numerical value indicating a location mu against which each plotted group will be statistically compared to (one-sample Wilcoxon test). The results will be drawn into the plot.}
+
+  \item{multCmp}{A logical value indicating whether the pvalues of the performed statistical tests should be Bonferroni corrected. The correction is done independently for group comparisons and for mu comparisons.}
 
   \item{lCol}{Colour of the lines to be plotted for individual cases.}
 
