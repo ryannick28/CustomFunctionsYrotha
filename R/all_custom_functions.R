@@ -66,9 +66,11 @@ asArguments <- function(argString){
 #*********************************************************************************
 #   NICE UNIVARIATE PLOT   ####
 #*********************************************************************************
-niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showMean=TRUE,
-                         bw='nrd0', jitFactor=0.2, add.ylim=0, ylim.cust=NULL,
-                         densScl=0.5, main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE, lCol=NULL){
+niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCol=NULL,
+                         showMean=TRUE, plot.points=TRUE, bw='nrd0', jitFactor=0.2,
+                         add.ylim=0, ylim.cust=NULL, xlab=NULL, ylab=NULL, densScl=0.5,
+                         main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE,
+                         lCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL){
 
 
   #*********************************************************************************
@@ -185,21 +187,39 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
   if(!is.null(ylim.cust)){
     ylms <- ylim.cust
   }
-  ### Start plot:
-  plot(x = jitter(as.numeric(catVar), factor = jitFactor),
-       y = numVar,
-       xlim = c(0,nlevels(catVar)+1),
-       ylim = ylms,
-       xaxt = 'n',
-       col = catVar,
-       ylab = deparse(substitute(numVar)),
-       xlab = ifelse(catVar.nm=='NULL', '', catVar.nm),
-       main = ifelse(main.nm=='NULL', paste0(deparse(substitute(numVar)), ' Plot'), main))
+  ### Plugin custom axes labels:
+  if(is.null(xlab)){
+    xlab <- ifelse(catVar.nm=='NULL', '', catVar.nm)
+  }
+  if(is.null(ylab)){
+    ylab <- deparse(substitute(numVar))
+  }
+  ### Start plot (empty):
+  if(!add){
+    plot(x=1,y=1,
+         type='n',
+         xlim = c(0,nlevels(catVar)+1),
+         ylim = ylms,
+         xaxt = 'n',
+         ylab = ylab,
+         xlab = xlab,
+         main = ifelse(main.nm=='NULL', paste0(deparse(substitute(numVar)), ' Plot'), main))
+  }
+  ### Add points:
+  if(plot.points){
+    points(x = jitter(as.numeric(catVar), factor = jitFactor),
+           y = numVar,
+           col = if(is.null(fxdCol)){catVar}else{fxdCol})
+  }
+  ### Add x-axis labels:
+  if(!catVar.nm=='NULL' & !add){
+    axis(1, at = 1:nlevels(catVar), labels = levels(catVar))
+  }
   ### Add legend:
-  if(nlevels(catVar) > 1){   # Only needed with multiple levels
+  if(nlevels(catVar) > 1 & add.lgnd){   # Only needed with multiple levels
     legend('bottomright', legend = levels(catVar),
            pch=1,
-           col=1:nlevels(catVar))
+           col=if(is.null(fxdCol)){1:nlevels(catVar)}else{fxdCol})
   }
 
 
@@ -225,7 +245,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
 
 
   #*********************************************************************************
-  #   ADD VIOLIN LINES AND MEAN LINES   ####
+  #   ADD VIOLIN LINES   ####
   #*********************************************************************************
   ### Add the violin lines:
   if(violin){
@@ -249,16 +269,26 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, showM
     cexD <- densScl/maxD
     ### Now plot the densities:
     for(i in 1:nlevels(catVar)){
-      lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col=i, lwd=3)
-      lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=i, lwd=3)
+      lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col= if(is.null(fxdCol)){i}else{fxdCol}, lwd=3)
+      lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=if(is.null(fxdCol)){i}else{fxdCol}, lwd=3)
     }
   }
+
+
+  #*********************************************************************************
+  #   ADD MEAN LINES AND CONNECTIONS   ####
+  #*********************************************************************************
   ### Add the mean-value lines:
   if(showMean){
     for(i in 1:nlevels(catVar)){
       mVal <-  mean(numVar[as.numeric(catVar)==i], na.rm = TRUE)
-      segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = i, lwd = 3)
+      segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = if(is.null(fxdCol)){i}else{fxdCol}, lwd = 3)
     }
+  }
+  ### Add mean connections:
+  if(!is.null(lnk.means)){
+    mVal <-  tapply(numVar, INDEX = catVar, FUN = mean, na.rm=TRUE)
+    lines(x = 1:nlevels(catVar), y = mVal, col=lnk.means)
   }
 
 
