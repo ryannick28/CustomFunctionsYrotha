@@ -9,7 +9,7 @@ niceUnivPlot(numVar, catVar = NULL, pairedVar = NULL, violin = TRUE,
 fxdCol = NULL, showMean = TRUE, plot.points = TRUE, bw = 'nrd0',
 jitFactor = 0.2, add.ylim = 0, ylim.cust = NULL, xlab = NULL,
 ylab = NULL, densScl = 0.5, main = NULL, sigGroup = FALSE, sigMu = NULL,
-multCmp = FALSE, lCol = NULL, add.lgnd = FALSE, add = FALSE, lnk.means = NULL)
+multCmp = FALSE, pairCol = NULL, add.lgnd = FALSE, add = FALSE, lnk.means = NULL)
 }
 \arguments{
   \item{numVar}{The numeric vector to be plotted}
@@ -48,7 +48,7 @@ multCmp = FALSE, lCol = NULL, add.lgnd = FALSE, add = FALSE, lnk.means = NULL)
 
   \item{multCmp}{A logical value indicating whether the pvalues of the performed statistical tests should be Bonferroni corrected. The correction is done independently for group comparisons and for mu comparisons.}
 
-  \item{lCol}{Colour of the lines to be plotted for individual cases.}
+  \item{pairCol}{Colour of the lines to be plotted for individual cases (when pairedVar is supplied).}
 
   \item{add.lgnd}{A logical value indicating whether a legend should be added.}
 

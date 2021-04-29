@@ -70,7 +70,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
                          showMean=TRUE, plot.points=TRUE, bw='nrd0', jitFactor=0.2,
                          add.ylim=0, ylim.cust=NULL, xlab=NULL, ylab=NULL, densScl=0.5,
                          main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE,
-                         lCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL){
+                         pairCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL){
 
 
   #*********************************************************************************
@@ -238,8 +238,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
       dd <- dd.0[as.numeric(dd.0$pairedVar)==i,]   # Select entries of case i
       dd <- dd[order(dd$catVar), ]   # Make sure order of catVar is correct
       ### Plot line:
-      lCol.1 <- ifelse(is.null(lCol), as.numeric(dd$pairedVar)[1], lCol)
-      lines(x = dd$catVar, y = dd$numVar, col=lCol.1)
+      pairCol.1 <- ifelse(is.null(pairCol), as.numeric(dd$pairedVar)[1], pairCol)
+      lines(x = dd$catVar, y = dd$numVar, col=pairCol.1)
     }
   }
 
