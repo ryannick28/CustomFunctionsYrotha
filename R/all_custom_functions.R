@@ -232,14 +232,27 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
     pairedVar <- factor(pairedVar)
     ### Check if every case has maximally one entry per catVar level:
     if(max(table(catVar, pairedVar)) > 1){ warning('There are cases with multiple entries for a catVar level.') }
+    ### Define colour of lines:
+    if(is.null(pairCol)){
+      pCol <- as.numeric(pairedVar)   # Each case gets its own colour
+    } else if(length(pairCol)==length(pairedVar)){
+      if(is.factor(pairCol)){
+        pCol <- as.numeric(pairCol)   # Colour of lines according to pairCol factor
+      }
+      if(is.numeric(pairCol)){
+        br_ramp <- colorRampPalette(c('red','blue'))
+        pCol <- br_ramp(10)[as.numeric(cut(pairCol, breaks=10))]   # Colour ranging from blue to red according to value of pairCol numeric
+      }
+    }else{pCol <- pairCol}   # When pairCol is one fixed colour
     ### Draw lines per case in for-loop:
+    dd.0 <- data.frame(numVar, catVar, pairedVar, pCol)
     for(i in 1:nlevels(pairedVar)){
-      dd.0 <- data.frame(numVar, catVar, pairedVar)
       dd <- dd.0[as.numeric(dd.0$pairedVar)==i,]   # Select entries of case i
       dd <- dd[order(dd$catVar), ]   # Make sure order of catVar is correct
+      ### Check whether pCol values are all equal for case:
+      if(length(unique(dd$pCol)) != 1){warning('There are cases with different values of the pairCol factor.')}
       ### Plot line:
-      pairCol.1 <- ifelse(is.null(pairCol), as.numeric(dd$pairedVar)[1], pairCol)
-      lines(x = dd$catVar, y = dd$numVar, col=pairCol.1)
+      lines(x = dd$catVar, y = dd$numVar, col=dd$pCol[1])
     }
   }
 
