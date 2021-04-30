@@ -353,7 +353,12 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
 #*********************************************************************************
 #   NICE PAIRS PLOT   ####
 #*********************************************************************************
-nicePairsPlot <- function(x, breaks='Sturges', density=FALSE, jitter=FALSE, jitFactor=1, loess=FALSE, swtchPan=FALSE){
+nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitter=FALSE, jitFactor=1, loess=FALSE, swtchPan=FALSE){
+  ### Check some things regarding catVar:
+  if(!is.null(catVar)){
+    stopifnot(nrow(x)==length(catVar))
+    stopifnot(is.factor(catVar))
+  }
   ### Panel diagonal:
   panel.diag <- function(x){
     usr <- par('usr')
@@ -380,7 +385,7 @@ nicePairsPlot <- function(x, breaks='Sturges', density=FALSE, jitter=FALSE, jitF
       x <- jitter(x, factor = jitFactor)
       y <- jitter(y, factor = jitFactor)
     }
-    points(x, y)
+    points(x, y, col=if(!is.null(catVar)){catVar}else{1})
     ### Add Loess fit:
     if(loess){
       tryd <- try(lml <- suppressWarnings(loess(y ~ x, degree = 1, family = "symmetric")), silent=TRUE)

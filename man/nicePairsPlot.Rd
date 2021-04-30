@@ -5,11 +5,13 @@
 Basically a wrapper function for pairs(). The lower panel shows the scatterplots with optional loess fit. The diagonal panel shows a histogramm with optional density line. The upper panel shows the pairwise correlation coefficients with adjusted digit sizes and significant correlations marked with stars.
 }
 \usage{
-nicePairsPlot(x, breaks = "Sturges", density = FALSE, jitter = FALSE,
+nicePairsPlot(x, catVar = NULL, breaks = "Sturges", density = FALSE, jitter = FALSE,
 jitFactor = 1, loess = FALSE, swtchPan = FALSE)
 }
 \arguments{
   \item{x}{A dataframe or matrix.}
+
+  \item{catVar}{A factor dictating the colour of the points in the scatterplots.}
 
   \item{breaks}{"breaks" option for hist() function of diagonal panel.}
 
