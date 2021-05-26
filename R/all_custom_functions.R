@@ -607,3 +607,54 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
                    color = gridCol,
                    alpha = 0.5, lit = FALSE,front = "lines", back = "lines")
 }
+
+
+#*********************************************************************************
+#   MIXED MODEL DGP   ####
+#*********************************************************************************
+mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
+                  genb=10, ageb=1){
+  ### Generate subjects:
+  id <- factor(paste0('S', 1:n), levels = paste0('S', 1:n))
+  ### Generate random intercept of subjects:
+  id.ri <- rnorm(n, sd=sd_S)
+  ### Generate age variable:
+  age <- ceiling(runif(n, min = 20, max = 70))
+  ### Generate class factor:
+  class <- factor(paste0('Class', 1:nC), levels = paste0('Class', 1:nC))
+  ### Generate class random intercept:
+  clss.ri <- rnorm(nC, sd=sd_C)
+  ### Generate gender variable:
+  gen <- 0:1
+  ### Combine to data frame:
+  ds <- data.frame(id, class, gen, age, id.ri, clss.ri)
+  ds <- ds[order(ds$class, ds$id),]   # Order after classes and individuals
+  ds$gen <- sample(ds$gen)   # mix up gender
+  ### Generate target variable for each day:
+  ### First replicate each row in data frame for each day:
+  dat.0 <- replicate(length(tb), ds, simplify = FALSE)
+  dat.0 <- Reduce(f = function(a,b)rbind(a,b), x = dat.0)
+  dat.0 <- dat.0[order(dat.0$class, dat.0$id),]   # Reorder
+  ### Add day variable:
+  dat.0$day <- 1:length(tb)
+  ### Add random error:
+  dat.0$err <- rnorm(nrow(dat.0), sd=sd_e)
+  ### Generate target variable for each day (bit messy...):
+  dd <- dat.0[, -which(colnames(dat.0) %in% c('id', 'class', 'day'))]   # Remove some variables
+  dd$dayEff <- tb
+  dd$b0 <- b0
+  dat.0$y <- apply(dd, 1, function(x){
+    t(as.matrix(x))%*%c(genb, ageb, 1, 1, 1, 1, 1)
+  })
+  ### Remove the columns not needed:
+  dat <- dat.0
+  dat$id.ri <- NULL
+  dat$clss.ri <- NULL
+  dat$err <- NULL
+  ### Gender to factor:
+  dat$gen <- factor(dat$gen, levels = c(0,1), labels = c('M','F'))
+  ### Day to factor:
+  dat$day <- as.factor(dat$day)
+  ### Return object:
+  return(dat)
+}
