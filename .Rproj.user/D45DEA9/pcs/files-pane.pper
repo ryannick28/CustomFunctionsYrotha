@@ -1,9 +1,9 @@
 {
-    "path" : "~/pCloudDrive/windowsSharedFolder/phdUnterlagen/myR_packages/CustomFunctions/R",
-    "sortOrder" : [
+    "path": "~/pCloudDrive/windowsSharedFolder/phdUnterlagen/myR_packages/CustomFunctionsYrotha",
+    "sortOrder": [
         {
-            "ascending" : true,
-            "columnIndex" : 2
+            "columnIndex": 2,
+            "ascending": true
         }
     ]
 }

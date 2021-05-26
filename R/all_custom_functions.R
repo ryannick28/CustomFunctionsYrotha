@@ -614,6 +614,8 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
 #*********************************************************************************
 mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
                   genb=10, ageb=1){
+  ### Check some condition:
+  if(n%%nC!=0){stop('There has to be an equal number of people in each class. Currently, the number of people is not divisible by the number of classes.')}
   ### Generate subjects:
   id <- factor(paste0('S', 1:n), levels = paste0('S', 1:n))
   ### Generate random intercept of subjects:
