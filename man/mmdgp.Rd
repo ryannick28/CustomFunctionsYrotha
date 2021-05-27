@@ -23,7 +23,7 @@ b0 = 50, tb = c(0,4,10,4,0), genb = 10, ageb = 1)
 A data frame with the predictor variables and the target variable.
 }
 \examples{
-dat = mmdgp()
+dat <- mmdgp()
 # Lmer fit:
 # lmerTest::lmer(y ~ gen + age + day + (1|id) + (1|class), dat)
 }

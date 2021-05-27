@@ -660,3 +660,60 @@ mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
   ### Return object:
   return(dat)
 }
+
+
+#*********************************************************************************
+#   WIDE TO LONG DATA FORMAT    ####
+#*********************************************************************************
+wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdentifier'){
+  ### Check some conditions:
+  if(is.null(nRep) & is.null(indCust)){
+    stop('Either nRep or indCust must be supplied')
+  }
+  ### Get names of rep-identifier:
+  if(is.null(indCust)){
+    rnms <- sapply(1:nRep, function(y)gsub(pattern = '\\*', replacement = y, ind))
+  }else{
+    rnms <- indCust
+  }
+  ### Check whether the columns are all named correctly:
+  tvr <- grep(paste0(rnms, collapse = '|'), colnames(x))   # ColumnNr which are repeated measures
+  tvars <- colnames(x[,tvr])   # colnames
+  ### Remove the rep-identifyer:
+  tvars.v <- sub(pattern = paste0(rnms, collapse = '|'), replacement = '', tvars)
+  ### Remove the var names:
+  tvars.t <- gsub(pattern = paste0('(', paste0(rnms, collapse = '|'),')(*SKIP)(*FAIL)|.'),
+                  replacement = '', perl = TRUE, tvars)
+  #' This works like: What_I_want_to_avoid(*SKIP)(*FAIL)|What_I_want_to_match
+  #' See also these links (should really learn regex):
+  #' https://stackoverflow.com/questions/24534782/how-do-skip-or-f-work-on-regex
+  #' https://stackoverflow.com/questions/38712946/gsub-everything-except-specified-characters
+  ### Data frame to test names:
+  tvars.d <- data.frame(tvars.v, tvars.t)
+  if(!all(table(tvars.d)==1)){
+    print(table(tvars.d))
+    print('There is a problem with the naming of the repeated variables. Check returned table (printed above), should all be equal to 1.')
+    return(table(tvars.d))
+  }
+  ### Iterate through every single row and collect long format in list:
+  L <- list()
+  tvars.vu <- unique(tvars.v)
+  for(i in 1:nrow(x)){
+    tmp.f <- x[i, -tvr]   # Fixed variables
+    tmp.v <- x[i, tvr]   # Repeated measures variables
+    tmp <- tmp.f[rep(1, length(rnms)),]   # Repeat row for each repeated measurement
+    tmp[, repColnm] <- rnms   # Add rep-identifiers
+    for(j in 1:length(tvars.vu)){   # Iterate through the individual tests
+      p <- paste0(rnms, tvars.vu[j])
+      p.ind <- match(p, colnames(tmp.v))
+      tmp[, tvars.vu[j]] <- as.vector(t(tmp.v[1, p.ind]))
+    }
+    L[[i]] <- tmp
+  }
+  ### Put everything together:
+  d <- do.call(rbind, L)
+  ### Turn rep-identifier to factor:
+  d[, repColnm] <- factor(d[, repColnm], levels = rnms, labels = rnms)
+  ### Return object:
+  return(d)
+}
