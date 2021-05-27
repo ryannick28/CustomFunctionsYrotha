@@ -70,7 +70,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
                          showMean=TRUE, plot.points=TRUE, bw='nrd0', jitFactor=0.2,
                          add.ylim=0, ylim.cust=NULL, xlab=NULL, ylab=NULL, densScl=0.5,
                          main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE,
-                         pairCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL){
+                         pairCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL,
+                         lnk.means.lwd=2, pair.lwd=2){
 
 
   #*********************************************************************************
@@ -252,7 +253,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
       ### Check whether pCol values are all equal for case:
       if(length(unique(dd$pCol)) != 1){warning('There are cases with different values of the pairCol factor.')}
       ### Plot line:
-      lines(x = dd$catVar, y = dd$numVar, col=dd$pCol[1])
+      lines(x = dd$catVar, y = dd$numVar, col=dd$pCol[1], lwd=pair.lwd)
     }
   }
 
@@ -301,7 +302,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   ### Add mean connections:
   if(!is.null(lnk.means)){
     mVal <-  tapply(numVar, INDEX = catVar, FUN = mean, na.rm=TRUE)
-    lines(x = 1:nlevels(catVar), y = mVal, col=lnk.means)
+    lines(x = 1:nlevels(catVar), y = mVal, col=lnk.means, lwd=lnk.means.lwd)
   }
 
 
@@ -345,8 +346,6 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
       abline(h = sigMu, lty=2)
     }
   }
-
-
 }
 
 
