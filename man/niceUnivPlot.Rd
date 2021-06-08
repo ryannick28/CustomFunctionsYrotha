@@ -10,7 +10,7 @@ fxdCol = NULL, showMean = TRUE, plot.points = TRUE, bw = 'nrd0',
 jitFactor = 0.2, add.ylim = 0, ylim.cust = NULL, xlab = NULL,
 ylab = NULL, densScl = 0.5, main = NULL, sigGroup = FALSE, sigMu = NULL,
 multCmp = FALSE, pairCol = NULL, add.lgnd = FALSE, add = FALSE, lnk.means = NULL,
-lnk.means.lwd = 2, pair.lwd = 2)
+lnk.means.lwd = 2, pair.lwd = 2, ...)
 }
 \arguments{
   \item{numVar}{The numeric vector to be plotted}
@@ -59,6 +59,7 @@ lnk.means.lwd = 2, pair.lwd = 2)
 
   \item{lnk.means.lwd}{Line width of lines linking the mean values}
   \item{pair.lwd}{Line width of lines linking the individual cases}
+  \item{...}{Arguments to be passed to the points() call inside the function, where the points are plotted.}
 }
 \examples{
 niceUnivPlot(iris$Sepal.Length)
