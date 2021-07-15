@@ -717,3 +717,52 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdent
   ### Return object:
   return(d)
 }
+
+
+#*********************************************************************************
+#   NICE NA PLOT    ####
+#*********************************************************************************
+niceNaPlot <- function(x, IDvar=NULL){
+  ### Add IDvar as rownames and then remove it:
+  if(is.null(IDvar)){
+    IDvar <- paste0('Obs', 1:nrow(x))
+    rownames(x) <- IDvar
+  }else{
+    rownames(x) <- x[,IDvar]
+    x[,IDvar] <- NULL
+  }
+  ### Create NA table:
+  x <- is.na(x)*1
+  ### Apply hierarchical clustering to find good ordering:
+  dis <- dist(x)
+  hc <- hclust(dis, method = 'ward.D2')
+  x <- x[hc$order,]
+  ### Create plot:
+  olmar <- newmar <- par('mar')
+  newmar[c(2,4)] <- newmar[c(2,4)]+4
+  par('mar'=newmar)
+  xx <- 1:nrow(x)
+  yy <- 1:ncol(x)
+  image(xx,yy,x,col=c('lightblue', 'white'), xaxt='n',
+        yaxt='n', xlab='', ylab = '')
+  axis(side = 1, at = 1:nrow(x), labels = rownames(x), las=2)
+  axis(side = 2, at = 1:ncol(x), labels = colnames(x), las=1)
+  par(xpd=TRUE)
+  legend(x = par('usr')[2], y=par('usr')[4], legend = c('present', 'missing'),
+         pch=15, col=c('lightblue', 'white'), pt.cex=2, bg='grey90', box.lty = 'blank')
+  par('mar'=olmar)
+  ### In case one wants the ordered is.na-table:
+  silentReturn <- x
+}
+
+
+
+
+
+
+
+
+
+
+
+
