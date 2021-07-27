@@ -2,7 +2,7 @@
 \alias{longToWide}
 \title{Turn data in long format to wide format}
 \description{
-A function to turn long format data to wide format data. Can deal with multiple repeatedly measured variables and fixed variables of different types. An observation-ID variable (e.g. subject names) and the names of the repeatedly measured variables have to be provided. The function will give some warnings in case there are peculiar patterns in the data (e.g. different values for a presumably fixed variable in an ID).
+A function to turn long format data to wide format data. Can deal with multiple repeatedly measured variables and fixed variables of different types. An observation-ID variable (e.g. subject names), a repeated-measures indicator variable (e.g. "Timepoint") and the names of the repeatedly measured variables have to be provided. The function will give specific warnings in case there are peculiar patterns in the data (e.g. different values of a presumably fixed variable in an ID).
 }
 \usage{
 longToWide(x, IDvar, repColnm, repVars)
