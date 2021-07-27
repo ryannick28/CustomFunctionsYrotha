@@ -756,8 +756,81 @@ niceNaPlot <- function(x, IDvar=NULL){
 }
 
 
-
-
+#*********************************************************************************
+#   LONG TO WIDE DATA FORMAT    ####
+#*********************************************************************************
+longToWide <- function(x, IDvar, repColnm, repVars){
+  ### Make sure IDvar and repColnm are factors:
+  stopifnot(is.factor(x[,repColnm]))
+  stopifnot(is.factor(x[,IDvar]))
+  ### Remove cases with missing values in repColnm or IDvar:
+  nasm.rep <- sum(is.na(x[,repColnm]))
+  nasm.id <- sum(is.na(x[,IDvar]))
+  if(nasm.rep != 0){
+    warning(paste0('There are ', nasm.rep,' missing value(s) in the ', repColnm ,' variable. Will remove these observations.'))
+    x <- x[!is.na(x[,repColnm]),]
+  }
+  if(nasm.id != 0){
+    warning(paste0('There are ', nasm.id,' missing value(s) in the IDvar variable. Will remove these observations.'))
+    x <- x[!is.na(x[,IDvar]),]
+  }
+  ### Check whether there are multiple entries for a repColnm level for one ID:
+  if(max(table(x[,IDvar], x[,repColnm])) > 1){
+    print(table(x[,IDvar], x[,repColnm]))
+    stop(paste0('There are multiple entries for a ', repColnm, ' level for a level of ', IDvar, '. Check the printed table to find out more.'))
+  }
+  ### Get the levels of repColnm:
+  lvs <- levels(x[,repColnm])
+  ### Split data according to observation-ID:
+  x.sp <- split(x, x[, IDvar])
+  ### Loop through the IDs:
+  xwL <- list()
+  for(i in 1:length(x.sp)){
+    ### Get data:
+    d <- x.sp[[i]]
+    ### Check whether fixed variables have varying values:
+    dfi <- d[, !(colnames(d) %in% repVars) & colnames(d)!=repColnm]
+    if(!all(sapply(dfi, function(x){length(unique(x))==1}))){
+      warning(paste0('There are varying values in presumably fixed variable(s) for observation-ID ', levels(x[,IDvar])[i],'. Will use the values of the first row.'))
+    }
+    ### Check whether levels of repColnm are missing and adjust:
+    if(length(unique(d[,repColnm])) < length(lvs)){
+      ### Add number of missing rows:
+      mss <- length(lvs) - length(unique(d[,repColnm]))
+      dd <- d[rep(1, mss),]
+      ### Fill in appropriate values:
+      dd[, repVars] <- NA
+      dd[, repColnm] <- lvs[!lvs %in% unique(d[,repColnm])]
+      ### Merge with data:
+      d <- rbind(d,dd)
+      ### Give a warning:
+      warning(paste0('Observation-ID ', levels(x[,IDvar])[i], ' did not have rows for all levels of ', repColnm, '.'))
+    }
+    ### Order according to repCol:
+    d <- d[order(d[,repColnm]),]
+    ### Create the wide-format data:
+    dwf0 <- d[, !(colnames(d) %in% repVars) & colnames(d)!=repColnm & colnames(d)!=IDvar, drop=FALSE]   # Only fixed variables
+    dwf <- cbind(d[,IDvar, drop=FALSE], dwf0)[1,,drop=FALSE]   # Put IDvar in beginning
+    dwr <- d[, (colnames(d) %in% repVars), drop=FALSE]   # Only repeated variables
+    ### Iterate through the repVar columns:
+    djL <- list()
+    for(j in 1:ncol(dwr)){
+      ### wide data format:
+      dj <- do.call(data.frame, as.list(dwr[,j]))
+      ### Add appropriate colnames:
+      cn0 <- expand.grid(colnames(dwr)[j], lvs)
+      cn1 <- do.call(paste0, list(cn0[,2], '_', cn0[,1]))
+      colnames(dj) <- cn1
+      djL[[j]] <- dj
+    }
+    ### Combine data:
+    dw <- cbind(dwf, do.call(cbind, djL))
+    xwL[[i]] <- dw
+  }
+  ### Merge into final data frame:
+  xw <- do.call(rbind, xwL)
+  return(xw)
+}
 
 
 
