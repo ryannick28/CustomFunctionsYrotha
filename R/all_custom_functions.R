@@ -833,7 +833,17 @@ longToWide <- function(x, IDvar, repColnm, repVars){
 }
 
 
-
+#*********************************************************************************
+#   MAKE COLOR TRANSPARENT    ####
+#*********************************************************************************
+mktransp <- function(color, alpha=100){
+  stopifnot(alpha >= 0 & alpha <= 255)
+  newCol<-col2rgb(color)
+  transCol <- apply(newCol, 2, function(x){rgb(red=x[1], green=x[2],
+                                               blue=x[3], alpha=alpha,
+                                               maxColorValue=255)})
+  return(transCol)
+}
 
 
 
