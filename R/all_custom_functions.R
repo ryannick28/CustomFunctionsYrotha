@@ -723,12 +723,20 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdent
 #   NICE NA PLOT    ####
 #*********************************************************************************
 niceNaPlot <- function(x, IDvar=NULL){
-  ### Add IDvar as rownames and then remove it:
+  ### If supplied, add IDvar as rownames and then remove it:
   if(is.null(IDvar)){
     IDvar <- paste0('Obs', 1:nrow(x))
     rownames(x) <- IDvar
   }else{
-    rownames(x) <- x[,IDvar]
+    ### In case there are repetitions of identifier values (rownames must be unique):
+    if(length(unique(x[,IDvar])) != nrow(x)){
+      x <- x[order(x[,IDvar]),]   # Make sure identifier are ordered
+      id.rle <- rle(as.character(x[,IDvar]))
+      id.uni <- paste0(rep(id.rle$values, times = id.rle$lengths), "_",
+                       unlist(lapply(id.rle$lengths, seq_len)))
+    }else{id.uni <- x[,IDvar]}
+    ### Add as rownames:
+    rownames(x) <- id.uni
     x[,IDvar] <- NULL
   }
   ### Create NA table:
@@ -743,13 +751,13 @@ niceNaPlot <- function(x, IDvar=NULL){
   par('mar'=newmar)
   xx <- 1:nrow(x)
   yy <- 1:ncol(x)
-  image(xx,yy,x,col=c('lightblue', 'white'), xaxt='n',
+  image(xx,yy,x,col=c('lightblue', 'darkgrey'), xaxt='n',
         yaxt='n', xlab='', ylab = '')
   axis(side = 1, at = 1:nrow(x), labels = rownames(x), las=2)
   axis(side = 2, at = 1:ncol(x), labels = colnames(x), las=1)
   par(xpd=TRUE)
   legend(x = par('usr')[2], y=par('usr')[4], legend = c('present', 'missing'),
-         pch=15, col=c('lightblue', 'white'), pt.cex=2, bg='grey90', box.lty = 'blank')
+         pch=15, col=c('lightblue', 'darkgrey'), pt.cex=2, bg='grey90', box.lty = 'blank')
   par('mar'=olmar)
   ### In case one wants the ordered is.na-table:
   silentReturn <- x
