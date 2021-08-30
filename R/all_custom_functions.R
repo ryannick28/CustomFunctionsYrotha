@@ -759,6 +759,7 @@ niceNaPlot <- function(x, IDvar=NULL){
   legend(x = par('usr')[2], y=par('usr')[4], legend = c('present', 'missing'),
          pch=15, col=c('lightblue', 'darkgrey'), pt.cex=2, bg='grey90', box.lty = 'blank')
   par('mar'=olmar)
+  par(xpd=FALSE)   # Return to default
   ### In case one wants the ordered is.na-table:
   silentReturn <- x
 }
