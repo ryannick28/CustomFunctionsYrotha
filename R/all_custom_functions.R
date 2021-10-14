@@ -699,9 +699,9 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdent
   L <- list()
   tvars.vu <- unique(tvars.v)
   for(i in 1:nrow(x)){
-    tmp.f <- x[i, -tvr]   # Fixed variables
-    tmp.v <- x[i, tvr]   # Repeated measures variables
-    tmp <- tmp.f[rep(1, length(rnms)),]   # Repeat row for each repeated measurement
+    tmp.f <- x[i, -tvr, drop=FALSE]   # Fixed variables
+    tmp.v <- x[i, tvr, drop=FALSE]   # Repeated measures variables
+    tmp <- tmp.f[rep(1, length(rnms)),, drop=FALSE]   # Repeat row for each repeated measurement
     tmp[, repColnm] <- rnms   # Add rep-identifiers
     for(j in 1:length(tvars.vu)){   # Iterate through the individual tests
       p <- paste0(rnms, tvars.vu[j])
