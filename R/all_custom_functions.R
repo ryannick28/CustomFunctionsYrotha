@@ -353,7 +353,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
 #*********************************************************************************
 #   NICE PAIRS PLOT   ####
 #*********************************************************************************
-nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitter=FALSE, jitFactor=1, loess=FALSE, swtchPan=FALSE){
+nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitter=FALSE, jitFactor=1, loess=FALSE, swtchPan=FALSE, txtInc=1){
   ### Check some things regarding catVar:
   if(!is.null(catVar)){
     stopifnot(nrow(x)==length(catVar))
@@ -389,7 +389,7 @@ nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitte
     ### Add Loess fit:
     if(loess){
       tryd <- try(lml <- suppressWarnings(loess(y ~ x, degree = 1, family = "symmetric")), silent=TRUE)
-      if(class(tryd)!='try-error'){
+      if(class(tryd)!='try-error'){   # In case of no error
         tempx <- data.frame(x = seq(min(x, na.rm = TRUE),
                                     max(x, na.rm = TRUE), length.out = 50))
         pred <- predict(lml, newdata = tempx)
@@ -402,12 +402,19 @@ nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitte
     usr <- par("usr")
     on.exit(par(usr))
     par(usr = c(0, 1, 0, 1))
-    cort <- cor.test(x,y)
-    p <- cort$p.value
-    star <- symnum(p, corr = FALSE, cutpoints = c(0, 0.001, 0.01, 0.05, 1),
-                   symbols = c("***", "**", "*", ""), legend = FALSE)
-    txt <- paste0(round(cort$estimate, digits=2), star)
-    cex <- abs(cort$estimate) * 3.5   # Set the size of numbers
+    ### Add try statement because of potential errors:
+    tryd <- try({
+      cort <- cor.test(x,y)
+      p <- cort$p.value
+      star <- symnum(p, corr = FALSE, cutpoints = c(0, 0.001, 0.01, 0.05, 1),
+                     symbols = c("***", "**", "*", ""), legend = FALSE)
+      txt <- paste0(round(cort$estimate, digits=2), star)
+      cex <- abs(cort$estimate) * 3.5 * txtInc  # Set the size of numbers
+    }, silent = TRUE)
+    if(class(tryd)=='try-error'){   # In case of error
+      txt <- 'Err'
+      cex <- 1
+    }
     minCex <- 1   # Set the minimum size
     if(cex < minCex) {cex <- minCex}
     ### Write correlation coefficient and add stars
@@ -415,7 +422,7 @@ nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitte
   }
   ### Plot the pairs-plot:
   if(swtchPan){
-    ### Lower and upper pannel switched:
+    ### Lower and upper panel switched:
     pairs(x, diag.panel = panel.diag, lower.panel = panel.top, upper.panel = panel.bottom)
   }else{
     pairs(x, diag.panel = panel.diag, lower.panel = panel.bottom, upper.panel = panel.top)

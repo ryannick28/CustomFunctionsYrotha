@@ -6,7 +6,7 @@ Basically a wrapper function for pairs(). The upper panel shows the scatterplots
 }
 \usage{
 nicePairsPlot(x, catVar = NULL, breaks = "Sturges", density = FALSE, jitter = FALSE,
-jitFactor = 1, loess = FALSE, swtchPan = FALSE)
+jitFactor = 1, loess = FALSE, swtchPan = FALSE, txtInc=1)
 }
 \arguments{
   \item{x}{A dataframe or matrix.}
@@ -24,6 +24,8 @@ jitFactor = 1, loess = FALSE, swtchPan = FALSE)
   \item{loess}{A logical value indicating whether a loess fit should be plotted in the scatterplots.}
 
   \item{swtchPan}{A logical value indicating whether the upper and lower panels should be switched.}
+
+  \item{txtInc}{A number which will be multiplied with the textsizes of the correlation coefficients displayed in the plot. Can be used to incerease or decrease the size of the displayed coefficients.}
 }
 \examples{
 nicePairsPlot(iris, density = TRUE, loess = TRUE)
