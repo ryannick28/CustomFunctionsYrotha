@@ -5,11 +5,12 @@
 A function to plot the amount of missing data in a data set. The function plots a grid of observations and variables, indicating the missing data by color.
 }
 \usage{
-niceNaPlot(x, IDvar = NULL)
+niceNaPlot(x, IDvar = NULL, show_xlab = TRUE)
 }
 \arguments{
 \item{x}{A data frame or matrix.}
 \item{IDvar}{Optional character string to indicate the name of the observation-ID-variable in x (see examples). The names in IDvar will be used as labels in the generated plot.}
+\item{show_xlab}{A logical value indicating whether the xlabels are shown in the generated plot.}
 }
 \value{
 If the function call is assigned to a variable, it will store the (ordered) data with the missing values indicated.

@@ -729,7 +729,7 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdent
 #*********************************************************************************
 #   NICE NA PLOT    ####
 #*********************************************************************************
-niceNaPlot <- function(x, IDvar=NULL){
+niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE){
   ### If supplied, add IDvar as rownames and then remove it:
   if(is.null(IDvar)){
     IDvar <- paste0('Obs', 1:nrow(x))
@@ -760,7 +760,14 @@ niceNaPlot <- function(x, IDvar=NULL){
   yy <- 1:ncol(x)
   image(xx,yy,x,col=c('lightblue', 'darkgrey'), xaxt='n',
         yaxt='n', xlab='', ylab = '')
-  axis(side = 1, at = 1:nrow(x), labels = rownames(x), las=2)
+  ### Set xlab:
+  if(show_xlab){
+    xlbs <- rownames(x)
+  }else{
+    xlbs <- rep('', nrow(x))
+  }
+  ### Add axes:
+  axis(side = 1, at = 1:nrow(x), labels = xlbs, las=2)
   axis(side = 2, at = 1:ncol(x), labels = colnames(x), las=1)
   par(xpd=TRUE)
   legend(x = par('usr')[2], y=par('usr')[4], legend = c('present', 'missing'),
@@ -770,7 +777,6 @@ niceNaPlot <- function(x, IDvar=NULL){
   ### In case one wants the ordered is.na-table:
   silentReturn <- x
 }
-
 
 #*********************************************************************************
 #   LONG TO WIDE DATA FORMAT    ####
