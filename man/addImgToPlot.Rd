@@ -1,6 +1,6 @@
 \name{addImgToPlot}
 \alias{addImgToPlot}
-\title{Add an image to an existing plot.}
+\title{Add an image to an existing plot}
 \description{
 This function can be used to add an image stored in a file to an existing R-plot. The position, size and rotation of the image can be specified.
 }
