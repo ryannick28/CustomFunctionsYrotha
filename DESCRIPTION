@@ -21,4 +21,6 @@ Imports:
     graphics,
     utils
 Suggests:
-    rgl
+    rgl,
+    png,
+    jpeg

@@ -868,6 +868,54 @@ mktransp <- function(color, alpha=100){
 }
 
 
+#*********************************************************************************
+#   ADD IMAGE TO PLOT    ####
+#*********************************************************************************
+addImgToPlot <- function(filename, x=NULL, y = NULL, width = NULL, angle=0, interpolate = TRUE){
+  if(is.null(x) | is.null(y) | is.null(width)){stop("Must provide args 'x', 'y', and 'width'")}
+  ### Turn image to array object:
+  if(grepl(pattern = '.png', filename)){
+    obj <- png::readPNG(source = filename)
+  }else if(grepl(pattern = '.jpg', filename)){
+    obj <- jpeg::readJPEG(source = filename)
+  }else{
+    stop('You must provide a filepath ending with .png or .jpg')
+  }
+  ### Get some of the relevant measures:
+  USR <- par()$usr # A vector of the form c(x1, x2, y1, y2) giving the extremes of the user coordinates of the plotting region
+  PIN <- par()$pin # The current plot dimensions, (width, height), in inches
+  DIM <- dim(obj) # number of x-y pixels for the image
+  ARp <- DIM[1]/DIM[2] # pixel aspect ratio (y/x)
+  WIDi <- width/(USR[2]-USR[1])*PIN[1] # convert width units to inches
+  HEIi <- WIDi * ARp # height in inches
+  height <- HEIi/PIN[2]*(USR[4]-USR[3]) # height in units
+  #' Have to adapt position of center in case of rotation
+  #' because rotation is per default around bottom left corner.
+  ### Angle of center relative to left bottom before rotation:
+  ang0 <- atan(HEIi/WIDi)*180/pi
+  ### Distance from corner to center in inches:
+  z <- sqrt((HEIi/2)^2 + (WIDi/2)^2)
+  ### Angle after rotation
+  ang1 <- ang0 + angle
+  ### Coordinates of center relative to bottom-left corner after rotation:
+  ### In inches:
+  xaR_inch <- z * cos(ang1 * pi /180)
+  yaR_inch <- z * sin(ang1 * pi /180)
+  ### Convert to units:
+  xaR <- xaR_inch/PIN[1]*(USR[2]-USR[1])
+  yaR <- yaR_inch/PIN[2]*(USR[4]-USR[3])
+  ### Coordinates of center relative to bottom-left corner before rotation:
+  xbR <- width/2
+  ybR <- height/2
+  ### Shift of center through rotation:
+  xshft <- xbR - xaR
+  yshft <- ybR - yaR
+  ### Draw image:
+  rasterImage(image = obj,
+              xleft = (x+xshft)-(width/2), xright = (x+xshft)+(width/2),
+              ybottom = (y+yshft)-(height/2), ytop = (y+yshft)+(height/2),
+              interpolate = interpolate, angle = angle)
+}
 
 
 
