@@ -918,4 +918,62 @@ addImgToPlot <- function(filename, x=NULL, y = NULL, width = NULL, angle=0, inte
 }
 
 
-
+#*********************************************************************************
+#   PREVALENCE TABLE    ####
+#*********************************************************************************
+prevTabl <- function(X, FUN, catVar=NULL, atLeastOnce=FALSE){
+  ### Create default catVar:
+  if(is.null(catVar)){
+    catVar <- factor(rep('', nrow(X)))
+  }
+  stopifnot(is.factor(catVar))   # Must be a factor
+  ### Split data according to groups:
+  Xsp <- split(X, f = catVar)
+  ### Apply function to data:
+  tfTbl <- lapply(Xsp, FUN = FUN)
+  ### Count successes:
+  xs <- lapply(tfTbl, FUN = function(x){apply(x, 2, sum, na.rm=TRUE)})
+  xstbl <- do.call(rbind, xs)
+  ### Number of entries:
+  xn <- lapply(tfTbl, FUN=function(x){apply(x, 2, function(y){sum(!is.na(y), na.rm = TRUE)})})
+  xntbl <- do.call(rbind, xn)
+  ### Calculate the rates:
+  maprt <- Map(f = function(xx,nn){xx/nn}, xx=xs, nn=xn)
+  xrat <- do.call(rbind, maprt)   # rbind results
+  ### Calculate "onceTrue" column:
+  ### Count successes:
+  xonce_tf <- lapply(tfTbl, FUN = function(x){apply(x,1, any)})
+  xonce_s <- lapply(xonce_tf, sum, na.rm=TRUE)
+  xonce_stbl <- do.call(rbind, xonce_s)
+  ### Number of entries:
+  xonce_n <- lapply(xonce_tf, function(x){sum(!is.na(x))})
+  xonce_ntbl <- do.call(rbind, xonce_n)
+  ### Calculate rate:
+  xonce_maprt <- Map(f = function(xx,nn){xx/nn}, xx=xonce_s, nn=xonce_n)
+  xonce_rat <- do.call(rbind, xonce_maprt)
+  colnames(xonce_rat) <- 'atLeastOnce'
+  ### Create final table:
+  mapfin <- Map(f = function(x,n){paste0(x, '/', n, ' (', round(x/n*100, 1),'%)')}, x=xs, n=xn)
+  fintbl <- noquote(do.call(rbind, mapfin))
+  colnames(fintbl) <- colnames(X)
+  ### Add "onceTrue" column:
+  if(atLeastOnce){
+    ### Generate final output:
+    maponcefin <- Map(f = function(x,n){paste0(x, '/', n, ' (', round(x/n*100, 1),'%)')}, x=xonce_s, n=xonce_n)
+    oncefintbl <- noquote(do.call(rbind, maponcefin))
+    colnames(oncefintbl) <- colnames(xonce_rat)
+    ### Add to final table:
+    fintbl <- noquote(cbind(fintbl, oncefintbl))
+  }
+  ### Collect output:
+  if(atLeastOnce){
+    L <- list(xs=xstbl, xn=xntbl, xrat=xrat, xonce_s=xonce_stbl,
+              xonce_n=xonce_ntbl, xonce_rat=xonce_rat, fintbl=fintbl)
+  }else{
+    L <- list(xs=xstbl, xn=xntbl, xrat=xrat, fintbl=fintbl)
+  }
+  ### Print final table:
+  print(fintbl)
+  ### Silent return of result-list:
+  invisible(L)
+}
