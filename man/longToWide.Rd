@@ -5,13 +5,14 @@
 A function to turn long format data to wide format data. Can deal with multiple repeatedly measured variables and fixed variables of different types. An observation-ID variable (e.g. subject names), a repeated-measures indicator variable (e.g. "Timepoint") and the names of the repeatedly measured variables have to be provided. The function will give specific warnings in case there are peculiar patterns in the data (e.g. different values of a presumably fixed variable in an ID).
 }
 \usage{
-longToWide(x, IDvar, repColnm, repVars)
+longToWide(x, IDvar, repColnm, repVars, colNmStr = '')
 }
 \arguments{
 \item{x}{A data frame containing the data in long format}
 \item{IDvar}{A string with the name of the observation ID variable (e.g. subject names)}
 \item{repColnm}{The name of the column in the long format data frame indicating the repeated measurement occasions.}
 \item{repVars}{A vector including the variable names of the variables with repeated measurements}
+\item{colNmStr}{A string which is put into the colnames of the repVars, separating their colnames from the repColnm levels.}
 }
 \value{
 The transformed data frame in wide format.

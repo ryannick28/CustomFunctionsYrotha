@@ -781,7 +781,7 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE){
 #*********************************************************************************
 #   LONG TO WIDE DATA FORMAT    ####
 #*********************************************************************************
-longToWide <- function(x, IDvar, repColnm, repVars){
+longToWide <- function(x, IDvar, repColnm, repVars, colNmStr=''){
   ### Make sure IDvar and repColnm are factors:
   stopifnot(is.factor(x[,repColnm]))
   stopifnot(is.factor(x[,IDvar]))
@@ -841,7 +841,7 @@ longToWide <- function(x, IDvar, repColnm, repVars){
       dj <- do.call(data.frame, as.list(dwr[,j]))
       ### Add appropriate colnames:
       cn0 <- expand.grid(colnames(dwr)[j], lvs)
-      cn1 <- do.call(paste0, list(cn0[,2], '_', cn0[,1]))
+      cn1 <- do.call(paste0, list(cn0[,2], colNmStr, cn0[,1]))
       colnames(dj) <- cn1
       djL[[j]] <- dj
     }
