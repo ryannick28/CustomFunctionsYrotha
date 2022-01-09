@@ -942,7 +942,7 @@ prevTabl <- function(X, FUN, catVar=NULL, atLeastOnce=FALSE){
   xrat <- do.call(rbind, maprt)   # rbind results
   ### Calculate "onceTrue" column:
   ### Count successes:
-  xonce_tf <- lapply(tfTbl, FUN = function(x){apply(x,1, any)})
+  xonce_tf <- lapply(tfTbl, FUN = function(x){apply(x,1, any, na.rm=TRUE)})
   xonce_s <- lapply(xonce_tf, sum, na.rm=TRUE)
   xonce_stbl <- do.call(rbind, xonce_s)
   ### Number of entries:
