@@ -362,7 +362,7 @@ nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitte
   ### Panel diagonal:
   panel.diag <- function(x){
     usr <- par('usr')
-    on.exit(par(usr))
+    on.exit(par('usr'=usr))
     par(usr = c(usr[1], usr[2], 0, 1.5))
     h <- hist(x, breaks = breaks, plot = FALSE)
     breaks <- h$breaks
@@ -400,7 +400,7 @@ nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitte
   ### Panel bottom:
   panel.bottom <- function(x, y){
     usr <- par("usr")
-    on.exit(par(usr))
+    on.exit(par('usr'=usr))
     par(usr = c(0, 1, 0, 1))
     ### Add try statement because of potential errors:
     tryd <- try({
