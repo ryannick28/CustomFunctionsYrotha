@@ -687,7 +687,7 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdent
   tvr <- grep(paste0(rnms, collapse = '|'), colnames(x))   # ColumnNr which are repeated measures
   tvars <- colnames(x[,tvr])   # colnames
   ### Remove the rep-identifyer:
-  tvars.v <- sub(pattern = paste0(rnms, collapse = '|'), replacement = '', tvars)
+  tvars.v <- sub(pattern = paste0(rnms, collapse = '|'), replacement = '', perl = TRUE, tvars)
   ### Remove the var names:
   tvars.t <- gsub(pattern = paste0('(', paste0(rnms, collapse = '|'),')(*SKIP)(*FAIL)|.'),
                   replacement = '', perl = TRUE, tvars)
