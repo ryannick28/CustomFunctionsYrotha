@@ -977,3 +977,32 @@ prevTabl <- function(X, FUN, catVar=NULL, atLeastOnce=FALSE){
   ### Silent return of result-list:
   invisible(L)
 }
+
+
+#*********************************************************************************
+#   STANDARDIZE DATA TABLE    ####
+#*********************************************************************************
+standizDat <- function(x, chngName=TRUE){
+  ### Change colnames of data:
+  if(chngName){
+    colnames(x)[sapply(x, is.numeric)] <- paste0(colnames(x)[sapply(x, is.numeric)],
+                                                 '_stnd')
+  }
+  ### Function to be used in lapply:
+  lapp_f <- function(y){
+    if(is.numeric(y)){
+      rval <- scale(y)
+    } else{
+      rval <- y
+    }
+    return(rval)
+  }
+  ### Lapply call:
+  lap_res <- lapply(x, lapp_f)
+  ### combine to dataframe:
+  rval <- do.call(data.frame, lap_res)
+  return(rval)
+}
+
+
+
