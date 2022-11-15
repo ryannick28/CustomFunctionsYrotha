@@ -49,7 +49,7 @@ lnk.means.lwd = 2, pair.lwd = 2, ...)
 
   \item{multCmp}{A logical value indicating whether the pvalues of the performed statistical tests should be Bonferroni corrected. The correction is done independently for group comparisons and for mu comparisons.}
 
-  \item{pairCol}{Colour of the lines to be plotted for individual cases (when pairedVar is supplied). As a default every case gets an individual colour (starts repeating at some point). Alternatively, pairCol can be a single colour e.g. supplied as a string. pairCol can also be a factor or numeric with same length as the number of observations. If a factor, then the lines are coloured according to pairCol's levels. If numeric, the lines are coloured following a red-blue gradient according to the values of pairCol (higher values are blue).}
+  \item{pairCol}{Colour of the lines to be plotted for individual cases (when pairedVar is supplied). As a default every case gets an individual colour (starts repeating at some point). Alternatively, pairCol can be a single colour e.g. supplied as a string. pairCol can also be a factor or numeric with same length as the number of observations (at the moment works only when numVar is supplied as a vector). If a factor, then the lines are coloured according to pairCol's levels. If numeric, the lines are coloured following a red-blue gradient according to the values of pairCol (higher values are blue).}
 
   \item{add.lgnd}{A logical value indicating whether a legend should be added.}
 
