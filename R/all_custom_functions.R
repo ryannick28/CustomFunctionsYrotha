@@ -77,20 +77,54 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   #*********************************************************************************
   #   CHECK REQUIREMENTS AND PREPARE SOME ARGUMENTS   ####
   #*********************************************************************************
-  ### Check some requirements:
-  stopifnot(is.numeric(numVar))
-  stopifnot(is.null(ylim.cust) | length(ylim.cust)==2)   # Check valid entries for ylim.cust
+  ### Set important names:
+  catVar.nm <- ''
+  numVar.nm <- deparse(substitute(numVar))
+  ### Check if input is matrix-like object:
+  if(inherits(numVar, what = 'matrix')|inherits(numVar, what = 'data.frame')){
+    ### Check some requirements:
+    if(!is.null(catVar)){stop("catVar should not be specified when numVar is supplied as a table")}
+    ### Check pairedVar:
+    if(is.null(pairedVar)){
+      ### Check that only numeric columns:
+      colnms <- colnames(numVar)
+      if(!all(apply(numVar[,colnms], 2, is.numeric))){stop('There are non-numeric columns in the table for plotting.')}
+      ### Get to "wide" format:
+      laps <- lapply(colnms, function(x){
+        data.frame(value=numVar[,x], varNm=x)
+      })
+      ### Extract num and catVar:
+      numVar <- do.call(rbind, laps)$value
+      catVar <- factor(do.call(rbind, laps)$varNm, levels=colnms)
+    } else {   # If pairedVar is specified
+      ### Check that only numeric columns:
+      colnms <- colnames(numVar)[-which(colnames(numVar)==pairedVar)]
+      if(!all(apply(numVar[,colnms], 2, is.numeric))){stop('There are non-numeric columns in the table for plotting.')}
+      ### Get to "wide" format:
+      laps <- lapply(colnms, function(x){
+        data.frame(numVar[pairedVar], value=numVar[,x], varNm=x)
+      })
+      ### Extract numVar, catVar and pairedVar:
+      numVar <- do.call(rbind, laps)$value
+      catVar <- factor(do.call(rbind, laps)$varNm, levels=colnms)
+      pairedVar <- do.call(rbind, laps)[,pairedVar]
+    }
+  } else{   # In case not a table is supplied as numVar
+    ### Check some requirements:
+    stopifnot(is.numeric(numVar))
+    stopifnot(is.null(ylim.cust) | length(ylim.cust)==2)   # Check valid entries for ylim.cust
+    ### Generate catvar:
+    catVar.nm <- deparse(substitute(catVar))   # Get name of catVar
+    if(is.null(catVar)){
+      catVar <- factor(rep(1,length(numVar)))   # 1-level factor
+    }else{
+      stopifnot(length(catVar)==length(numVar))   # Make sure lengths are same
+      catVar <- factor(catVar)   # Dont use as.factor, otherwise non-present levels are not removed.
+    }
+  }
   ### Set ylim:
   ylms <- c(min(numVar, na.rm = TRUE), max(numVar, na.rm = TRUE))
   ylms <- ylms + c(-add.ylim, add.ylim)   # Add the add.ylim
-  ### Generate catvar:
-  catVar.nm <- deparse(substitute(catVar))   # Get name of catVar
-  if(is.null(catVar)){
-    catVar <- factor(rep(1,length(numVar)))   # 1-level factor
-  }else{
-    stopifnot(length(catVar)==length(numVar))   # Make sure lengths are same
-    catVar <- factor(catVar)   # Dont use as.factor, otherwise non-present levels are not removed.
-  }
 
 
   #*********************************************************************************
@@ -193,7 +227,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
     xlab <- ifelse(catVar.nm=='NULL', '', catVar.nm)
   }
   if(is.null(ylab)){
-    ylab <- deparse(substitute(numVar))
+    ylab <- numVar.nm
   }
   ### Start plot (empty):
   if(!add){
@@ -204,7 +238,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
          xaxt = 'n',
          ylab = ylab,
          xlab = xlab,
-         main = ifelse(main.nm=='NULL', paste0(deparse(substitute(numVar)), ' Plot'), main))
+         main = ifelse(main.nm=='NULL', paste0(numVar.nm, ' Plot'), main))
   }
   ### Add points:
   if(plot.points){

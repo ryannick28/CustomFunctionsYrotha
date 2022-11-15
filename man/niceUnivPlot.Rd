@@ -13,17 +13,17 @@ multCmp = FALSE, pairCol = NULL, add.lgnd = FALSE, add = FALSE, lnk.means = NULL
 lnk.means.lwd = 2, pair.lwd = 2, ...)
 }
 \arguments{
-  \item{numVar}{The numeric vector to be plotted}
+  \item{numVar}{The numeric vector to be plotted. numVar can also be supplied as a table (matrix or data.frame). In that case every column is plotted separately.}
 
-  \item{catVar}{An optional factor in case numVar should be plotted separately for each factor level}
+  \item{catVar}{An optional factor in case numVar should be plotted separately for each factor level.}
 
-  \item{pairedVar}{A factor indicating a grouping variable for repeated measures (e.g. person ID). If provided together with a catVar, lines will be plotted indicating the profile of individual cases. Additionally, performed group comparisons will switch to paired Wilcoxon tests.}
+  \item{pairedVar}{A factor indicating a grouping variable for repeated measures (e.g. person ID). If provided together with a catVar, lines will be plotted indicating the profile of individual cases. Additionally, performed group comparisons will switch to paired Wilcoxon tests. If numVar is supplied as a table then pairedVar can be supplied as the character-string of the name of the pairing variable in numVar.}
 
-  \item{violin}{A logical value indicating whether the violin plot should be drawn}
+  \item{violin}{A logical value indicating whether the violin plot should be drawn.}
 
   \item{fxdCol}{One colour in which to plot the points, densities and mean lines.}
 
-  \item{showMean}{A logical value indicating whether the mean value should be indicated in plot}
+  \item{showMean}{A logical value indicating whether the mean value should be indicated in plot.}
 
   \item{plot.points}{A logical value indicating whether the points should be plotted.}
 
@@ -64,4 +64,7 @@ lnk.means.lwd = 2, pair.lwd = 2, ...)
 \examples{
 niceUnivPlot(iris$Sepal.Length)
 niceUnivPlot(iris$Sepal.Length, catVar = iris$Species)
+d <- iris[1:10,-5]
+d$id <- 1:nrow(d)
+niceUnivPlot(d, pairedVar='id')
 }
