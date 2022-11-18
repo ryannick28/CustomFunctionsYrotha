@@ -17,7 +17,7 @@ lnk.means.lwd = 2, pair.lwd = 2, ...)
 
   \item{catVar}{An optional factor in case numVar should be plotted separately for each factor level.}
 
-  \item{pairedVar}{A factor indicating a grouping variable for repeated measures (e.g. person ID). If provided together with a catVar, lines will be plotted indicating the profile of individual cases. Additionally, performed group comparisons will switch to paired Wilcoxon tests. If numVar is supplied as a table then pairedVar can be supplied as the character-string of the name of the pairing variable in numVar.}
+  \item{pairedVar}{A factor indicating a grouping variable for repeated measures (e.g. person ID). If provided together with a catVar, lines will be plotted indicating the profile of individual cases. Additionally, performed group comparisons will switch to paired Wilcoxon tests. If numVar is supplied as a table then pairedVar should be supplied as a factor with same length as the number of rows in numVar (since a wide format is assumed in that case).}
 
   \item{violin}{A logical value indicating whether the violin plot should be drawn.}
 
@@ -49,7 +49,7 @@ lnk.means.lwd = 2, pair.lwd = 2, ...)
 
   \item{multCmp}{A logical value indicating whether the pvalues of the performed statistical tests should be Bonferroni corrected. The correction is done independently for group comparisons and for mu comparisons.}
 
-  \item{pairCol}{Colour of the lines to be plotted for individual cases (when pairedVar is supplied). As a default every case gets an individual colour (starts repeating at some point). Alternatively, pairCol can be a single colour e.g. supplied as a string. pairCol can also be a factor or numeric with same length as the number of observations (at the moment works only when numVar is supplied as a vector). If a factor, then the lines are coloured according to pairCol's levels. If numeric, the lines are coloured following a red-blue gradient according to the values of pairCol (higher values are blue).}
+  \item{pairCol}{Colour of the lines to be plotted for individual cases (when pairedVar is supplied). As a default every case gets an individual colour (starts repeating at some point). Alternatively, pairCol can be a single colour e.g. supplied as a string. pairCol can also be a factor or numeric with same length as the number of observations. If a factor, then the lines are coloured according to pairCol's levels. If numeric, the lines are coloured following a red-blue gradient according to the values of pairCol (higher values are blue).}
 
   \item{add.lgnd}{A logical value indicating whether a legend should be added.}
 
@@ -65,6 +65,5 @@ lnk.means.lwd = 2, pair.lwd = 2, ...)
 niceUnivPlot(iris$Sepal.Length)
 niceUnivPlot(iris$Sepal.Length, catVar = iris$Species)
 d <- iris[1:10,-5]
-d$id <- 1:nrow(d)
-niceUnivPlot(d, pairedVar='id')
+niceUnivPlot(d, pairedVar = factor(1:nrow(d)), pairCol = 1:nrow(d))
 }

@@ -84,31 +84,31 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   if(inherits(numVar, what = 'matrix')|inherits(numVar, what = 'data.frame')){
     ### Check some requirements:
     if(!is.null(catVar)){stop("catVar should not be specified when numVar is supplied as a table")}
-    ### Check pairedVar:
-    if(is.null(pairedVar)){
-      ### Check that only numeric columns:
-      colnms <- colnames(numVar)
-      if(!all(apply(numVar[,colnms], 2, is.numeric))){stop('There are non-numeric columns in the table for plotting.')}
-      ### Get to "wide" format:
-      laps <- lapply(colnms, function(x){
-        data.frame(value=numVar[,x], varNm=x)
-      })
-      ### Extract num and catVar:
-      numVar <- do.call(rbind, laps)$value
-      catVar <- factor(do.call(rbind, laps)$varNm, levels=colnms)
-    } else {   # If pairedVar is specified
-      ### Check that only numeric columns:
-      colnms <- colnames(numVar)[-which(colnames(numVar)==pairedVar)]
-      if(!all(apply(numVar[,colnms], 2, is.numeric))){stop('There are non-numeric columns in the table for plotting.')}
-      ### Get to "wide" format:
-      laps <- lapply(colnms, function(x){
-        data.frame(numVar[pairedVar], value=numVar[,x], varNm=x)
-      })
-      ### Extract numVar, catVar and pairedVar:
-      numVar <- do.call(rbind, laps)$value
-      catVar <- factor(do.call(rbind, laps)$varNm, levels=colnms)
-      pairedVar <- do.call(rbind, laps)[,pairedVar]
+    ### Check that only numeric columns:
+    colnms <- colnames(numVar)
+    if(!all(apply(numVar[,colnms], 2, is.numeric))){stop('There are non-numeric columns in the table for plotting.')}
+    ### Check if pairedVar is supplied:
+    if(!is.null(pairedVar)){
+      stopifnot(length(pairedVar)==nrow(numVar))   # Must be same length
+      ### Get into wide format:
+      laps <- lapply(colnms, function(x){data.frame(prVar=pairedVar, value=numVar[,x])})
+      ### Extract pairedVar:
+      pairedVar <- do.call(rbind, laps)$prVar
+      ### Check if pairedCol is supplied as vector:
+      if(length(pairCol) > 1){
+        ### Check if correct length:
+        stopifnot(length(pairCol)==nrow(numVar))
+        ### Get into wide format:
+        laps <- lapply(colnms, function(x){data.frame(prCol=pairCol, value=numVar[,x])})
+        ### Extract pairCol:
+        pairCol <- do.call(rbind, laps)$prCol
+      }
     }
+    ### Get to "wide" format:
+    laps <- lapply(colnms, function(x){data.frame(value=numVar[,x], varNm=x)})
+    ### Extract num and catVar:
+    numVar <- do.call(rbind, laps)$value
+    catVar <- factor(do.call(rbind, laps)$varNm, levels=colnms)
   } else{   # In case not a table is supplied as numVar
     ### Check some requirements:
     stopifnot(is.numeric(numVar))
