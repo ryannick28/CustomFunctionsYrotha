@@ -467,7 +467,7 @@ nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitte
 #*********************************************************************************
 #   NICE 3D PLOT   ####
 #*********************************************************************************
-nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, pointSize = 5, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1, add = FALSE, htmlFilename=NULL, ...){
+nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, pointSize = NULL, spheres=TRUE, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1, add = FALSE, htmlFilename=NULL, ...){
   #*********************************************************************************
   #   TEST CONDITIONS   ####
   #*********************************************************************************
@@ -554,9 +554,15 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
   }
   ### Start plotting:
   if(grepl('P', whatToPlot[1])){
-    rgl::rgl.points(dat[,1:3], color=dat$pointC, size=pointSize, alpha=pointTrans, point_antialias = TRUE)   # point_antialias makes points round in WebGL
+    if(spheres){   # Should spheres be plotted or points
+      if(is.null(pointSize)){pointSize <- 0.05}
+      rgl::rgl.spheres(dat[,1:3], color=dat$pointC, radius=pointSize, alpha=pointTrans)
+    }else{
+      if(is.null(pointSize)){pointSize <- 5}
+      rgl::rgl.points(dat[,1:3], color=dat$pointC, size=pointSize, alpha=pointTrans, point_antialias = TRUE)   # point_antialias makes points round in WebGL (or use rgl.spheres alternatively)
+    }
   }
-  if (grepl('D', whatToPlot[1])){
+  if (grepl('D', whatToPlot[1])){   # Plot density
     rgl::rgl.points(den_coor[,1:3], color=den_coor$col, size=DpointSize, point_antialias = TRUE,
                     alpha=den_coor$dens/max(den_coor$dens)*Dtransp_fac)   # Here also the progression of the transparency is defined
   }
