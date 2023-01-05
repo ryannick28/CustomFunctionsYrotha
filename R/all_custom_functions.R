@@ -467,7 +467,7 @@ nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitte
 #*********************************************************************************
 #   NICE 3D PLOT   ####
 #*********************************************************************************
-nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, pointSize = 5, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1, add = FALSE){
+nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, pointSize = 5, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1, add = FALSE, htmlFilename=NULL, ...){
   #*********************************************************************************
   #   TEST CONDITIONS   ####
   #*********************************************************************************
@@ -554,10 +554,11 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
   }
   ### Start plotting:
   if(grepl('P', whatToPlot[1])){
-    rgl::rgl.points(dat[,1:3], color=dat$pointC, size=pointSize, alpha=pointTrans)
+    rgl::rgl.points(dat[,1:3], color=dat$pointC, size=pointSize, alpha=pointTrans, point_antialias = TRUE)   # point_antialias makes points round in WebGL
   }
   if (grepl('D', whatToPlot[1])){
-    rgl::rgl.points(den_coor[,1:3], color=den_coor$col, size=DpointSize, alpha=den_coor$dens/max(den_coor$dens)*Dtransp_fac)   # Here also the progression of the transparency is defined
+    rgl::rgl.points(den_coor[,1:3], color=den_coor$col, size=DpointSize, point_antialias = TRUE,
+                    alpha=den_coor$dens/max(den_coor$dens)*Dtransp_fac)   # Here also the progression of the transparency is defined
   }
 
 
@@ -621,6 +622,18 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
       rgl::rgl.surface(x.pred, z.pred, y.pred, color = srfCl,
                        alpha = 0.5, lit = FALSE)
     }
+  }
+
+  #*********************************************************************************
+  #   SAVE HTML FILE   ####
+  #*********************************************************************************
+  ### Check if filename exists:
+  if(!is.null(htmlFilename)){
+    ### Create widget:
+    rglwidget <- rgl::rglwidget   # A bit ugly but directly calling rgl::rglwidget() does not work because it tries to call rglwidget and cannot find the function (I don't want a library call inside my function)
+    widget <- rgl::rglwidget(...)
+    ### Save as html:
+    htmlwidgets::saveWidget(widget, htmlFilename)
   }
 }
 

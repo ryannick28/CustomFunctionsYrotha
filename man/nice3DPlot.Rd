@@ -11,7 +11,7 @@ plotFit = c('no','lin','int','int2','int3'), catVar = factor(1),
 covMat = NULL, means = NULL, nSim = 500, pointCol = 1,
 pointSize = 5, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30,
 h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = "grey",
-axesLeng = NULL, zoom = 1, add = FALSE)
+axesLeng = NULL, zoom = 1, add = FALSE, htmlFilename = NULL, ...)
 }
 
 \arguments{
@@ -57,6 +57,10 @@ axesLeng = NULL, zoom = 1, add = FALSE)
   \item{zoom}{How much to zoom into the graph (so far only possible with origin as center). Note: On my machine the field of view can be adapted by moving cursor while having the right-click pressed.}
 
   \item{add}{Set to TRUE in order to add points to an existing 3D Plot.}
+
+  \item{htmlFilename}{A string giving the name/path of a html file to which the 3D plot will be saved to. If NULL than no html file is created. Dont forget to add the ".html" to the name.}
+
+  \item{...}{Additional arguments which will be passed to the rglwidget() function, which is responsible for creating a html version of the 3D plot.}
 }
 \details{
 The 3D-density is created by generating a grid of points around the data and colouring each point of the grid according to the density value at that position. In addition, the transparency of the gridpoints is set according to the density values.
