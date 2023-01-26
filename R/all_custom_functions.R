@@ -86,7 +86,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
     if(!is.null(catVar)){stop("catVar should not be specified when numVar is supplied as a table")}
     ### Check that only numeric columns:
     colnms <- colnames(numVar)
-    if(!all(apply(numVar[,colnms], 2, is.numeric))){stop('There are non-numeric columns in the table for plotting.')}
+    if(!all(apply(numVar[,colnms, drop=FALSE], 2, is.numeric))){stop('There are non-numeric columns in the table for plotting.')}
     ### Check if pairedVar is supplied:
     if(!is.null(pairedVar)){
       stopifnot(length(pairedVar)==nrow(numVar))   # Must be same length
