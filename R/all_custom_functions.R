@@ -636,7 +636,6 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
   ### Check if filename exists:
   if(!is.null(htmlFilename)){
     ### Create widget:
-    rglwidget <- rgl::rglwidget   # A bit ugly but directly calling rgl::rglwidget() does not work because it tries to call rglwidget and cannot find the function (I don't want a library call inside my function)
     widget <- rgl::rglwidget(...)
     ### Save as html:
     htmlwidgets::saveWidget(widget, htmlFilename)
