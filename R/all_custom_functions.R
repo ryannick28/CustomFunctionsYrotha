@@ -467,7 +467,7 @@ nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitte
 #*********************************************************************************
 #   NICE 3D PLOT   ####
 #*********************************************************************************
-nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, pointSize = NULL, spheres=TRUE, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1, add = FALSE, htmlFilename=NULL, ...){
+nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, colRamp = NULL, pointSize = NULL, spheres=TRUE, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1, add = FALSE, htmlFilename=NULL, ...){
   #*********************************************************************************
   #   TEST CONDITIONS   ####
   #*********************************************************************************
@@ -499,6 +499,19 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
     ### Select first three columns:
     if(ncol(X)>3){warning('More than three variables in the data. Will select the first three columns for plotting.')}
     dat <- as.data.frame(X[,1:3])
+    ### In case colour ramp up is asked for:
+    if(!is.null(colRamp)){
+      ### Some checks:
+      if(any(is.na(colRamp))){warning('There are missings in the colRamp variable')}
+      if(length(colRamp) != nrow(X)){warning('colRamp does not have the same length as the data to be plotted.')}
+      ### Prepare palette:
+      ncl_pl <- 100
+      col_pl <- colorRampPalette(c('blue', 'red'))(ncl_pl)
+      ### Cut likel. values into ranges:
+      col_indx <- as.numeric(cut(colRamp, breaks=ncl_pl))
+      ### Point colour vector:
+      pointCol <- col_pl[col_indx]
+    }
     ### Combine with other variables
     dat <- cbind(dat, "catV"=catVar, "pointC"=pointCol)
     ### Adapt pointCol if catVar supplied:
@@ -511,7 +524,7 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
     colnames(dat)[1:3] <- c('x','y','z')
     ### Generate axesnames if not provided:
     if(is.null(axesNames)) {axesNames <- colnames(X)[1:3]}
-
+    #*********************
     ### Simulate data:
   }else if(!is.null(covMat) & !is.null(means)){
     ### If no X provided:

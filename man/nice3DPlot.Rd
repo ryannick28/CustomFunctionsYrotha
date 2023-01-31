@@ -8,7 +8,7 @@ This function creates a nice plot of 3D-data, including a visualization of the d
 \usage{
 nice3DPlot(X = NULL, whatToPlot = c("P","D", "PD"),
 plotFit = c('no','lin','int','int2','int3'), catVar = factor(1),
-covMat = NULL, means = NULL, nSim = 500, pointCol = 1,
+covMat = NULL, means = NULL, nSim = 500, pointCol = 1, colRamp = NULL,
 pointSize = NULL, spheres = TRUE, pointTrans = 0.8, Dtransp_fac = 0.06,
 colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL,
 axesTicks = FALSE, gridCol = "grey", axesLeng = NULL, zoom = 1,
@@ -32,6 +32,8 @@ add = FALSE, htmlFilename = NULL, ...)
   \item{nSim}{Number of simulated data points.}
 
   \item{pointCol}{Colour of points.}
+
+  \item{colRamp}{A numeric vector of the same length as there are observations in X. It contains the values which will determine the colour of points along a blue-red colour continuum.}
 
   \item{pointSize}{Size of points.}
 
