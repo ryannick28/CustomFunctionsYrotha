@@ -506,7 +506,7 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
       if(length(colRamp) != nrow(X)){warning('colRamp does not have the same length as the data to be plotted.')}
       ### Prepare palette:
       ncl_pl <- 100
-      col_pl <- colorRampPalette(c('blue', 'red'))(ncl_pl)
+      col_pl <- colorRampPalette(c('navy', 'hotpink'))(ncl_pl)
       ### Cut likel. values into ranges:
       col_indx <- as.numeric(cut(colRamp, breaks=ncl_pl))
       ### Point colour vector:
