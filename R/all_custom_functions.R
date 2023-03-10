@@ -84,14 +84,14 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   if(inherits(numVar, what = c('matrix', 'data.frame'))){
     ### Check some requirements:
     if(!is.null(catVar)){stop("catVar should not be specified when numVar is supplied as a table")}
-
-
     ### Remove non-numeric columns:
     fac_id <- sapply(numVar, inherits, what=c('character', 'factor'))
     if(any(fac_id)){
       numVar <- numVar[, !fac_id, drop=FALSE]
       warning(paste0(sum(fac_id), ' categorical variables were removed for plotting.'))
     }
+    ### Store colnames:
+    colnms <- colnames(numVar)
     ### Check if pairedVar is supplied:
     if(!is.null(pairedVar)){
       stopifnot(length(pairedVar)==nrow(numVar))   # Must be same length
