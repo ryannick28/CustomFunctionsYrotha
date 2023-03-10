@@ -1280,16 +1280,17 @@ prevTabl <- function(X, FUN, catVar=NULL, atLeastOnce=FALSE){
 #*********************************************************************************
 #   STANDARDIZE DATA TABLE    ####
 #*********************************************************************************
-standizDat <- function(x, chngName=TRUE){
+standizDat <- function(x, chngName = TRUE, onlyCenter = FALSE){
   ### Change colnames of data:
   if(chngName){
+    tag <- ifelse(onlyCenter, '_cntr', '_stnd')
     colnames(x)[sapply(x, is.numeric)] <- paste0(colnames(x)[sapply(x, is.numeric)],
-                                                 '_stnd')
+                                                 tag)
   }
   ### Function to be used in lapply:
   lapp_f <- function(y){
     if(is.numeric(y)){
-      rval <- scale(y)
+      rval <- scale(y, scale = !onlyCenter)
     } else{
       rval <- y
     }
@@ -1303,4 +1304,32 @@ standizDat <- function(x, chngName=TRUE){
 }
 
 
+#*********************************************************************************
+#   REMOVE OUTLIERS FROM DATA    ####
+#*********************************************************************************
+rmOutliers <- function(x, chngName = TRUE){
+  ### Change colnames of data:
+  if(chngName){
+    colnames(x)[sapply(x, is.numeric)] <- paste0(colnames(x)[sapply(x, is.numeric)],
+                                                 '_noOutl')
+  }
+  ### Function to be used in lapply:
+  lapp_f <- function(y){
+    if(is.numeric(y)){
+      ### Find outliers with boxplot func:
+      outl <- boxplot.stats(y)$out
+      outl_id <- which(y %in% outl)
+      y[outl_id] <- NA
+      rval <- y
+    } else{
+      rval <- y
+    }
+    return(rval)
+  }
+  ### Lapply call:
+  lap_res <- lapply(x, lapp_f)
+  ### combine to dataframe:
+  rval <- do.call(data.frame, lap_res)
+  return(rval)
+}
 
