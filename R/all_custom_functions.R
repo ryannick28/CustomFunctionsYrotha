@@ -81,12 +81,17 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   catVar.nm <- ''
   numVar.nm <- deparse(substitute(numVar))
   ### Check if input is matrix-like object:
-  if(inherits(numVar, what = 'matrix')|inherits(numVar, what = 'data.frame')){
+  if(inherits(numVar, what = c('matrix', 'data.frame'))){
     ### Check some requirements:
     if(!is.null(catVar)){stop("catVar should not be specified when numVar is supplied as a table")}
-    ### Check that only numeric columns:
-    colnms <- colnames(numVar)
-    if(!all(apply(numVar[,colnms, drop=FALSE], 2, is.numeric))){stop('There are non-numeric columns in the table for plotting.')}
+
+
+    ### Remove non-numeric columns:
+    fac_id <- sapply(numVar, inherits, what=c('character', 'factor'))
+    if(any(fac_id)){
+      numVar <- numVar[, !fac_id, drop=FALSE]
+      warning(paste0(sum(fac_id), ' categorical variables were removed for plotting.'))
+    }
     ### Check if pairedVar is supplied:
     if(!is.null(pairedVar)){
       stopifnot(length(pairedVar)==nrow(numVar))   # Must be same length
