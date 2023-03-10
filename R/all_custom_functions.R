@@ -387,82 +387,315 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
 #*********************************************************************************
 #   NICE PAIRS PLOT   ####
 #*********************************************************************************
-nicePairsPlot <- function(x, catVar=NULL, breaks='Sturges', density=FALSE, jitter=FALSE, jitFactor=1, loess=FALSE, swtchPan=FALSE, txtInc=1){
+nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE, jitter = FALSE, jitFactor = 1, loess = FALSE, swtchPan = FALSE, txtInc = 1, exclude = c("none", "numeric", "factor"), keepOrder = FALSE, facsAtBegin = FALSE){
+
+
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  #   PREPARE DATA   ####
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ### Make sure x is a data frame:
+  x <- data.frame(x)
+  ### Check some things about exclude option:
+  if(any(exclude %in% colnames(x))){   # In case of manually selecting vars
+    if(!all(exclude %in% colnames(x))){warning('Not all variables to exclude are present in the data')}
+    if(any(exclude %in% as.character(formals(nicePairsPlot)$exclude)[-1])) warning(paste0('The exclude argument is appearing in the colnames but also includes one of the general exclusion options (',  paste(as.character(formals(nicePairsPlot)$exclude)[-1], collapse = ', '), ')'))
+  }else{
+    exclude <- match.arg(exclude)
+    cls_toex <- switch (exclude,
+                        none = '',
+                        numeric = c('numeric', 'integer'),
+                        factor = c('character', 'factor')
+    )
+    ### Get var names to exclude:
+    ex_log <- sapply(x, inherits, what=cls_toex)
+    exclude <- colnames(x)[ex_log]
+  }
   ### Check some things regarding catVar:
   if(!is.null(catVar)){
     stopifnot(nrow(x)==length(catVar))
-    stopifnot(is.factor(catVar))
+    stopifnot(inherits(catVar, 'factor'))
   }
-  ### Panel diagonal:
-  panel.diag <- function(x){
-    usr <- par('usr')
-    on.exit(par('usr'=usr))
-    par(usr = c(usr[1], usr[2], 0, 1.5))
-    h <- hist(x, breaks = breaks, plot = FALSE)
-    breaks <- h$breaks
-    nB <- length(breaks)
+  ### Remove variables to exclude:
+  x <- x[, !(colnames(x)%in%exclude), drop=FALSE]
+  ### Turn every character to factor:
+  lfac <- lapply(x, function(a){
+    if(inherits(a, 'character')) {rval <- factor(a)}else{rval <- a}
+  })
+  x <- do.call(data.frame, lfac)
+  ### Reorder columns to have factors together:
+  if(!keepOrder){
+    fac_id <- sapply(x, inherits, what='factor')   # Indices
+    if(!facsAtBegin){
+      x <- cbind(x[, !fac_id, drop=FALSE], x[, fac_id, drop=FALSE])   # At end
+    }else{
+      x <- cbind(x[, fac_id, drop=FALSE], x[, !fac_id, drop=FALSE])   # At beginning
+    }
+  }
+  ### Store colnames:
+  nms <- colnames(x)
+  ### Store whether factor:
+  fac_id <- sapply(x, inherits, what='factor')
+  ### Make sure data has multiple variables:
+  if(ncol(x) < 2){stop('There must be at least two variables for plotting.')}
+
+
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  #   DIFFERENT PLOT FUNCTIONS   ####
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ### Barplot factors:
+  barpl_fac <- function(vx, vy){
+    ### Only one variable needed:
+    v <- vx
+    ### xylims:
+    xlims <- c(0, nlevels(vx)) + 0.5
+    ylims <- c(0, 1.4*max(table(v)))
+    ### Prepare Plot:
+    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=xlims, ylim=ylims, yaxs='i', xaxs='i')
+    ### Background:
+    rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "#b6f0fc")
+    ### Add rectangles:
+    bw <- 0.43   # bar width
+    recpos <- 1:nlevels(v)
+    rect(recpos - bw, 0, recpos + bw, table(v), col = 'cyan')
+    ### Axes:
+    if(edge_rw!=0) axis(edge_cl)
+    ### Level names:
+    if(nlevels(v) < 10){
+      text(x = recpos, y = ylims[1]+0.05*ylims[2], labels = levels(v), srt=90, pos=4, cex=1)
+    }
+    ### Title:
+    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=2)
+  }
+  #************************************
+  ### Histogramm:
+  histgr <- function(vx, vy){
+    ### Only one variable needed:
+    v <- vx
+    ### Histogramm data:
+    h <- hist(v, breaks = breaks, plot = FALSE)
+    hbrks <- h$breaks
+    nB <- length(hbrks)
     y <- h$counts
-    y <- y/max(y)
-    rect(breaks[-nB], 0, breaks[-1], y, col = 'cyan')
+    ### xylims:
+    xlims <- range(hbrks)
+    ylims <- c(0, 1.4*max(y))
+    ### Prepare plot:
+    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=xlims, ylim=ylims, yaxs='i', xaxs='i')
+    ### Add axes:
+    if(edge_cl!=0) axis(edge_cl)
+    ### Add rectangles:
+    rect(hbrks[-nB], 0, hbrks[-1], y, col = 'cyan')
+    ### Title:
+    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=2)
     ### Add density:
     if(density){
-      tryd <- try(d <- density(x, na.rm = TRUE), silent = TRUE)
+      tryd <- try(d <- density(vx, na.rm = TRUE), silent = TRUE)
       if (class(tryd) != 'try-error') {
-        d$y <- d$y/max(d$y)
-        lines(d, col='cyan')
+        d$y <- d$y/max(d$y)*max(y)
+        lines(d, col='darkblue')
       }
     }
   }
-  ### Panel top:
-  panel.top <- function(x, y){
-    if (jitter) {
-      x <- jitter(x, factor = jitFactor)
-      y <- jitter(y, factor = jitFactor)
+  #************************************
+  ### Scatterplot:
+  scattpl <- function(vx, vy){
+    ### xylims and jitter:
+    jitx <- jity <- 0   # Default
+    jitf_fct <- 0.5   # Have jitter a bit smaller for factors
+    ### Var x:
+    if(fac_id[cl]){
+      xlims <- c(0, nlevels(vx)) + 0.5
+      jitx <- jitter(as.numeric(vx), factor=jitFactor*jitf_fct) - as.numeric(vx)   # Create jitter
+    }else{
+      xlims <- range(vx, na.rm = TRUE) + (diff(range(vx, na.rm = TRUE))*0.05)*c(-1,1)
+      jitx <- if (jitter){ jitter(as.numeric(vx), factor=jitFactor) - as.numeric(vx)}else{0}
     }
-    points(x, y, col=if(!is.null(catVar)){catVar}else{1})
-    ### Add Loess fit:
-    if(loess){
-      tryd <- try(lml <- suppressWarnings(loess(y ~ x, degree = 1, family = "symmetric")), silent=TRUE)
+    ### Var y:
+    if(fac_id[rw]){
+      ylims <- c(0, nlevels(vy)) + 0.5
+      jity <- jitter(as.numeric(vy), factor=jitFactor*jitf_fct) - as.numeric(vy)   # Create jitter
+    }else{
+      ylims <- range(vy, na.rm = TRUE) + (diff(range(vy, na.rm = TRUE))*0.05)*c(-1,1)
+      jity <- if (jitter){ jitter(as.numeric(vy), factor=jitFactor) - as.numeric(vy)}else{0}
+    }
+    ### Prepare plot:
+    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=xlims, ylim=ylims, yaxs='i', xaxs='i')
+    ### Background:
+    if(all(fac_id[c(rw, cl)])){
+      rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "#b6f0fc")
+    }else if(any(fac_id[c(rw, cl)])){
+      rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "#e8fbff")
+    }
+    ### Add points:
+    cls <- if(is.null(catVar)){1}else{catVar}   # Set colour
+    points(x = as.numeric(vx) + jitx, y = as.numeric(vy) + jity, col=cls)
+    ### Add axes:
+    if(edge_rw!=0){
+      if(fac_id[cl]){
+        axis(edge_rw, at = 1:nlevels(vx), labels = levels(vx))
+      }else{
+        axis(edge_rw)
+      }
+    }
+    if(edge_cl!=0){
+      if(fac_id[rw]){
+        axis(edge_cl, at = 1:nlevels(vy), labels = levels(vy))
+      }else{
+        axis(edge_cl)
+      }
+    }
+    ### Loess line (only for numerics):
+    if(loess & !fac_id[rw] & !fac_id[cl]){
+      tryd <- try(lml <- suppressWarnings(loess(vy ~ vx, degree = 1, family = "symmetric")), silent=TRUE)
       if(class(tryd)!='try-error'){   # In case of no error
-        tempx <- data.frame(x = seq(min(x, na.rm = TRUE),
-                                    max(x, na.rm = TRUE), length.out = 50))
+        tempx <- data.frame(vx = seq(min(vx, na.rm = TRUE),
+                                     max(vx, na.rm = TRUE), length.out = 50))
         pred <- predict(lml, newdata = tempx)
-        lines(x=tempx$x, y=pred, col='red', lty=2)
+        lines(x=tempx$vx, y=pred, col='red', lty=2)
       }
     }
   }
-  ### Panel bottom:
-  panel.bottom <- function(x, y){
-    usr <- par("usr")
-    on.exit(par('usr'=usr))
-    par(usr = c(0, 1, 0, 1))
+
+
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  #   DIFFERENT STATISTICAL TEST FUNCTIONS   ####
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ### Simple correlation:
+  cortst <- function(vx, vy){
     ### Add try statement because of potential errors:
     tryd <- try({
-      cort <- cor.test(x,y)
+      cort <- cor.test(vx, vy)
       p <- cort$p.value
+      psymbs <- c("***", "**", "*", "")
       star <- symnum(p, corr = FALSE, cutpoints = c(0, 0.001, 0.01, 0.05, 1),
-                     symbols = c("***", "**", "*", ""), legend = FALSE)
-      txt <- paste0(round(cort$estimate, digits=2), star)
-      cex <- abs(cort$estimate) * 3.5 * txtInc  # Set the size of numbers
+                     symbols = psymbs, legend = FALSE)
+      txt <- paste0('r=   ', round(cort$estimate, digits=2), star)
+      ### Size of numbers:
+      poscex <- seq(from=1, by=0.8, length.out=4)   # Possible sizes
+      poscex <- poscex[length(poscex):1]   # Reverse
+      cex <- poscex[psymbs %in% star] * txtInc
     }, silent = TRUE)
-    if(class(tryd)=='try-error'){   # In case of error
+    ### In case of error:
+    if(class(tryd)=='try-error'){
       txt <- 'Err'
       cex <- 1
     }
-    minCex <- 1   # Set the minimum size
-    if(cex < minCex) {cex <- minCex}
-    ### Write correlation coefficient and add stars
+    ### Write statistic and add stars:
+    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=0:1, ylim=0:1, yaxs='i', xaxs='i')
     text(0.5, 0.5, txt, cex = cex)
   }
-  ### Plot the pairs-plot:
-  if(swtchPan){
-    ### Lower and upper panel switched:
-    pairs(x, diag.panel = panel.diag, lower.panel = panel.top, upper.panel = panel.bottom)
+  #************************************
+  ### ANOVA:
+  aovtst <- function(vx, vy){
+    ### Which var is factor:
+    if(fac_id[rw]){ yaov <- vx; xaov <- vy }else{ yaov <- vy; xaov <- vx }
+    ### Add try statement because of potential errors:
+    tryd <- try({
+      res <- anova(lm(yaov ~ xaov))
+      fval <- round(res$`F value`[1], 1)
+      p <- res$`Pr(>F)`[1]
+      psymbs <- c("***", "**", "*", "")
+      star <- symnum(p, corr = FALSE, cutpoints = c(0, 0.001, 0.01, 0.05, 1),
+                     symbols = psymbs, legend = FALSE)
+      txt <- paste0('F=   ', fval, star)
+      ### Size of numbers:
+      poscex <- seq(from=1, by=0.8, length.out=4)   # Possible sizes
+      poscex <- poscex[length(poscex):1]   # Reverse
+      cex <- poscex[psymbs %in% star] * txtInc
+    }, silent = TRUE)
+    ### In case of error:
+    if(class(tryd)=='try-error'){
+      txt <- 'Err'
+      cex <- 1
+    }
+    ### Setup plot:
+    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=0:1, ylim=0:1, yaxs='i', xaxs='i')
+    ### Background:
+    rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "#e8fbff")
+    ### Write statistic and add stars:
+    text(0.5, 0.5, txt, cex = cex)
+  }
+  #************************************
+  ### Chisq test:
+  chitst <- function(vx, vy){
+    ### Add try statement because of potential errors:
+    tryd <- try({
+      res <- chisq.test(table(vx, vy))
+      xval <- round(res$statistic, 1)
+      p <- res$p.value
+      psymbs <- c("***", "**", "*", "")
+      star <- symnum(p, corr = FALSE, cutpoints = c(0, 0.001, 0.01, 0.05, 1),
+                     symbols = psymbs, legend = FALSE)
+      txt <- paste0('Chi=   ', xval, star)
+      ### Size of numbers:
+      poscex <- seq(from=1, by=0.8, length.out=4)   # Possible sizes
+      poscex <- poscex[length(poscex):1]   # Reverse
+      cex <- poscex[psymbs %in% star] * txtInc
+    }, silent = TRUE)
+    ### In case of error:
+    if(class(tryd)=='try-error'){
+      txt <- 'Err'
+      cex <- 1
+    }
+    ### Prepare plot:
+    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=0:1, ylim=0:1, yaxs='i', xaxs='i')
+    ### Background:
+    rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "#b6f0fc")
+    ### Write statistic and add stars:
+    text(0.5, 0.5, txt, cex = cex)
+  }
+
+
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  #   CREATE PLOT INDICATION MATRIX   ####
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ### Visual plots:
+  ### Keys:
+  pltnms <- c('histgr', 'barpl_fac', 'scattpl')
+  ### Matrix:
+  plt_m <- matrix(3, nrow=ncol(x), ncol = ncol(x))
+  ### Diagonal:
+  diag(plt_m) <- fac_id+1
+  ### Turn to text matrix:
+  plt_m_chr <- matrix(pltnms[as.vector(plt_m)], nrow=ncol(x))
+  ### Test matrix:
+  ### Keys:
+  tstnms <- c('cortst', 'aovtst', 'chitst')
+  ### Matrix:
+  tst_m <- outer(fac_id, fac_id, "+")+1
+  ### Turn to text matrix:
+  tst_m_chr <- matrix(tstnms[as.vector(tst_m)], nrow=ncol(x))
+  ### Combine the two matrices:
+  if(!swtchPan){
+    plt_m_chr[lower.tri(plt_m_chr)] <-  tst_m_chr[lower.tri(tst_m_chr)]
   }else{
-    pairs(x, diag.panel = panel.diag, lower.panel = panel.bottom, upper.panel = panel.top)
+    plt_m_chr[upper.tri(plt_m_chr)] <-  tst_m_chr[upper.tri(tst_m_chr)]
+  }
+
+
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  #   CREATE PLOT   ####
+  #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  ### Prepare plot:
+  olpar <- parSave()
+  on.exit(parReset(olpar))   # Make sure par is reset
+  par(mfrow=c(ncol(x), ncol(x)))
+  ### Margins:
+  mars <- rep(0.5, 4)
+  par(mar=mars)
+  par(oma = rep(3, 4))
+  ### Loop through plot grid:
+  for(rw in 1:ncol(x)){
+    ### Check if on edge:
+    edge_rw <- if(rw==1){3} else if(rw==ncol(x)){1} else{0}
+    for(cl in 1:ncol(x)){
+      ### Check if on edge:
+      edge_cl <- if(cl==1){2} else if(cl==ncol(x)){4} else{0}
+      ### Apply correct plot:
+      do.call(plt_m_chr[rw, cl], list(vx = x[,cl], vy = x[,rw]))
+    }
   }
 }
-
 
 #*********************************************************************************
 #   NICE 3D PLOT   ####

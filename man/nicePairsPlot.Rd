@@ -2,30 +2,38 @@
 \alias{nicePairsPlot}
 \title{Plot a Nice Pairs Plot}
 \description{
-Basically a wrapper function for pairs(). The upper panel shows the scatterplots with optional loess fit. The diagonal panel shows a histogramm with optional density line. The lower panel shows the pairwise correlation coefficients with adjusted digit sizes and significant correlations marked with stars.
+A selfmade version of a pairs plot (not based on pairs()). The upper panel normally shows scatterplots while the lower panel shows significance tests of the pairwise relations. The diagonal panel shows histograms or barplots depending on the variable type. The significance tests are also adpated depending on variable type. Categorical variables are, if not specified differently, grouped together and indicated with shaded backgrounds in the plots.
 }
 \usage{
-nicePairsPlot(x, catVar = NULL, breaks = "Sturges", density = FALSE, jitter = FALSE,
-jitFactor = 1, loess = FALSE, swtchPan = FALSE, txtInc=1)
+nicePairsPlot(x, catVar = NULL, breaks = "Sturges", density = FALSE,
+jitter = FALSE, jitFactor = 1, loess = FALSE, swtchPan = FALSE, txtInc = 1,
+exclude = c("none", "numeric", "factor"), keepOrder = FALSE, facsAtBegin = FALSE)
 }
 \arguments{
   \item{x}{A dataframe or matrix.}
 
-  \item{catVar}{A factor dictating the colour of the points in the scatterplots.}
+  \item{catVar}{A factor determining the colour of the points in the scatterplots.}
 
   \item{breaks}{"breaks" option for hist() function of diagonal panel.}
 
-  \item{density}{A logical value indicating whether density lines should be drawn in the diagonal panel.}
+  \item{density}{A logical value indicating whether density lines should be drawn in the histograms in the diagonal panel.}
 
-  \item{jitter}{A logical value indicating whether a jitter factor should be applied to the scatterplots. Useful for visualizing distribution of factors.}
+  \item{jitter}{A logical value indicating whether a jitter factor should be applied to the scatterplots of numerical variables. For categorical variables there is always some amount of jitter applied.}
 
-  \item{jitFactor}{The jittering factor applied.}
+  \item{jitFactor}{The jittering factor applied (is slightly decreased for categorical variables).}
 
-  \item{loess}{A logical value indicating whether a loess fit should be plotted in the scatterplots.}
+  \item{loess}{A logical value indicating whether a loess fit should be plotted in the scatterplots of numerical variables.}
 
   \item{swtchPan}{A logical value indicating whether the upper and lower panels should be switched.}
 
   \item{txtInc}{A number which will be multiplied with the textsizes of the correlation coefficients displayed in the plot. Can be used to incerease or decrease the size of the displayed coefficients.}
+
+  \item{exclude}{Can either be the name(s) of variables to exclude, or a general exclusion option. The general exclusion option can be used to exclude all categorical or numerical variables.}
+
+  \item{keepOrder}{A logical value. Normally, categorical variables are grouped together, this argument can be used to retain the original column order.}
+
+  \item{facsAtBegin}{A logical value. Normally, categorical variables are grouped together at the end of the plot, this argument can be used to move them to the beginning.}
+
 }
 \examples{
 nicePairsPlot(iris, density = TRUE, loess = TRUE)
