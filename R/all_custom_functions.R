@@ -705,7 +705,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
 #*********************************************************************************
 #   NICE 3D PLOT   ####
 #*********************************************************************************
-nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, colRamp = NULL, pointSize = NULL, spheres=TRUE, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1, add = FALSE, htmlFilename=NULL, ...){
+nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no','lin','int','int2','int3'), catVar = factor(1), covMat = NULL, means = NULL, nSim = 500, pointCol = 1, colRamp = NULL, pointSize = NULL, spheres = FALSE, pointTrans = 0.8, Dtransp_fac = 0.06, colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL, axesTicks = FALSE, gridCol = 'grey', axesLeng = NULL, zoom = 1, add = FALSE, htmlFilename=NULL, ...){
   #*********************************************************************************
   #   TEST CONDITIONS   ####
   #*********************************************************************************
