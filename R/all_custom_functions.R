@@ -556,7 +556,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
         tempx <- data.frame(vx = seq(min(vx, na.rm = TRUE),
                                      max(vx, na.rm = TRUE), length.out = 50))
         pred <- predict(lml, newdata = tempx)
-        lines(x=tempx$vx, y=pred, col='hotpink', lty=2, lwd=2)
+        lines(x=tempx$vx, y=pred, col='cyan', lty=2, lwd=2)
       }
     }
   }
