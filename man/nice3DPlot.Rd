@@ -9,7 +9,7 @@ This function creates a nice plot of 3D-data, including a visualization of the d
 nice3DPlot(X = NULL, whatToPlot = c("P","D", "PD"),
 plotFit = c('no','lin','int','int2','int3'), catVar = factor(1),
 covMat = NULL, means = NULL, nSim = 500, pointCol = 1, colRamp = NULL,
-pointSize = NULL, spheres = TRUE, pointTrans = 0.8, Dtransp_fac = 0.06,
+pointSize = NULL, spheres = FALSE, pointTrans = 0.8, Dtransp_fac = 0.06,
 colres = 50, gridRes = 30, h = 0.3, DpointSize = 30, axesNames = NULL,
 axesTicks = FALSE, gridCol = "grey", axesLeng = NULL, zoom = 1,
 add = FALSE, htmlFilename = NULL, ...)
@@ -37,7 +37,7 @@ add = FALSE, htmlFilename = NULL, ...)
 
   \item{pointSize}{Size of points.}
 
-  \item{spheres}{Logical indicating whether rgl.spheres() should be used for drawing points (instead of rgl.points()). Depending on hardware (apparently) rgl.points() may display datapoints as boxes. This is why per default spheres is set to TRUE.}
+  \item{spheres}{Logical indicating whether rgl.spheres() should be used for drawing points (instead of rgl.points()). Depending on hardware (apparently) rgl.points() may display datapoints as boxes.}
 
   \item{pointTrans}{Transparency of points.}
 
