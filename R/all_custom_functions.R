@@ -504,6 +504,8 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
   #************************************
   ### Scatterplot:
   scattpl <- function(vx, vy){
+    ### Indicator if mean vals should be plotted:
+    pltm <- FALSE
     ### xylims and jitter:
     jitx <- jity <- 0   # Default
     jitf_fct <- 0.5   # Have jitter a bit smaller for factors
@@ -530,10 +532,21 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "#b6f0fc")
     }else if(any(fac_id[c(rw, cl)])){
       rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "#e8fbff")
+      ### Indicator if mean vals should be plotted:
+      pltm <- TRUE
     }
     ### Add points:
     cls <- if(is.null(catVar)){1}else{catVar}   # Set colour
     points(x = as.numeric(vx) + jitx, y = as.numeric(vy) + jity, col=cls)
+    ### Add mean values (only for plots with numeric and factor):
+    if(pltm){
+      ### Check which one is factor:
+      if(fac_id[rw]){
+        points(x = tapply(vx, vy, mean, na.rm=TRUE), y = 1:nlevels(vy), col='cyan', cex=2, pch=19)
+      }else{
+        points(x = 1:nlevels(vx), y = tapply(vy, vx, mean, na.rm=TRUE), col='cyan', cex=2, pch=19)
+      }
+    }
     ### Add axes:
     if(edge_rw!=0){
       if(fac_id[cl]){
