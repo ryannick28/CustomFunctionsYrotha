@@ -392,7 +392,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
 #*********************************************************************************
 #   NICE PAIRS PLOT   ####
 #*********************************************************************************
-nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE, jitter = FALSE, jitFactor = 1, loess = FALSE, swtchPan = FALSE, txtInc = 1, exclude = c("none", "numeric", "factor"), keepOrder = FALSE, facsAtBegin = FALSE){
+nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE, jitter = FALSE, jitFactor = 1, loess = FALSE, swtchPan = FALSE, exclude = c("none", "numeric", "factor"), keepOrder = FALSE, facsAtBegin = FALSE, cex.diag = 2, cex.offdiag = 1, cex.mean = 2, cex.lvls = 1){
 
 
   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -452,7 +452,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     ### Only one variable needed:
     v <- vx
     ### xylims:
-    xlims <- c(0, nlevels(vx)) + 0.5
+    xlims <- c(0, nlevels(v)) + 0.5
     ylims <- c(0, 1.4*max(table(v)))
     ### Prepare Plot:
     plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=xlims, ylim=ylims, yaxs='i', xaxs='i')
@@ -466,10 +466,10 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     if(edge_rw!=0) axis(edge_cl)
     ### Level names:
     if(nlevels(v) < 10){
-      text(x = recpos, y = ylims[1]+0.05*ylims[2], labels = levels(v), srt=90, pos=4, cex=1)
+      text(x = recpos, y = ylims[1]+0.05*ylims[2], labels = levels(v), srt=90, pos=4, offset=0, cex=cex.lvls)
     }
     ### Title:
-    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=2)
+    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=cex.diag)
   }
   #************************************
   ### Histogramm:
@@ -491,7 +491,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     ### Add rectangles:
     rect(hbrks[-nB], 0, hbrks[-1], y, col = 'cyan')
     ### Title:
-    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=2)
+    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=cex.diag)
     ### Add density:
     if(density){
       tryd <- try(d <- density(vx, na.rm = TRUE), silent = TRUE)
@@ -542,9 +542,9 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     if(pltm){
       ### Check which one is factor:
       if(fac_id[rw]){
-        points(x = tapply(vx, vy, mean, na.rm=TRUE), y = 1:nlevels(vy), col='cyan', cex=2, pch=19)
+        points(x = tapply(vx, vy, mean, na.rm=TRUE), y = 1:nlevels(vy), col='cyan', cex=cex.mean, pch=19)
       }else{
-        points(x = 1:nlevels(vx), y = tapply(vy, vx, mean, na.rm=TRUE), col='cyan', cex=2, pch=19)
+        points(x = 1:nlevels(vx), y = tapply(vy, vx, mean, na.rm=TRUE), col='cyan', cex=cex.mean, pch=19)
       }
     }
     ### Add axes:
@@ -591,7 +591,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       ### Size of numbers:
       poscex <- seq(from=1, by=0.8, length.out=4)   # Possible sizes
       poscex <- poscex[length(poscex):1]   # Reverse
-      cex <- poscex[psymbs %in% star] * txtInc
+      cex <- poscex[psymbs %in% star] * cex.offdiag
     }, silent = TRUE)
     ### In case of error:
     if(class(tryd)=='try-error'){
@@ -619,7 +619,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       ### Size of numbers:
       poscex <- seq(from=1, by=0.8, length.out=4)   # Possible sizes
       poscex <- poscex[length(poscex):1]   # Reverse
-      cex <- poscex[psymbs %in% star] * txtInc
+      cex <- poscex[psymbs %in% star] * cex.offdiag
     }, silent = TRUE)
     ### In case of error:
     if(class(tryd)=='try-error'){
@@ -648,7 +648,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       ### Size of numbers:
       poscex <- seq(from=1, by=0.8, length.out=4)   # Possible sizes
       poscex <- poscex[length(poscex):1]   # Reverse
-      cex <- poscex[psymbs %in% star] * txtInc
+      cex <- poscex[psymbs %in% star] * cex.offdiag
     }, silent = TRUE)
     ### In case of error:
     if(class(tryd)=='try-error'){
