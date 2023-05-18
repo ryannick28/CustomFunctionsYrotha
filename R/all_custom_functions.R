@@ -1358,3 +1358,14 @@ rmOutliers <- function(x, chngName = TRUE){
 checkprogress <- function(endi, starti=1, val=i){
   setTxtProgressBar(txtProgressBar(min=starti-1, max=endi, style = 3), value = val)
 }
+
+
+#*********************************************************************************
+#   FLATTEN RECURSIVE LIST    ####
+#*********************************************************************************
+#' Taken from internet
+#' (https://stackoverflow.com/questions/47603578/flatten-recursive-list)
+flatten <- function(x) {
+  if (!inherits(x, "list")) return(list(x))
+  else return(unlist(c(lapply(x, flatten)), recursive = FALSE))
+}
