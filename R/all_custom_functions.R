@@ -1355,7 +1355,7 @@ rmOutliers <- function(x, chngName = TRUE){
 #*********************************************************************************
 #   PROGRESS BAR FOR LOOP    ####
 #*********************************************************************************
-checkprogress <- function(endi, starti=1, val=i){
+checkprogress <- function(val, endi, starti = 1){
   setTxtProgressBar(txtProgressBar(min=starti-1, max=endi, style = 3), value = val)
 }
 

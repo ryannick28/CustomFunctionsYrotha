@@ -4,6 +4,8 @@ import(
 'grDevices'
 )
 
+importFrom("utils", "setTxtProgressBar", "txtProgressBar")
+
 
 
 exportPattern("^[[:alpha:]]+")
