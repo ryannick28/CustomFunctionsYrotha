@@ -2,7 +2,7 @@
 \alias{flatten}
 \title{Flatten a recursive list}
 \description{
-This function flattens a recursive list into a non-recursive list, keeping all the elements in the leaves of the original list intact. Therefore, it behaves slightly differently than e.g. unlist. The function was taken from the internet, see: https://stackoverflow.com/questions/47603578/flatten-recursive-list
+This function flattens a recursive list into a non-recursive list, keeping all the elements (which do not inherit class "list") in the leaves of the original list intact. Therefore, data frames remain for example unchanged which is a different behavior compared to unlist. The function was taken from the internet, see: https://stackoverflow.com/questions/47603578/flatten-recursive-list
 }
 \usage{
 flatten(x)
