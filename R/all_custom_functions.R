@@ -936,7 +936,7 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
 #   MIXED MODEL DGP   ####
 #*********************************************************************************
 mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
-                  genb=10, ageb=1){
+                  genb=10, ageb=1, xwithnb=2, sd_xwithn=1){
   ### Check some condition:
   if(n%%nC!=0){stop('There has to be an equal number of people in each class. Currently, the number of people is not divisible by the number of classes.')}
   ### Generate subjects:
@@ -949,10 +949,12 @@ mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
   class <- factor(paste0('Class', 1:nC), levels = paste0('Class', 1:nC))
   ### Generate class random intercept:
   clss.ri <- rnorm(nC, sd=sd_C)
+  ### Generate random slope values:
+  xwithn.rs <- rnorm(n, mean = 0, sd = sd_xwithn)
   ### Generate gender variable:
   gen <- 0:1
   ### Combine to data frame:
-  ds <- data.frame(id, class, gen, age, id.ri, clss.ri)
+  ds <- data.frame(id, class, gen, age, id.ri, clss.ri, xwithn.rs)
   ds <- ds[order(ds$class, ds$id),]   # Order after classes and individuals
   ds$gen <- sample(ds$gen)   # mix up gender
   ### Generate target variable for each day:
@@ -964,18 +966,32 @@ mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
   dat.0$day <- 1:length(tb)
   ### Add random error:
   dat.0$err <- rnorm(nrow(dat.0), sd=sd_e)
+  ### Add within variable:
+  ### Split along id:
+  ds2 <- split(dat.0, f = dat.0$id)
+  ### Add predictor (different variance for each id):
+  ds2.1 <- lapply(ds2, function(x){
+    x$xwithn <- rnorm(length(tb), mean = 0, sd = runif(1, min = 1, max = 5))
+    return(x)
+  })
+  ### Merge:
+  dat.0 <- do.call(rbind, ds2.1)
+  ### Create xwithn effect:
+  dat.0$xwithnEff <- (dat.0$xwithn.rs + xwithnb)*dat.0$xwithn
   ### Generate target variable for each day (bit messy...):
-  dd <- dat.0[, -which(colnames(dat.0) %in% c('id', 'class', 'day'))]   # Remove some variables
+  dd <- dat.0[, -which(colnames(dat.0) %in% c('id', 'class', 'day', "xwithn.rs", "xwithn"))]   # Remove some variables
   dd$dayEff <- tb
   dd$b0 <- b0
   dat.0$y <- apply(dd, 1, function(x){
-    t(as.matrix(x))%*%c(genb, ageb, 1, 1, 1, 1, 1)
+    t(as.matrix(x))%*%c(genb, ageb, 1, 1, 1, 1, 1, 1)
   })
   ### Remove the columns not needed:
   dat <- dat.0
   dat$id.ri <- NULL
   dat$clss.ri <- NULL
   dat$err <- NULL
+  dat$xwithn.rs <- NULL
+  dat$xwithnEff <- NULL
   ### Gender to factor:
   dat$gen <- factor(dat$gen, levels = c(0,1), labels = c('M','F'))
   ### Day to factor:
