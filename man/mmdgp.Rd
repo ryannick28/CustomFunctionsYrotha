@@ -2,7 +2,7 @@
 \alias{mmdgp}
 \title{Generate longitudinal hierarchical data}
 \description{
-A function to generate longitudinal hierarchical data. The data represents measurements from people, nested in classes. Each person is measured once per day for a number of days. There is an age, a gender, a day and a within-subject variable effect effect. The random effects are random intercepts for people and class, and a random slope for the within-subject predictor. This function can for example be used to test some analysis or some plotting procedure.
+A function to generate longitudinal hierarchical data. The data represents measurements from people, nested in classes. Each person is measured once per day for a number of days. There is an age, a gender, a day and a within-subject variable effect. The random effects are random intercepts for people and class, and a random slope for the within-subject predictor. This function can for example be used to test some analysis or some plotting procedure.
 }
 \usage{
 mmdgp(n = 200, nC = 5, sd_S = 3, sd_C = 5, sd_e = 2,
