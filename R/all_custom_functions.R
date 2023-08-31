@@ -488,6 +488,8 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=xlims, ylim=ylims, yaxs='i', xaxs='i')
     ### Add axes:
     if(edge_cl!=0) axis(edge_cl)
+    if(edge_rw==3 & !swtchPan) axis(edge_rw)   # Draw axis above histogramm in top left corner
+    if(edge_rw==1 & swtchPan) axis(edge_rw)   # Draw axis below histogramm in bottom right corner
     ### Add rectangles:
     rect(hbrks[-nB], 0, hbrks[-1], y, col = 'cyan')
     ### Title:
