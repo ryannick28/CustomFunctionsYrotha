@@ -1006,7 +1006,7 @@ mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
 #*********************************************************************************
 #   WIDE TO LONG DATA FORMAT    ####
 #*********************************************************************************
-wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdentifier'){
+wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdentifier', ind_atEnd = FALSE, ignore_unbal = FALSE, verbose = FALSE){
   ### Check some conditions:
   if(is.null(nRep) & is.null(indCust)){
     stop('Either nRep or indCust must be supplied')
@@ -1033,8 +1033,8 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdent
   tvars.d <- data.frame(tvars.v, tvars.t)
   if(!all(table(tvars.d)==1)){
     print(table(tvars.d))
-    print('There is a problem with the naming of the repeated variables. Check returned table (printed above), should all be equal to 1.')
-    return(table(tvars.d))
+    print('There is a problem with the naming of the repeated variables. Check returned table (printed above), should all be equal to 1. You can set the argument ignore_unbal to TRUE in order to continue (missing values will be filled with NAs).')
+    if(!ignore_unbal) return(table(tvars.d))
   }
   ### Iterate through every single row and collect long format in list:
   L <- list()
@@ -1045,11 +1045,17 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdent
     tmp <- tmp.f[rep(1, length(rnms)),, drop=FALSE]   # Repeat row for each repeated measurement
     tmp[, repColnm] <- rnms   # Add rep-identifiers
     for(j in 1:length(tvars.vu)){   # Iterate through the individual tests
-      p <- paste0(rnms, tvars.vu[j])
-      p.ind <- match(p, colnames(tmp.v))
-      tmp[, tvars.vu[j]] <- as.vector(t(tmp.v[1, p.ind]))
+      p <- if(ind_atEnd) {paste0(tvars.vu[j], rnms)} else {paste0(rnms, tvars.vu[j])}
+      ### Iterate through repeated :
+      for(k in 1:length(p)){
+        matchres <-  match(p[k], colnames(tmp.v))
+        fill_k <- ifelse(is.na(matchres), yes = NA, no = tmp.v[1, matchres])
+        tmp[k, tvars.vu[j]] <- fill_k
+      }
     }
     L[[i]] <- tmp
+    ### Progress:
+    if(verbose) checkprogress(val = i, endi = nrow(x))
   }
   ### Put everything together:
   d <- do.call(rbind, L)
