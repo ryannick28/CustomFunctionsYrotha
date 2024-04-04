@@ -1006,7 +1006,9 @@ mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
 #*********************************************************************************
 #   WIDE TO LONG DATA FORMAT    ####
 #*********************************************************************************
-wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdentifier', ind_atEnd = FALSE, ignore_unbal = FALSE, verbose = FALSE){
+wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
+                       repColnm='repIdentifier', ind_atEnd = FALSE,
+                       ignore_unbal = FALSE, verbose = FALSE){
   ### Check some conditions:
   if(is.null(nRep) & is.null(indCust)){
     stop('Either nRep or indCust must be supplied')
@@ -1017,18 +1019,43 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL, repColnm='repIdent
   }else{
     rnms <- indCust
   }
-  ### Check whether the columns are all named correctly:
-  tvr <- grep(paste0(rnms, collapse = '|'), colnames(x))   # ColumnNr which are repeated measures
-  tvars <- colnames(x[,tvr])   # colnames
-  ### Remove the rep-identifyer:
-  tvars.v <- sub(pattern = paste0(rnms, collapse = '|'), replacement = '', perl = TRUE, tvars)
-  ### Remove the var names:
-  tvars.t <- gsub(pattern = paste0('(', paste0(rnms, collapse = '|'),')(*SKIP)(*FAIL)|.'),
-                  replacement = '', perl = TRUE, tvars)
-  #' This works like: What_I_want_to_avoid(*SKIP)(*FAIL)|What_I_want_to_match
-  #' See also these links (should really learn regex):
-  #' https://stackoverflow.com/questions/24534782/how-do-skip-or-f-work-on-regex
-  #' https://stackoverflow.com/questions/38712946/gsub-everything-except-specified-characters
+  ### Function to extract n characters at beginning or end of string:
+  extr_char <- function(wrd, n, atEnd){
+    if(atEnd){
+      char_pos <- substring(wrd, first = nchar(wrd)-(n-1), last = nchar(wrd))
+      char_neg <- substring(wrd, first = 1, last = nchar(wrd)-n)
+    }else{
+      char_pos <- substring(wrd, first = 1, last = n)
+      char_neg <- substring(wrd, first = n+1, last = nchar(wrd))
+    }
+    return(list("pos"=char_pos, "neg"=char_neg))
+  }
+  ### Find columns with repeated variables:
+  #' This is done  in a loop, check older version for solution
+  #' without loop (it was less robust, that's why I changed)
+  ### Preparations:
+  rnms_ord <- rnms[order(nchar(rnms), decreasing = TRUE)]   # Ordered according to word length (in case one term is in another)
+  tvars.v <- NA
+  tvars.t <- NA
+  ### Start loop:
+  for(j in 1:ncol(x)){   # iterate through columns
+    for(i in 1:length(rnms_ord)){   # Iterate through repidentifiers
+      ### Check current colname:
+      exres <- extr_char(wrd = colnames(x)[j], n = nchar(rnms_ord[i]), atEnd = ind_atEnd)
+      if(exres$pos == rnms_ord[i]){
+        ### Collect strings:
+        tvars.t[j] <- exres$pos
+        tvars.v[j] <- exres$neg
+        break()   # Break for loop
+      }
+    }
+  }
+  ### Indices of repeated measure vars:
+  tvr <- which(!is.na(tvars.v))
+  if(length(tvr)==0){stop('There are no repeated measurement variables. Perhaps search string is at end (ind_atEnd argument)?')}
+  ### Remove NAs:
+  tvars.v <- tvars.v[!is.na(tvars.v)]
+  tvars.t <- tvars.t[!is.na(tvars.t)]
   ### Data frame to test names:
   tvars.d <- data.frame(tvars.v, tvars.t)
   if(!all(table(tvars.d)==1)){
