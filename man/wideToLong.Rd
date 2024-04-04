@@ -33,5 +33,6 @@ wideToLong(x = d, nRep = 3, ind = 'occ*')
 d <- data.frame(matrix(1:21, nrow = 3, byrow = TRUE))
 colnames(d) <- c('S', 'fix', 'startA', 'middleA', 'finishA', 'startB', 'finishB')
 wideToLong(x = d, indCust = c('start', 'middle', 'finish'), ignore_unbal = TRUE)
+wideToLong(x = d, indCust = c('A', 'B'), ignore_unbal = TRUE, ind_atEnd = TRUE)
 }
 
