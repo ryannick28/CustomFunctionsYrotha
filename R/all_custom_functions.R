@@ -825,12 +825,12 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
       rgl::rgl.spheres(dat[,1:3], color=dat$pointC, radius=pointSize, alpha=pointTrans)
     }else{
       if(is.null(pointSize)){pointSize <- 5}
-      rgl::rgl.points(dat[,1:3], color=dat$pointC, size=pointSize, alpha=pointTrans, point_antialias = TRUE)   # point_antialias makes points round in WebGL (or use rgl.spheres alternatively)
+      rgl::points3d(dat[,1:3], color=dat$pointC, size=pointSize, alpha=pointTrans, point_antialias = TRUE)   # point_antialias makes points round in WebGL (or use rgl.spheres alternatively)
     }
   }
   if (grepl('D', whatToPlot[1])){   # Plot density
-    rgl::rgl.points(den_coor[,1:3], color=den_coor$col, size=DpointSize, point_antialias = TRUE,
-                    alpha=den_coor$dens/max(den_coor$dens)*Dtransp_fac)   # Here also the progression of the transparency is defined
+    rgl::points3d(den_coor[,1:3], color=den_coor$col, size=DpointSize, point_antialias = TRUE,
+                  alpha=den_coor$dens/max(den_coor$dens)*Dtransp_fac)   # Here also the progression of the transparency is defined
   }
 
 
@@ -891,8 +891,8 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
       ### Set surface color:
       srfCl <- ifelse(test = nlevels(dat$catV) > 1, yes = i, no = "steelblue")
       ### Plot surface of fit:
-      rgl::rgl.surface(x.pred, z.pred, y.pred, color = srfCl,
-                       alpha = 0.5, lit = FALSE)
+      rgl::surface3d(x = x.pred, z = z.pred, y = y.pred, color = srfCl,
+                     alpha = 0.5, lit = FALSE)
     }
   }
 
@@ -910,27 +910,27 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
 
 ### Function to plot empty 3d coordinate system (only intended to be used inside nice3DPlot):
 .coorSystem3D <- function(axesNames, gridCol, axesLeng, axesTicks, zoom) {
-  rgl::rgl.clear()
-  rgl::rgl.bg(color = 'white')
-  rgl::rgl.lines(c(0, axesLeng[1]), c(0, 0), c(0, 0), color = "black")
-  rgl::rgl.lines(c(0, 0), c(0,axesLeng[2]), c(0, 0), color = "black")
-  rgl::rgl.lines(c(0, 0), c(0, 0), c(0,axesLeng[3]), color = "black")
+  rgl::clear3d()
+  rgl::bg3d(color = 'white')
+  rgl::segments3d(c(0, axesLeng[1]), c(0, 0), c(0, 0), color = "black")
+  rgl::segments3d(c(0, 0), c(0,axesLeng[2]), c(0, 0), color = "black")
+  rgl::segments3d(c(0, 0), c(0, 0), c(0,axesLeng[3]), color = "black")
   axes <- rbind(c(axesLeng[1], 0, 0), c(0, axesLeng[2], 0),
                 c(0, 0, axesLeng[3]))
-  rgl::rgl.texts(axes, text = axesNames[1:3], color='black', adj = c(0.5, -0.8))
+  rgl::text3d(axes, text = axesNames[1:3], color='black', adj = c(0.5, -0.8))
   if(axesTicks){
     rgl::axis3d(edge = 'x', pos = c(NA,0,0), color='black')
     rgl::axis3d(edge = 'y', pos = c(0,NA,0), color='black')
     rgl::axis3d(edge = 'z', pos = c(0,0,NA), color='black')
   }
-  rgl::rgl.viewpoint(theta = -120, phi = 0, zoom=zoom)
+  rgl::view3d(theta = -120, phi = 0, zoom=zoom)
   ### grid on floor:
   x <- seq(0,axesLeng[1], length.out = 10)
   z <- seq(0,axesLeng[3],length.out = 10)
   y <- matrix(rep(0, 100), ncol = 10)
-  rgl::rgl.surface(x, z, y,
-                   color = gridCol,
-                   alpha = 0.5, lit = FALSE,front = "lines", back = "lines")
+  rgl::surface3d(x = x, y = y, z = z,
+                 color = gridCol,
+                 alpha = 0.5, lit = FALSE,front = "lines", back = "lines")
 }
 
 
