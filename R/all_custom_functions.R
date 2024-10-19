@@ -71,7 +71,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
                          add.ylim=0, ylim.cust=NULL, xlab=NULL, ylab=NULL, densScl=0.5,
                          main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE,
                          pairCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL,
-                         lnk.means.lwd=2, pair.lwd=2, ...){
+                         lnk.means.lwd=2, pair.lwd=2, point.ColPalette=NULL, ...){
 
 
   #*********************************************************************************
@@ -234,6 +234,12 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   if(is.null(ylab)){
     ylab <- numVar.nm
   }
+  ### Set colour:
+  if(is.null(point.ColPalette)){
+    pointPal <- hcl.colors(n = nlevels(catVar), palette = 'dynamic')
+  }else{
+    pointPal <- rep(point.ColPalette, nlevels(catVar))
+  }
   ### Start plot (empty):
   if(!add){
     plot(x=1,y=1,
@@ -249,7 +255,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   if(plot.points){
     points(x = jitter(as.numeric(catVar), factor = jitFactor),
            y = numVar,
-           col = if(is.null(fxdCol)){catVar}else{fxdCol},
+           col = if(is.null(fxdCol)){pointPal[as.numeric(catVar)]}else{fxdCol},
            ...)
   }
   ### Add x-axis labels:
@@ -323,8 +329,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
     cexD <- densScl/maxD
     ### Now plot the densities:
     for(i in 1:nlevels(catVar)){
-      lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col= if(is.null(fxdCol)){i}else{fxdCol}, lwd=3)
-      lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=if(is.null(fxdCol)){i}else{fxdCol}, lwd=3)
+      lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col= if(is.null(fxdCol)){pointPal[i]}else{fxdCol}, lwd=3)
+      lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=if(is.null(fxdCol)){pointPal[i]}else{fxdCol}, lwd=3)
     }
   }
 
@@ -336,7 +342,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   if(showMean){
     for(i in 1:nlevels(catVar)){
       mVal <-  mean(numVar[as.numeric(catVar)==i], na.rm = TRUE)
-      segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = if(is.null(fxdCol)){i}else{fxdCol}, lwd = 3)
+      segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = if(is.null(fxdCol)){pointPal[i]}else{fxdCol}, lwd = 3)
     }
   }
   ### Add mean connections:
