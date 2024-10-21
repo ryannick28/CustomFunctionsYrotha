@@ -71,7 +71,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
                          add.ylim=0, ylim.cust=NULL, xlab=NULL, ylab=NULL, densScl=0.5,
                          main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE,
                          pairCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL,
-                         lnk.means.lwd=2, pair.lwd=2, point.ColPalette=NULL, bgalph=0, ...){
+                         lnk.means.lwd=2, pair.lwd=2, point.ColPalette=NULL, bgalph=255, ...){
 
 
   #*********************************************************************************
