@@ -71,7 +71,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
                          add.ylim=0, ylim.cust=NULL, xlab=NULL, ylab=NULL, densScl=0.5,
                          main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE,
                          pairCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL,
-                         lnk.means.lwd=2, pair.lwd=2, point.ColPalette=NULL, ...){
+                         lnk.means.lwd=2, pair.lwd=2, point.ColPalette=NULL, bgalph=0, ...){
 
 
   #*********************************************************************************
@@ -252,10 +252,14 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
          main = ifelse(main.nm=='NULL', paste0(numVar.nm, ' Plot'), main))
   }
   ### Add points:
+  ### Set background of points:
+  bgcol0 <- if(is.null(fxdCol)){pointPal[as.numeric(catVar)]}else{fxdCol}
+  bgcol <- mktransp(color=bgcol0, alpha=bgalph)
   if(plot.points){
     points(x = jitter(as.numeric(catVar), factor = jitFactor),
            y = numVar,
            col = if(is.null(fxdCol)){pointPal[as.numeric(catVar)]}else{fxdCol},
+           bg = bgcol,
            ...)
   }
   ### Add x-axis labels:

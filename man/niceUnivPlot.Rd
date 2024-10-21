@@ -10,7 +10,7 @@ fxdCol = NULL, showMean = TRUE, plot.points = TRUE, bw = 'nrd0',
 jitFactor = 0.2, add.ylim = 0, ylim.cust = NULL, xlab = NULL,
 ylab = NULL, densScl = 0.5, main = NULL, sigGroup = FALSE, sigMu = NULL,
 multCmp = FALSE, pairCol = NULL, add.lgnd = FALSE, add = FALSE, lnk.means = NULL,
-lnk.means.lwd = 2, pair.lwd = 2, point.ColPalette=NULL, ...)
+lnk.means.lwd = 2, pair.lwd = 2, point.ColPalette = NULL, bgalph = 0, ...)
 }
 \arguments{
   \item{numVar}{The numeric vector to be plotted. numVar can also be supplied as a table (matrix or data.frame). In that case every column is plotted separately.}
@@ -60,6 +60,7 @@ lnk.means.lwd = 2, pair.lwd = 2, point.ColPalette=NULL, ...)
   \item{lnk.means.lwd}{Line width of lines linking the mean values}
   \item{pair.lwd}{Line width of lines linking the individual cases}
   \item{point.ColPalette}{Colour palette that will be used to plot the points (and the violin and mean lines). As a default the hcl.points "dynamic" palette is used with as many colours as there are levels of catVar (or one colour if catVar is not supplied). If point.ColPalette is supplied then it will be repeated by the number of levels of catvar to make sure that there are enough colours for all catvar levels.}
+  \item{bgalph}{A transparency factor used for the background of plotted points (only relevant if a pch symbol with a background argument is chosen in the ... argument).}
   \item{...}{Arguments to be passed to the points() call inside the function, where the points are plotted.}
 }
 \examples{
