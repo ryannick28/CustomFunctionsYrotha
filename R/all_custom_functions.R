@@ -1068,7 +1068,7 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
   tvars.t <- tvars.t[!is.na(tvars.t)]
   ### Data frame to test names:
   tvars.d <- data.frame(tvars.v, tvars.t)
-  ### Turn indicator column to factor and include all factor levels:
+  ### Turn indicator column to factor in order to include all factor levels:
   tvars.d$tvars.t <- factor(tvars.d$tvars.t, levels=rnms)
   ### Check whether all variables are present:
   if(!all(table(tvars.d)==1)){
@@ -1078,71 +1078,97 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
       return(table(tvars.d))
     }
   }
-  ### Make sure some warnings are only shown once:
-  showWclss <- TRUE
-  showWfac <- TRUE
-  ### Iterate through every single row and collect long format in list:
-  L <- list()
-  tvars.vu <- unique(tvars.v)
-  for(i in 1:nrow(x)){
-    tmp.f <- x[i, -tvr, drop=FALSE]   # Fixed variables
-    tmp.v <- x[i, tvr, drop=FALSE]   # Repeated measures variables
-    tmp <- tmp.f[rep(1, length(rnms)),, drop=FALSE]   # Repeat row for each repeated measurement
-    tmp[, repColnm] <- rnms   # Add rep-identifiers
-    for(j in 1:length(tvars.vu)){   # Iterate through the individual repeated variables
-      p <- if(ind_atEnd) {paste0(tvars.vu[j], rnms)} else {paste0(rnms, tvars.vu[j])}
-      ### Check if all repeated variables are same type:
-      px <- p[p%in%colnames(x)]
-      ### Check if all have same class and/or same factor levels:
-      trn2fac <- FALSE   # Default used later
-      if(length(unique(sapply(x[, px, drop=FALSE], function(z)class(z))))!=1){   # Do not all have same class?
-        if(showWclss){
-          warning(paste0('The variable ', tvars.vu[j]), ' has not the same class for all
-                repeated occasions (e.g. timepoints). The function will turn a variable
-                which is not always numeric (does not inherit numeric or integer) into a character variable.')
-          showWclss <- FALSE
-        }
-      }else if(inherits(x[, px, drop=FALSE][,1], what = 'factor')){   # Check if factor (here they all have same class)
-        ### In case of factors, check if all levels are the same:
-        lvls <- lapply(x[, px, drop=FALSE], function(z)levels(z))
-        allsame <- all(sapply(lvls[-1], function(x) identical(x, lvls[[1]])))
+  #**********************************************
+  #' First prepare wide data. Make sure all repeated variables are of same type
+  #' and all the missing columns are added.
+  ### Separate repeated and fixed variables:
+  dfix <- x[, -tvr, drop=FALSE]
+  drep <- x[, tvr, drop=FALSE]
+  ### Initiate result object:
+  drepL <- list()
+  allcL <- list()
+  ### Iterate through repeated variables:
+  tvars.vu <- unique(tvars.v)   # Unique vars
+  for(i in 1:length(tvars.vu)){
+    ### Set control variables:
+    trn2fac <- FALSE
+    ### All theoretically expected columns:
+    allc <- if(ind_atEnd) {paste0(tvars.vu[i], rnms)} else {paste0(rnms, tvars.vu[i])}
+    allcL[[i]] <- allc   # Store
+    ### Data with actually available columns:
+    di <- drep[, colnames(drep)%in%allc, drop=FALSE]
+    ### Not available columnnames:
+    c_noavail <- allc[!(allc%in%colnames(drep))]
+    ### Check classes of columns:
+    ### First check if only numeric:
+    allnum <- all(sapply(di, function(z) inherits(z, what = c('numeric', 'integer')) ))
+    if(!allnum){   # Need only to do something if not numeric
+      ### Check if not always the same class:
+      if(length(unique(sapply(di, function(z)class(z))))!=1){
+        warning(paste0('The variable ', tvars.vu[i]), ' has not the same class for all repeated occasions (e.g. timepoints). The function will turn a variable which is not always numeric (does not inherit numeric or integer) into a character variable (except factors).')
+        ### Next check if factor:
+      }else if(inherits(di[,1], what = 'factor')){   # Here all columns can only have same class (see if above)
         ### Note to turn to factor again:
         trn2fac <- TRUE
+        ### Check if all levels are the same:
+        lvls <- lapply(di, function(z)levels(z))
+        allsame <- all(sapply(lvls[-1], function(z) identical(z, lvls[[1]])))
         ### Get all levels:
         allevels <- unique(do.call(c, lvls))
+        ### Warning in case not all levels are the same:
         if(!allsame){
-          if(showWfac){
-            warning(paste0('The variable ', tvars.vu[j], ' is a factor but not all repeated
-                         occasions (e.g. timepoints) have the same levels. The function will
-                         turn the variable in long format into a new factor with all the levels
-                         that were found in the different repeated occasions.'))
-            showWfac <- FALSE
-          }
-        }
-      }
-      ### Iterate through repeated measures:
-      fillL <- list()   # Initiate
-      for(k in 1:length(p)){
-        matchres <-  match(p[k], colnames(tmp.v))
-        ### Check if NA:
-        fill_k <- if(is.na(matchres)){NA}else{tmp.v[1, matchres]}
-        fillL[[k]] <- fill_k
-      }
-      ### Check if all numeric:
-      allnum <- all(sapply(fillL, function(z){
-        inherits(z, what = c('numeric', 'integer'))|is.na(z)
-      }))
-      ### Fill in directly or turn first to character if not numeric:
-      if(allnum){
-        tmp[, tvars.vu[j]] <- do.call(c, fillL)
-      }else{
-        tmp[, tvars.vu[j]] <- sapply(fillL, as.character)
-        ### If factor need to turn back:
-        if(trn2fac){
-          tmp[, tvars.vu[j]] <- factor(tmp[, tvars.vu[j]], levels = allevels)
+          warning(paste0('The variable ', tvars.vu[i], ' is a factor but not all repeated occasions (e.g. timepoints) have the same levels. The function will turn the variable in long format into a new factor with all the levels that were found in the different repeated occasions.'))
         }
       }
     }
+    #' After the above block to check the available data and give appropriate
+    #' warnings, I now add the missing columns and make sure all columns are of
+    #' the same type.
+    ### Add columns which are missing:
+    di[, c_noavail] <- NA
+    ### Order columns:
+    di <- di[, match(allc, colnames(di))]
+    ### In case of non numeric turn to character:
+    if(!allnum){
+      di <- data.frame(lapply(di, as.character))
+      ### Check if factor:
+      if(trn2fac){
+        ### Turn each column to factor with all found levels:
+        di <- data.frame(lapply(di, function(z) factor(z, levels = allevels) ))
+      }
+    }
+    ### Store data:
+    drepL[[i]] <- di
+  }
+  ### Merge cleaned data:
+  drep_clnd <- do.call(cbind, drepL)
+  #**********************************************
+  #' After preparing the data set we can easily turn them into long format.
+  ### Initiate result object:
+  L <- list()
+  ### Iterate through every single row and collect long format in list:
+  for(i in 1:nrow(x)){
+    ### Prepare data:
+    tmp.f <- dfix[i, ]   # Fixed variables
+    tmp.v <- drep_clnd[i, ]   # Repeated measures variables
+    tmp <- tmp.f[rep(1, length(rnms)),, drop=FALSE]   # Repeat row for each repeated measurement
+    tmp[, repColnm] <- rnms   # Add rep-identifiers
+    ### Iterate through repeated variables:
+    for(j in 1:length(tvars.vu)){
+      ### Get the relevant columns:
+      clnms <- allcL[[j]]
+      ### Iterate through repeated measures:
+      fillL <- list()   # Initiate
+      for(k in 1:length(clnms)){
+        matchres <-  match(clnms[k], colnames(tmp.v))
+        ### Check if NA:
+        fill_k <- tmp.v[1, matchres]
+        fillL[[k]] <- fill_k
+      }
+      ### Fill in:
+      tmp[, tvars.vu[j]] <- do.call(c, fillL)   # This only works because of above preparation/cleaning of data
+    }
+    ### Add to list:
     L[[i]] <- tmp
     ### Progress:
     if(verbose) checkprogress(val = i, endi = nrow(x))

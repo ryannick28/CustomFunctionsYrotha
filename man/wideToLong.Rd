@@ -34,5 +34,12 @@ d <- data.frame(matrix(1:21, nrow = 3, byrow = TRUE))
 colnames(d) <- c('S', 'fix', 'startA', 'middleA', 'finishA', 'startB', 'finishB')
 wideToLong(x = d, indCust = c('start', 'middle', 'finish'), ignore_unbal = TRUE)
 wideToLong(x = d, indCust = c('A', 'B'), ignore_unbal = TRUE, ind_atEnd = TRUE)
+### Mix of different classes and NAs:
+x <- data.frame(id=factor(paste0('S', 1:3)), fixv='fix',
+xt1=1:3, xt2=c(4.1, 5.1, 6.1), xt3=7:9,
+yt1=factor(LETTERS[1:3]), yt2=factor(LETTERS[4:6]),
+zt2=c('a', 'b', 'c'),
+wt2=c(as.Date(20), as.Date(88), as.Date(27)), wt3=11:13)
+wideToLong(x = x, nRep = 4, ind = 't*', ind_atEnd = TRUE, ignore_unbal = TRUE)
 }
 
