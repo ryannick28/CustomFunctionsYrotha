@@ -1068,11 +1068,19 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
   tvars.t <- tvars.t[!is.na(tvars.t)]
   ### Data frame to test names:
   tvars.d <- data.frame(tvars.v, tvars.t)
+  ### Turn indicator column to factor and include all factor levels:
+  tvars.d$tvars.t <- factor(tvars.d$tvars.t, levels=rnms)
+  ### Check whether all variables are present:
   if(!all(table(tvars.d)==1)){
-    print(table(tvars.d))
-    print('There is a problem with the naming of the repeated variables. Check returned table (printed above), should all be equal to 1. You can set the argument ignore_unbal to TRUE in order to continue (missing values will be filled with NAs).')
-    if(!ignore_unbal) return(table(tvars.d))
+    if(!ignore_unbal){
+      print(table(tvars.d))
+      print('There is a problem with the naming of the repeated variables. Check returned table (printed above), should all be equal to 1. You can set the argument ignore_unbal to TRUE in order to continue (missing values will be filled with NAs).')
+      return(table(tvars.d))
+    }
   }
+  ### Make sure some warnings are only shown once:
+  showWclss <- TRUE
+  showWfac <- TRUE
   ### Iterate through every single row and collect long format in list:
   L <- list()
   tvars.vu <- unique(tvars.v)
@@ -1081,13 +1089,58 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
     tmp.v <- x[i, tvr, drop=FALSE]   # Repeated measures variables
     tmp <- tmp.f[rep(1, length(rnms)),, drop=FALSE]   # Repeat row for each repeated measurement
     tmp[, repColnm] <- rnms   # Add rep-identifiers
-    for(j in 1:length(tvars.vu)){   # Iterate through the individual tests
+    for(j in 1:length(tvars.vu)){   # Iterate through the individual repeated variables
       p <- if(ind_atEnd) {paste0(tvars.vu[j], rnms)} else {paste0(rnms, tvars.vu[j])}
-      ### Iterate through repeated :
+      ### Check if all repeated variables are same type:
+      px <- p[p%in%colnames(x)]
+      ### Check if all have same class and/or same factor levels:
+      trn2fac <- FALSE   # Default used later
+      if(length(unique(sapply(x[, px, drop=FALSE], function(z)class(z))))!=1){   # Do not all have same class?
+        if(showWclss){
+          warning(paste0('The variable ', tvars.vu[j]), ' has not the same class for all
+                repeated occasions (e.g. timepoints). The function will turn a variable
+                which is not always numeric (does not inherit numeric or integer) into a character variable.')
+          showWclss <- FALSE
+        }
+      }else if(inherits(x[, px, drop=FALSE][,1], what = 'factor')){   # Check if factor (here they all have same class)
+        ### In case of factors, check if all levels are the same:
+        lvls <- lapply(x[, px, drop=FALSE], function(z)levels(z))
+        allsame <- all(sapply(lvls[-1], function(x) identical(x, lvls[[1]])))
+        ### Note to turn to factor again:
+        trn2fac <- TRUE
+        ### Get all levels:
+        allevels <- unique(do.call(c, lvls))
+        if(!allsame){
+          if(showWfac){
+            warning(paste0('The variable ', tvars.vu[j], ' is a factor but not all repeated
+                         occasions (e.g. timepoints) have the same levels. The function will
+                         turn the variable in long format into a new factor with all the levels
+                         that were found in the different repeated occasions.'))
+            showWfac <- FALSE
+          }
+        }
+      }
+      ### Iterate through repeated measures:
+      fillL <- list()   # Initiate
       for(k in 1:length(p)){
         matchres <-  match(p[k], colnames(tmp.v))
-        fill_k <- ifelse(is.na(matchres), yes = NA, no = tmp.v[1, matchres])
-        tmp[k, tvars.vu[j]] <- fill_k
+        ### Check if NA:
+        fill_k <- if(is.na(matchres)){NA}else{tmp.v[1, matchres]}
+        fillL[[k]] <- fill_k
+      }
+      ### Check if all numeric:
+      allnum <- all(sapply(fillL, function(z){
+        inherits(z, what = c('numeric', 'integer'))|is.na(z)
+      }))
+      ### Fill in directly or turn first to character if not numeric:
+      if(allnum){
+        tmp[, tvars.vu[j]] <- do.call(c, fillL)
+      }else{
+        tmp[, tvars.vu[j]] <- sapply(fillL, as.character)
+        ### If factor need to turn back:
+        if(trn2fac){
+          tmp[, tvars.vu[j]] <- factor(tmp[, tvars.vu[j]], levels = allevels)
+        }
       }
     }
     L[[i]] <- tmp
