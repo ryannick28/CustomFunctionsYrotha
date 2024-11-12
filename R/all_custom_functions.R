@@ -1149,8 +1149,8 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
   ### Iterate through every single row and collect long format in list:
   for(i in 1:nrow(x)){
     ### Prepare data:
-    tmp.f <- dfix[i, ]   # Fixed variables
-    tmp.v <- drep_clnd[i, ]   # Repeated measures variables
+    tmp.f <- dfix[i, , drop=FALSE]   # Fixed variables
+    tmp.v <- drep_clnd[i, , drop=FALSE]   # Repeated measures variables
     tmp <- tmp.f[rep(1, length(rnms)),, drop=FALSE]   # Repeat row for each repeated measurement
     tmp[, repColnm] <- rnms   # Add rep-identifiers
     ### Iterate through repeated variables:
