@@ -42,7 +42,7 @@ x <- data.frame(id=factor(paste0('S', 1:3)), fixv='fix', fix2=as.Date(1:3),
 x_t1=1:3, x_t2=c(4.1, 5.1, 6.1), x_t3=7:9,
 y_t1=factor(LETTERS[1:3]), y_t2=factor(LETTERS[4:6]),
 z_t2=c('a', 'b', 'c'),
-w_t2=c(as.Date(20), as.Date(88), as.Date(27)), wt3=11:13)
+w_t2=c(as.Date(20), as.Date(88), as.Date(27)), w_t3=11:13)
 wideToLong(x = x, nRep = 4, ind = '_t*', ind_atEnd = TRUE, ignore_unbal = TRUE, rmv_linkchar = 1)
 }
 

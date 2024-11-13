@@ -1104,11 +1104,11 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
     allnum <- all(sapply(di, function(z) inherits(z, what = c('numeric', 'integer')) ))
     if(!allnum){   # Need only to do something if not numeric
       if(shw.mssg){
-        message(paste('The repeated variable ', tvars.vu[i], 'is not numeric or integer. The function will automatically turn such a variable into a character column in the long format data (with the exception of factors which are retained as factors).'))
+        message(paste('The repeated variable ', tvars.vu[i], 'is not numeric or integer. The function will automatically turn such a variable into a character column in the long format data (with the exception of factors which are retained as factors).\n'))
       }
       ### Check if not always the same class:
       if(length(unique(sapply(di, function(z)class(z))))!=1){
-        warning(paste0('The variable ', tvars.vu[i]), ' has not the same class for all repeated occasions (e.g. timepoints). The function will turn this variable into a character column.')
+        warning(paste0('The variable ', tvars.vu[i]), ' has not the same class for all repeated occasions (e.g. timepoints). The function will turn this variable into a character column.\n')
         ### Next check if factor:
       }else if(inherits(di[,1], what = 'factor')){   # Here all columns can only have same class (see if above)
         ### Note to turn to factor again:
@@ -1120,7 +1120,7 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
         allevels <- unique(do.call(c, lvls))
         ### Warning in case not all levels are the same:
         if(!allsame){
-          warning(paste0('The variable ', tvars.vu[i], ' is a factor but not all repeated occasions (e.g. timepoints) have the same levels. The function will turn the variable in long format into a new factor with all the levels that were found in the different repeated occasions.'))
+          warning(paste0('The variable ', tvars.vu[i], ' is a factor but not all repeated occasions (e.g. timepoints) have the same levels. The function will turn the variable in long format into a new factor with all the levels that were found in the different repeated occasions.\n'))
         }
       }
     }
