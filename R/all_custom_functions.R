@@ -1103,9 +1103,10 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
     ### First check if only numeric:
     allnum <- all(sapply(di, function(z) inherits(z, what = c('numeric', 'integer')) ))
     if(!allnum){   # Need only to do something if not numeric
+      warning(paste('The repeated variable ', tvars.vu[i], 'is not numeric or integer. The function will automatically turn such a variable into a character column in the long format data (with the exception of factors which are retained as factors).'))
       ### Check if not always the same class:
       if(length(unique(sapply(di, function(z)class(z))))!=1){
-        warning(paste0('The variable ', tvars.vu[i]), ' has not the same class for all repeated occasions (e.g. timepoints). The function will turn a variable which is not always numeric (does not inherit numeric or integer) into a character variable (except factors).')
+        warning(paste0('The variable ', tvars.vu[i]), ' has not the same class for all repeated occasions (e.g. timepoints). The function will turn this variable into a character column.')
         ### Next check if factor:
       }else if(inherits(di[,1], what = 'factor')){   # Here all columns can only have same class (see if above)
         ### Note to turn to factor again:
@@ -1190,6 +1191,7 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
   ### Return object:
   return(d)
 }
+
 
 #*********************************************************************************
 #   NICE NA PLOT    ####

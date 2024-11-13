@@ -36,7 +36,7 @@ colnames(d) <- c('S', 'fix', 'startA', 'middleA', 'finishA', 'startB', 'finishB'
 wideToLong(x = d, indCust = c('start', 'middle', 'finish'), ignore_unbal = TRUE)
 wideToLong(x = d, indCust = c('A', 'B'), ignore_unbal = TRUE, ind_atEnd = TRUE)
 ### Mix of different classes and NAs:
-x <- data.frame(id=factor(paste0('S', 1:3)), fixv='fix',
+x <- data.frame(id=factor(paste0('S', 1:3)), fixv='fix', fix2=as.Date(1:3),
 x_t1=1:3, x_t2=c(4.1, 5.1, 6.1), x_t3=7:9,
 y_t1=factor(LETTERS[1:3]), y_t2=factor(LETTERS[4:6]),
 z_t2=c('a', 'b', 'c'),
