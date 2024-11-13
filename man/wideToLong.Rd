@@ -6,7 +6,8 @@ A function to turn wide format data to long format data. Can also deal with mult
 }
 \usage{
 wideToLong(x, nRep = NULL, ind = 'T*_', indCust = NULL, repColnm = 'repIdentifier',
-            ind_atEnd = FALSE, ignore_unbal = FALSE, verbose = FALSE, rmv_linkchar = NULL)
+            ind_atEnd = FALSE, ignore_unbal = FALSE, verbose = FALSE,
+            rmv_linkchar = NULL, shw.mssg = TRUE)
 }
 \arguments{
 \item{x}{A data frame containing the data in wide format}
@@ -18,6 +19,7 @@ wideToLong(x, nRep = NULL, ind = 'T*_', indCust = NULL, repColnm = 'repIdentifie
 \item{ignore_unbal}{Logical value. In case some repeatedly measured variables are not occuring with the same numbers of repetitions, the function will stop and give a message. Set ignore_unbal to TRUE to still continue and fill the missing data with NA's.}
 \item{verbose}{Logical value. Set to TRUE to show a percentage bar of progress.}
 \item{rmv_linkchar}{A number which will result in removing rmv_linkchar many characters from the repIdentifier column level names. For example if one has timepoint names like "T1_", "T2_", "T3_" setting rmv_linkchar to 1 will remove the underscore from the level names of the final factor in the long format data.}
+\item{shw.mssg}{Logical telling if messages should be printed or not. The function will for example turn non-numeric repeated variables into character columns in the long format data and message about this conversion for each such variable.}
 }
 \value{
 The transformed data frame in long format.

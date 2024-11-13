@@ -1017,8 +1017,8 @@ mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
 #   WIDE TO LONG DATA FORMAT    ####
 #*********************************************************************************
 wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
-                       repColnm='repIdentifier', ind_atEnd = FALSE,
-                       ignore_unbal = FALSE, verbose = FALSE, rmv_linkchar = NULL){
+                       repColnm='repIdentifier', ind_atEnd = FALSE, ignore_unbal = FALSE,
+                       verbose = FALSE, rmv_linkchar = NULL, shw.mssg = TRUE){
   ### Check some conditions:
   if(is.null(nRep) & is.null(indCust)){
     stop('Either nRep or indCust must be supplied')
@@ -1103,7 +1103,9 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
     ### First check if only numeric:
     allnum <- all(sapply(di, function(z) inherits(z, what = c('numeric', 'integer')) ))
     if(!allnum){   # Need only to do something if not numeric
-      warning(paste('The repeated variable ', tvars.vu[i], 'is not numeric or integer. The function will automatically turn such a variable into a character column in the long format data (with the exception of factors which are retained as factors).'))
+      if(shw.mssg){
+        message(paste('The repeated variable ', tvars.vu[i], 'is not numeric or integer. The function will automatically turn such a variable into a character column in the long format data (with the exception of factors which are retained as factors).'))
+      }
       ### Check if not always the same class:
       if(length(unique(sapply(di, function(z)class(z))))!=1){
         warning(paste0('The variable ', tvars.vu[i]), ' has not the same class for all repeated occasions (e.g. timepoints). The function will turn this variable into a character column.')
