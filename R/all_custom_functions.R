@@ -1018,7 +1018,7 @@ mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
 #*********************************************************************************
 wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
                        repColnm='repIdentifier', ind_atEnd = FALSE,
-                       ignore_unbal = FALSE, verbose = FALSE){
+                       ignore_unbal = FALSE, verbose = FALSE, rmv_linkchar = NULL){
   ### Check some conditions:
   if(is.null(nRep) & is.null(indCust)){
     stop('Either nRep or indCust must be supplied')
@@ -1176,11 +1176,20 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
   ### Put everything together:
   d <- do.call(rbind, L)
   ### Turn rep-identifier to factor:
-  d[, repColnm] <- factor(d[, repColnm], levels = rnms, labels = rnms)
+  ### Remove linking character:
+  if(!is.null(rmv_linkchar)){
+    if(ind_atEnd){
+      ## Remove from beginning:
+      rnms_lab <- substring(rnms, first = 1+rmv_linkchar, last = nchar(rnms))
+    }else{
+      ### Remove from end:
+      rnms_lab <- substring(rnms, first = 1, last = nchar(rnms)- rmv_linkchar)
+    }}else{rnms_lab <- rnms}
+  ### Create factor:
+  d[, repColnm] <- factor(d[, repColnm], levels = rnms, labels = rnms_lab)
   ### Return object:
   return(d)
 }
-
 
 #*********************************************************************************
 #   NICE NA PLOT    ####

@@ -6,7 +6,7 @@ A function to turn wide format data to long format data. Can also deal with mult
 }
 \usage{
 wideToLong(x, nRep = NULL, ind = 'T*_', indCust = NULL, repColnm = 'repIdentifier',
-            ind_atEnd = FALSE, ignore_unbal = FALSE, verbose = FALSE)
+            ind_atEnd = FALSE, ignore_unbal = FALSE, verbose = FALSE, rmv_linkchar = NULL)
 }
 \arguments{
 \item{x}{A data frame containing the data in wide format}
@@ -17,6 +17,7 @@ wideToLong(x, nRep = NULL, ind = 'T*_', indCust = NULL, repColnm = 'repIdentifie
 \item{ind_atEnd}{Logical value. Set to TRUE in case the identifier strings are located at the end of the repeatedly measured variable's names.}
 \item{ignore_unbal}{Logical value. In case some repeatedly measured variables are not occuring with the same numbers of repetitions, the function will stop and give a message. Set ignore_unbal to TRUE to still continue and fill the missing data with NA's.}
 \item{verbose}{Logical value. Set to TRUE to show a percentage bar of progress.}
+\item{rmv_linkchar}{A number which will result in removing rmv_linkchar many characters from the repIdentifier column level names. For example if one has timepoint names like "T1_", "T2_", "T3_" setting rmv_linkchar to 1 will remove the underscore from the level names of the final factor in the long format data.}
 }
 \value{
 The transformed data frame in long format.
@@ -36,10 +37,10 @@ wideToLong(x = d, indCust = c('start', 'middle', 'finish'), ignore_unbal = TRUE)
 wideToLong(x = d, indCust = c('A', 'B'), ignore_unbal = TRUE, ind_atEnd = TRUE)
 ### Mix of different classes and NAs:
 x <- data.frame(id=factor(paste0('S', 1:3)), fixv='fix',
-xt1=1:3, xt2=c(4.1, 5.1, 6.1), xt3=7:9,
-yt1=factor(LETTERS[1:3]), yt2=factor(LETTERS[4:6]),
-zt2=c('a', 'b', 'c'),
-wt2=c(as.Date(20), as.Date(88), as.Date(27)), wt3=11:13)
-wideToLong(x = x, nRep = 4, ind = 't*', ind_atEnd = TRUE, ignore_unbal = TRUE)
+x_t1=1:3, x_t2=c(4.1, 5.1, 6.1), x_t3=7:9,
+y_t1=factor(LETTERS[1:3]), y_t2=factor(LETTERS[4:6]),
+z_t2=c('a', 'b', 'c'),
+w_t2=c(as.Date(20), as.Date(88), as.Date(27)), wt3=11:13)
+wideToLong(x = x, nRep = 4, ind = '_t*', ind_atEnd = TRUE, ignore_unbal = TRUE, rmv_linkchar = 1)
 }
 
