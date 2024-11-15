@@ -294,6 +294,10 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
         br_ramp <- colorRampPalette(c('red','blue'))
         pCol <- br_ramp(10)[as.numeric(cut(pairCol, breaks=10))]   # Colour ranging from blue to red according to value of pairCol numeric
       }
+      if(is.character(pairCol)){
+        ### In case of character use directly:
+        pCol <- pairCol
+      }
     }else{pCol <- pairCol}   # When pairCol is one fixed colour
     ### Draw lines per case in for-loop:
     dd.0 <- data.frame(numVar, catVar, pairedVar, pCol)
