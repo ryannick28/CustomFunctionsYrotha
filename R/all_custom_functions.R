@@ -1273,14 +1273,19 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE, forceUnaggr=FALSE,
                                                  'betweenClusterOrderNiceNA_YR'))]
   }else{
     ### Apply hierarchical clustering of unaggregated data to find good ordering:
-    dis <- dist(x_nodup[, -which(colnames(x_nodup)%in%c('dupIdentifierNiceNA_YR'))])
-    hc <- hclust(dis, method = 'ward.D2')
-    ### Add order:
-    x_nodup$finalOrderNiceNA_YR <- hc$order
+    dis <- dist(x_nodup[, -which(colnames(x_nodup)%in%c('dupIdentifierNiceNA_YR')), drop=FALSE])
+    ### Check if there are at least two unique NA-patterns:
+    if(length(dis)==0){
+      x_nodup$finalOrderNiceNA_YR <- 1
+    }else{
+      hc <- hclust(dis, method = 'ward.D2')
+      ### Add order:
+      x_nodup$finalOrderNiceNA_YR <- hc$order
+    }
     ### Merge with data including duplications:
     xmrg <- merge(x, x_nodup)
     ### Reorder:
-    x_ord <- xmrg[ order(xmrg$finalOrderNiceNA_YR), ]
+    x_ord <- xmrg[order(xmrg$finalOrderNiceNA_YR), ]
     ### Remove unwanted columns:
     x_fin <- x_ord[, -which(colnames(x_ord)%in%c('dupIdentifierNiceNA_YR', 'finalOrderNiceNA_YR'))]
   }
