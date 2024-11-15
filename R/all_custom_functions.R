@@ -1202,7 +1202,10 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
 #*********************************************************************************
 #   NICE NA PLOT    ####
 #*********************************************************************************
-niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE){
+niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE, forceUnaggr=FALSE,
+                       nClust=100, critVal=10000, verbose = TRUE){
+  ### First make sure that the names which I use to add as columns to the data, do not already exist:
+  stopifnot(all(!(c('dupIdentifierNiceNA_YR', 'kmclusterNiceNA_YR', 'withinClusterOrderNiceNA_YR', 'betweenClusterOrderNiceNA_YR') %in% colnames(x))))
   ### If supplied, add IDvar as rownames and then remove it:
   if(is.null(IDvar)){
     IDvar <- paste0('Obs', 1:nrow(x))
@@ -1210,6 +1213,7 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE){
   }else{
     ### In case there are repetitions of identifier values (rownames must be unique):
     if(length(unique(x[,IDvar])) != nrow(x)){
+      warning('There are repetitions of IDvar values. Will create unique values for the plot.')
       x <- x[order(x[,IDvar]),]   # Make sure identifier are ordered
       id.rle <- rle(as.character(x[,IDvar]))
       id.uni <- paste0(rep(id.rle$values, times = id.rle$lengths), "_",
@@ -1220,11 +1224,68 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE){
     x[,IDvar] <- NULL
   }
   ### Create NA table:
-  x <- is.na(x)*1
-  ### Apply hierarchical clustering to find good ordering:
-  dis <- dist(x)
-  hc <- hclust(dis, method = 'ward.D2')
-  x <- x[hc$order,]
+  x <- data.frame(is.na(x)*1)
+  ### Remove duplicates to make clustering more efficient:
+  ### Get each row as one number:
+  x$dupIdentifierNiceNA_YR <- apply(x, 1, function(z) paste(z, collapse = '') )
+  x_nodup <- x[!duplicated(x), ]
+  #' In case of too many rows, R will crash due to the large distance matrix. Therefore,
+  #' need to enable an aggregated version of the hierarchical clustering.
+  ### Check size of data:
+  if(nrow(x_nodup) > critVal  &  !forceUnaggr){
+    ### Data is too large, first find clusters of data using kmeans:
+    message(paste0('The data has more than ', critVal, ' unique NA-patterns which can lead to R crashing when creating the distance matrix for hierarchical clustering. Therefore, the data will first be aggregated using kmeans clustering (with ', nClust, ' clusters) on which finally hierarchical clustering will be performed. You can also force unaggregated clustering or change the numbers of kmeans-clusters (see helppage).\n'))
+    km <- kmeans(x_nodup[, -which(colnames(x_nodup)%in%c('dupIdentifierNiceNA_YR'))], centers=nClust, iter.max=1000)
+    ### Add cluster number and turn to data frame:
+    x_kmns <- cbind(x_nodup, "kmclusterNiceNA_YR"=km$cluster)
+    ### Split:
+    x_kmns_splt <- split(x_kmns, x_kmns$kmclusterNiceNA_YR)
+    ### Order inside clusters:
+    x_kmns_splt_ord <- list()
+    for(i in 1:length(x_kmns_splt)){
+      ### Apply hierarchical clustering:
+      z <- x_kmns_splt[[i]]
+      zred <- z[, -which(colnames(z)%in%c('dupIdentifierNiceNA_YR', 'kmclusterNiceNA_YR'))]   # Remove not needed columns for clustering
+      ### hierarchical clustering:
+      dis <- dist(zred)
+      hc <- hclust(dis, method = 'ward.D2')
+      z$withinClusterOrderNiceNA_YR <- hc$order
+      x_kmns_splt_ord[[i]] <- z
+      ### Progress:
+      if(verbose) checkprogress(val = i, endi = length(x_kmns_splt))
+    }
+    ### Merge:
+    x_kmnsmerg <- do.call(rbind, x_kmns_splt_ord)
+    ### Order the cluster centers with hierarchical clustering:
+    dis <- dist(km$centers)
+    hc_cent <- hclust(dis, method='ward.D2')
+    ### Merge:
+    x_kmnscntr <- data.frame('kmclusterNiceNA_YR'=rownames(km$centers), 'betweenClusterOrderNiceNA_YR'=hc_cent$order)
+    ### Merge together:
+    xmrg_nodup <- merge(x_kmnsmerg, x_kmnscntr)
+    ### Merge with data including duplications:
+    xmrg <- merge(x, xmrg_nodup)
+    ### Reorder:
+    x_ord <- xmrg[order(xmrg$betweenClusterOrderNiceNA_YR, xmrg$withinClusterOrderNiceNA_YR),]
+    ### Remove unwanted columns:
+    x_fin <- x_ord[, -which(colnames(x_ord)%in%c('dupIdentifierNiceNA_YR',
+                                                 'kmclusterNiceNA_YR', 'withinClusterOrderNiceNA_YR',
+                                                 'betweenClusterOrderNiceNA_YR'))]
+  }else{
+    ### Apply hierarchical clustering of unaggregated data to find good ordering:
+    dis <- dist(x_nodup[, -which(colnames(x_nodup)%in%c('dupIdentifierNiceNA_YR'))])
+    hc <- hclust(dis, method = 'ward.D2')
+    ### Add order:
+    x_nodup$finalOrderNiceNA_YR <- hc$order
+    ### Merge with data including duplications:
+    xmrg <- merge(x, x_nodup)
+    ### Reorder:
+    x_ord <- xmrg[ order(xmrg$finalOrderNiceNA_YR), ]
+    ### Remove unwanted columns:
+    x_fin <- x_ord[, -which(colnames(x_ord)%in%c('dupIdentifierNiceNA_YR', 'finalOrderNiceNA_YR'))]
+  }
+  ### Overwrite original data:
+  x <- as.matrix(x_fin)
   ### Create plot:
   olmar <- newmar <- par('mar')
   newmar[c(2,4)] <- newmar[c(2,4)]+4
@@ -1250,6 +1311,8 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE){
   ### In case one wants the ordered is.na-table:
   silentReturn <- x
 }
+
+
 
 #*********************************************************************************
 #   LONG TO WIDE DATA FORMAT    ####
