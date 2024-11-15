@@ -1234,7 +1234,7 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE, forceUnaggr=FALSE,
   ### Check size of data:
   if(nrow(x_nodup) > critVal  &  !forceUnaggr){
     ### Data is too large, first find clusters of data using kmeans:
-    message(paste0('The data has more than ', critVal, ' unique NA-patterns which can lead to R crashing when creating the distance matrix for hierarchical clustering. Therefore, the data will first be aggregated using kmeans clustering (with ', nClust, ' clusters) on which finally hierarchical clustering will be performed. You can also force unaggregated clustering or change the numbers of kmeans-clusters (see helppage).\n'))
+    message(paste0('The data has more than ', critVal, ' unique NA-patterns. Therefore, the data will first be aggregated using kmeans clustering (with ', nClust, ' clusters) on which finally hierarchical clustering will be performed. You can also force unaggregated clustering or change the numbers of kmeans-clusters (see helppage).\n'))
     km <- kmeans(x_nodup[, -which(colnames(x_nodup)%in%c('dupIdentifierNiceNA_YR'))], centers=nClust, iter.max=1000)
     ### Add cluster number and turn to data frame:
     x_kmns <- cbind(x_nodup, "kmclusterNiceNA_YR"=km$cluster)
