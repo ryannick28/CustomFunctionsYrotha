@@ -1322,7 +1322,7 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE, forceUnaggr=FALSE,
 #*********************************************************************************
 #   LONG TO WIDE DATA FORMAT    ####
 #*********************************************************************************
-longToWide <- function(x, IDvar, repColnm, repVars, colNmStr=''){
+longToWide <- function(x, IDvar, repColnm, repVars, colNmStr='', verbose.mssg=TRUE, verbose.warn=TRUE){
   ### Make sure IDvar and repColnm are factors:
   stopifnot(is.factor(x[,repColnm]))
   stopifnot(is.factor(x[,IDvar]))
@@ -1330,11 +1330,11 @@ longToWide <- function(x, IDvar, repColnm, repVars, colNmStr=''){
   nasm.rep <- sum(is.na(x[,repColnm]))
   nasm.id <- sum(is.na(x[,IDvar]))
   if(nasm.rep != 0){
-    warning(paste0('There are ', nasm.rep,' missing value(s) in the ', repColnm ,' variable. Will remove these observations.'))
+    if(verbose.warn) warning(paste0('There are ', nasm.rep,' missing value(s) in the ', repColnm ,' variable. Will remove these observations.'))
     x <- x[!is.na(x[,repColnm]),]
   }
   if(nasm.id != 0){
-    warning(paste0('There are ', nasm.id,' missing value(s) in the IDvar variable. Will remove these observations.'))
+    if(verbose.warn) warning(paste0('There are ', nasm.id,' missing value(s) in the IDvar variable. Will remove these observations.'))
     x <- x[!is.na(x[,IDvar]),]
   }
   ### Check whether there are multiple entries for a repColnm level for one ID:
@@ -1354,7 +1354,7 @@ longToWide <- function(x, IDvar, repColnm, repVars, colNmStr=''){
     ### Check whether fixed variables have varying values:
     dfi <- d[, !(colnames(d) %in% repVars) & colnames(d)!=repColnm]
     if(!all(sapply(dfi, function(x){length(unique(x))==1}))){
-      warning(paste0('There are varying values in presumably fixed variable(s) for observation-ID ', levels(x[,IDvar])[i],'. Will use the values of the first row.'))
+      if(verbose.warn) warning(paste0('There are varying values in presumably fixed variable(s) for observation-ID ', levels(x[,IDvar])[i],'. Will use the values of the first row.'))
     }
     ### Check whether levels of repColnm are missing and adjust:
     if(length(unique(d[,repColnm])) < length(lvs)){
@@ -1366,8 +1366,8 @@ longToWide <- function(x, IDvar, repColnm, repVars, colNmStr=''){
       dd[, repColnm] <- lvs[!lvs %in% unique(d[,repColnm])]
       ### Merge with data:
       d <- rbind(d,dd)
-      ### Give a warning:
-      warning(paste0('Observation-ID ', levels(x[,IDvar])[i], ' did not have rows for all levels of ', repColnm, '.'))
+      ### Give a message:
+      if(verbose.mssg) message(paste0('Observation-ID ', levels(x[,IDvar])[i], ' did not have rows for all levels of ', repColnm, '.\n'))
     }
     ### Order according to repCol:
     d <- d[order(d[,repColnm]),]
