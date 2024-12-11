@@ -21,7 +21,7 @@ lnk.means.lwd = 2, pair.lwd = 2, point.ColPalette = NULL, bgalph = 100, ...)
 
   \item{violin}{A logical value indicating whether the violin plot should be drawn.}
 
-  \item{fxdCol}{One colour in which to plot the points, densities and mean lines.}
+  \item{fxdCol}{One colour in which to plot the points, densities and mean lines. In the meantime I have added the point.ColPalette argument which can do the same and more than fxdCol. I've kept the fxdCol argument to prevent errors written with older versions of the function.}
 
   \item{showMean}{A logical value indicating whether the mean value should be indicated in plot.}
 
