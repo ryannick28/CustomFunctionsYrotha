@@ -55,11 +55,10 @@ setUpGraph <- function(row=2, col=2){
 #*********************************************************************************
 #   ASSIGN ARGUMENTS OF FUNCTION TO WORK INSIDE FUNCTION   ####
 #*********************************************************************************
-asArguments <- function(argString){
-  t <- strsplit(argString, split = ', ')[[1]]   # Remove commas
-  t <- t[grepl(pattern = '=', t)]   # Remove elements without "="
-  eval(parse(text = t), parent.frame())   # This combination makes it possible to
-                                          # perform these calls provided as strings.
+asArguments <- function(...){
+  argmns <- list(...)
+  list2env(argmns, envir = .GlobalEnv)   # Add arguments to global environment
+  invisible()   # So that no output is printed
 }
 
 
