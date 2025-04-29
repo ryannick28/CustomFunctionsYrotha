@@ -967,7 +967,7 @@ mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
   ### Generate random slope values:
   xwithn.rs <- rnorm(n, mean = 0, sd = sd_xwithn)
   ### Generate gender variable:
-  gen <- 0:1
+  gen <- rep(0:1, length.out=n)
   ### Combine to data frame:
   ds <- data.frame(id, class, gen, age, id.ri, clss.ri, xwithn.rs)
   ds <- ds[order(ds$class, ds$id),]   # Order after classes and individuals
