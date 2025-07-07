@@ -8,7 +8,7 @@ A selfmade version of a pairs plot (not based on pairs()). The upper panel norma
 nicePairsPlot(x, catVar = NULL, breaks = "Sturges", density = FALSE,
 jitter = FALSE, jitFactor = 1, loess = FALSE, swtchPan = FALSE,
 exclude = c("none", "numeric", "factor"), keepOrder = FALSE, facsAtBegin = FALSE,
-cex.diag = 2, cex.offdiag = 1, cex.mean = 2, cex.lvls = 1)
+cex.diag = 1, cex.offdiag = 1, cex.mean = 2, cex.lvls = 1)
 }
 \arguments{
   \item{x}{A dataframe or matrix.}

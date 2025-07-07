@@ -405,7 +405,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
 #*********************************************************************************
 #   NICE PAIRS PLOT   ####
 #*********************************************************************************
-nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE, jitter = FALSE, jitFactor = 1, loess = FALSE, swtchPan = FALSE, exclude = c("none", "numeric", "factor"), keepOrder = FALSE, facsAtBegin = FALSE, cex.diag = 2, cex.offdiag = 1, cex.mean = 2, cex.lvls = 1){
+nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE, jitter = FALSE, jitFactor = 1, loess = FALSE, swtchPan = FALSE, exclude = c("none", "numeric", "factor"), keepOrder = FALSE, facsAtBegin = FALSE, cex.diag = 1, cex.offdiag = 1, cex.mean = 2, cex.lvls = 1){
 
 
   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -482,7 +482,9 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       text(x = recpos, y = ylims[1]+0.05*ylims[2], labels = levels(v), srt=90, pos=4, offset=0, cex=cex.lvls)
     }
     ### Title:
-    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=cex.diag)
+    ### Find good cex value for title:
+    cextit <- diff(xlims)/strwidth('ThisIsAReallyLongVariableName')
+    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=cextit*cex.diag)
   }
   #************************************
   ### Histogramm:
@@ -506,7 +508,9 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     ### Add rectangles:
     rect(hbrks[-nB], 0, hbrks[-1], y, col = 'cyan')
     ### Title:
-    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=cex.diag)
+    ### Find good cex value for title:
+    cextit <- diff(xlims)/strwidth('ThisIsAReallyLongVariableName')
+    text(x = mean(par()$usr[1:2]), y = ylims[2]*0.85, labels = nms[rw], cex=cextit*cex.diag)
     ### Add density:
     if(density){
       tryd <- try(d <- density(vx, na.rm = TRUE), silent = TRUE)
