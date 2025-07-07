@@ -595,6 +595,8 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   ### Simple correlation:
   cortst <- function(vx, vy){
+    ### Initiate plot:
+    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=0:1, ylim=0:1, yaxs='i', xaxs='i')
     ### Add try statement because of potential errors:
     tryd <- try({
       cort <- cor.test(vx, vy)
@@ -604,7 +606,8 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
                      symbols = psymbs, legend = FALSE)
       txt <- paste0('r=   ', round(cort$estimate, digits=2), star)
       ### Size of numbers:
-      poscex <- seq(from=1, by=0.8, length.out=4)   # Possible sizes
+      cexmax <- 1/strwidth(s = 'x = 111111***')
+      poscex <- seq(from=1, to=cexmax, length.out=4)   # Possible sizes
       poscex <- poscex[length(poscex):1]   # Reverse
       cex <- poscex[psymbs %in% star] * cex.offdiag
     }, silent = TRUE)
@@ -614,12 +617,13 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       cex <- 1
     }
     ### Write statistic and add stars:
-    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=0:1, ylim=0:1, yaxs='i', xaxs='i')
     text(0.5, 0.5, txt, cex = cex)
   }
   #************************************
   ### ANOVA:
   aovtst <- function(vx, vy){
+    ### Setup plot:
+    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=0:1, ylim=0:1, yaxs='i', xaxs='i')
     ### Which var is factor:
     if(fac_id[rw]){ yaov <- vx; xaov <- vy }else{ yaov <- vy; xaov <- vx }
     ### Add try statement because of potential errors:
@@ -632,7 +636,8 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
                      symbols = psymbs, legend = FALSE)
       txt <- paste0('F=   ', fval, star)
       ### Size of numbers:
-      poscex <- seq(from=1, by=0.8, length.out=4)   # Possible sizes
+      cexmax <- 1/strwidth(s = 'x = 111111***')
+      poscex <- seq(from=1, to=cexmax, length.out=4)   # Possible sizes
       poscex <- poscex[length(poscex):1]   # Reverse
       cex <- poscex[psymbs %in% star] * cex.offdiag
     }, silent = TRUE)
@@ -641,8 +646,6 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       txt <- 'Err'
       cex <- 1
     }
-    ### Setup plot:
-    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=0:1, ylim=0:1, yaxs='i', xaxs='i')
     ### Background:
     rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "#e8fbff")
     ### Write statistic and add stars:
@@ -651,6 +654,8 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
   #************************************
   ### Chisq test:
   chitst <- function(vx, vy){
+    ### Prepare plot:
+    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=0:1, ylim=0:1, yaxs='i', xaxs='i')
     ### Add try statement because of potential errors:
     tryd <- try({
       res <- chisq.test(table(vx, vy))
@@ -661,7 +666,8 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
                      symbols = psymbs, legend = FALSE)
       txt <- paste0('Chi=   ', xval, star)
       ### Size of numbers:
-      poscex <- seq(from=1, by=0.8, length.out=4)   # Possible sizes
+      cexmax <- 1/strwidth(s = 'x = 111111***')
+      poscex <- seq(from=1, to=cexmax, length.out=4)   # Possible sizes
       poscex <- poscex[length(poscex):1]   # Reverse
       cex <- poscex[psymbs %in% star] * cex.offdiag
     }, silent = TRUE)
@@ -670,8 +676,6 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       txt <- 'Err'
       cex <- 1
     }
-    ### Prepare plot:
-    plot(x = NA, xlab='', ylab='', yaxt='n', xaxt='n', xlim=0:1, ylim=0:1, yaxs='i', xaxs='i')
     ### Background:
     rect(par("usr")[1],par("usr")[3],par("usr")[2],par("usr")[4],col = "#b6f0fc")
     ### Write statistic and add stars:
@@ -729,6 +733,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     }
   }
 }
+
 
 #*********************************************************************************
 #   NICE 3D PLOT   ####
