@@ -123,7 +123,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
       catVar <- factor(rep(1,length(numVar)))   # 1-level factor
     }else{
       stopifnot(length(catVar)==length(numVar))   # Make sure lengths are same
-      catVar <- factor(catVar)   # Dont use as.factor, otherwise non-present levels are not removed.
+      catVar <- as.factor(catVar)   # I use as.factor so that non-present levels are removed. (in older version I deliberately removed them with factor())
     }
   }
   ### Set ylim:
