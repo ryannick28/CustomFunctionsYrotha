@@ -387,6 +387,11 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   #*********************************************************************************
   #   ADD LINES OF MU COMPARISONS   ####
   #*********************************************************************************
+  ### Draw horizontal line of mu value:
+  if(!is.null(sigMu)){
+    ### Draw Mu value as line:
+    abline(h = sigMu, lty=2)
+  }
   ### Only run if there are significant results:
   if(drawMu){
     ### Draw lines:
@@ -400,8 +405,6 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
       lines(c(xx[2], xx[2] + tickL), c(yy[2], yy[2]))
       ### Add stars:
       text(x = xx[1]-2*tickL, y = mean(yy), labels = d.mu[i,'strs'])
-      ### Draw Mu value as line:
-      abline(h = sigMu, lty=2)
     }
   }
 }
