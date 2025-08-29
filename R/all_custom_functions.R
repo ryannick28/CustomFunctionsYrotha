@@ -70,7 +70,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
                          add.ylim=0, ylim.cust=NULL, xlab=NULL, ylab=NULL, densScl=0.5,
                          main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE,
                          pairCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL,
-                         lnk.means.lwd=2, pair.lwd=2, point.ColPalette=NULL, bgalph=100, ...){
+                         lnk.means.lwd=2, pair.lwd=2, point.ColPalette=NULL, bgalph=100,
+                         pair_legend=TRUE, pair_legendPos='topleft', ...){
 
 
   #*********************************************************************************
@@ -79,6 +80,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   ### Set important names:
   catVar.nm <- ''
   numVar.nm <- deparse(substitute(numVar))
+  paircol.nm <- deparse(substitute(pairCol))
   ### Check if input is matrix-like object:
   if(inherits(numVar, what = c('matrix', 'data.frame'))){
     ### Check some requirements:
@@ -278,6 +280,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   #*********************************************************************************
   ### Only run if a "pairedVar" factor was provided:
   if(!is.null(pairedVar) & nlevels(catVar) > 1){
+    ### Initiate boolean about whether a legend should be drawn:
+    leg_dr <- FALSE
     ### Make sure there are no levels with no entries:
     pairedVar <- factor(pairedVar)
     ### Check if every case has maximally one entry per catVar level:
@@ -288,10 +292,13 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
     } else if(length(pairCol)==length(pairedVar)){
       if(is.factor(pairCol)){
         pCol <- as.numeric(pairCol)   # Colour of lines according to pairCol factor
+        leg_dr <- TRUE   # Will want a legend for that
       }
       if(is.numeric(pairCol)){
-        br_ramp <- colorRampPalette(c('red','blue'))
-        pCol <- br_ramp(10)[as.numeric(cut(pairCol, breaks=10))]   # Colour ranging from blue to red according to value of pairCol numeric
+        br_ramp <- colorRampPalette(c('blue','red'))
+        pCol_ct <- cut(pairCol, breaks=10)
+        pCol <- br_ramp(10)[as.numeric(pCol_ct)]   # Colour ranging from blue to red according to value of pairCol numeric
+        leg_dr <- TRUE   # Will want a legend for that
       }
       if(is.character(pairCol)){
         ### In case of character use directly:
@@ -307,6 +314,15 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
       if(length(unique(dd$pCol)) != 1){warning('There are cases with different values of the pairCol factor.')}
       ### Plot line:
       lines(x = dd$catVar, y = dd$numVar, col=dd$pCol[1], lwd=pair.lwd)
+    }
+    ### Add a legend:
+    if(leg_dr & pair_legend){
+      if(is.factor(pairCol)){
+        legend(pair_legendPos, title = paircol.nm,
+               legend = levels(pairCol), lty=1, col=1:length(pairCol))
+      }else if(is.numeric(pairCol)){
+        legend(pair_legendPos, title = paircol.nm, legend = levels(pCol_ct), lty=1, col=br_ramp(10)[1:nlevels(pCol_ct)])
+      }
     }
   }
 
@@ -408,6 +424,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
     }
   }
 }
+
 
 
 #*********************************************************************************
