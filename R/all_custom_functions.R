@@ -334,8 +334,9 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   if(violin){
     L <- list()
     for(i in 1:nlevels(catVar)){
-      if((sum(!is.na(numVar[as.numeric(catVar)==i])) > 1) &
-         (sum(duplicated(numVar[as.numeric(catVar)==i]))  != length(numVar[as.numeric(catVar)==i])-1  )){   # Only proceed if at least two values available and there are different values
+      numi_noNA <- numVar[as.numeric(catVar)==i][!is.na(numVar[as.numeric(catVar)==i])]   # Create Na free version for if statement
+      if((length(numi_noNA) > 1) &
+         (sum(duplicated(numi_noNA))  != length(numi_noNA)-1  )){   # Only proceed if at least two values available and there are different values
         d <- density(numVar[as.numeric(catVar)==i], na.rm = TRUE, bw = bw)
         ### Get min and max value of numVar:
         minNum.i <- min(numVar[as.numeric(catVar)==i], na.rm = TRUE)
