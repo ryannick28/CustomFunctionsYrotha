@@ -1331,7 +1331,15 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE, forceUnaggr=FALSE,
   par('mar'=newmar)
   xx <- 1:nrow(x)
   yy <- 1:ncol(x)
-  image(xx,yy,x,col=c('lightblue', 'darkgrey'), xaxt='n',
+  ### Set colour vector:
+  ### In case of only missings we have to put the missing colour first (with all same values only first color is shown, behavior of image function):
+  if(all(x==1)){
+    colv <- c('darkgrey', 'lightblue')
+  }else{
+    colv <- c('lightblue', 'darkgrey')
+  }
+  ### Render image:
+  image(xx,yy,x,col=colv, xaxt='n',
         yaxt='n', xlab='', ylab = '')
   ### Set xlab:
   if(show_xlab){
@@ -1350,7 +1358,6 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE, forceUnaggr=FALSE,
   ### In case one wants the ordered is.na-table:
   silentReturn <- x
 }
-
 
 
 #*********************************************************************************
