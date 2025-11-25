@@ -983,6 +983,250 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
 
 
 #*********************************************************************************
+#   NICE 3D PLOT (PLOTLY)   ####
+#*********************************************************************************
+nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 'int3'), catVar = factor(1), pointCol = 1, colRamp = NULL, pointSize = NULL, pointTrans = 255, planeTrans=100, axesNames = NULL, axesLeng = NULL, add2obj = NULL, rngs = NULL, plotlyAxes=FALSE, addgrid = TRUE){
+  #*********************************************************************************
+  #   TEST CONDITIONS   ####
+  #*********************************************************************************
+  stopifnot(plotFit[1] %in% c('no','lin','int','int2','int3'))
+  stopifnot(is.factor(catVar))
+  ### Check if data provided:
+  if(is.null(X) | ncol(X)<3){
+    stop('A data table with at least 3 columns must be provided')
+  }
+  ### Check if numeric:
+  if(!all(unlist(lapply(as.data.frame(X[,1:3]), is.numeric)))){
+    stop("The first three variables of X (used for plotting) have to be numeric")
+  }
+  ### Check if impossible plotFit is supplied:
+  if(plotFit[1] %in% c('int2', 'int3') & nlevels(catVar)<2){
+    stop(paste0('To show the ', plotFit[1], ' fit, a catVar is needed with more than one level.'))
+  }
+
+
+  #*********************************************************************************
+  #   PREPARE DATA   ####
+  #*********************************************************************************
+  ### Select first three columns:
+  if(ncol(X)>3){warning('More than three variables in the data. Will select the first three columns for plotting.')}
+  dat <- as.data.frame(X[,1:3])
+  ### In case colour ramp up is asked for:
+  if(!is.null(colRamp)){
+    ### Some checks:
+    if(any(is.na(colRamp))){warning('There are missings in the colRamp variable')}
+    if(length(colRamp) != nrow(dat)){warning('colRamp does not have the same length as the data to be plotted.')}
+    ### Prepare palette:
+    ncl_pl <- 100
+    col_pl <- colorRampPalette(c('navy', 'hotpink'))(ncl_pl)
+    ### Cut values into ranges:
+    col_indx <- as.numeric(cut(colRamp, breaks=ncl_pl))
+    ### Point colour vector:
+    pointCol <- col_pl[col_indx]
+  }
+  ### Combine with other variables
+  dat <- cbind(dat, "catV"=catVar, "pointC"=pointCol)
+  ### Adapt pointCol if catVar supplied:
+  if(nlevels(dat$catV) > 1){dat$pointC <- as.numeric(dat$catV)}
+  ### Remove rows with missing values:
+  noNaSel <- apply(dat, 1, function(x){all(!is.na(x))})
+  dat <- dat[noNaSel,]
+  if(sum(!noNaSel) > 0){warning("There are missing values in the data. Will remove the rows containing missing values.")}
+  ### Generate x, y, z:
+  colnames(dat)[1:3] <- c('x','y','z')
+  ### Generate axesnames if not provided:
+  if(is.null(axesNames)) {axesNames <- colnames(X)[1:3]}
+
+
+  #*********************************************************************************
+  #   PLOT POINTS   ####
+  #*********************************************************************************
+  ### Set axis-length if not provided:
+  if(is.null(axesLeng)){
+    axesLeng <- rep(max(c(max(dat$x), max(dat$y), max(dat$z)))*1.5, 3)   # Set axes length based on data
+    axesLeng[axesLeng <= 0] <- 1   # Set negative axes length to 1
+  }else{
+    if(any(axesLeng <= 0)){stop("Specified axes lengths must all be positive.")}
+    axesLeng <- rep(axesLeng, length.out=3)
+  }
+  ### Create empty coordinate system (if no figure object to add data is supplied):
+  if(is.null(add2obj)){
+    ### Calculate ranges for box:
+    if(is.null(rngs)){
+      rngs <- list("x"=range(c(0, dat$x, axesLeng[1])),
+                   "y"=range(c(0, dat$y, axesLeng[2])),
+                   "z"=range(c(0, dat$z, axesLeng[3])))
+    }else{
+      if(!inherits(rngs, 'list') | length(rngs)!= 3){stop('rngs must be a list of length 3.')}
+    }
+    ### Empty coordinate system:
+    fig <- .coorSystem3D_plotly(axesNames = axesNames, axesLeng = axesLeng,
+                                plotlyAxes = plotlyAxes, addgrid=addgrid, rngs=rngs)
+  }else{
+    if(!inherits(add2obj, what = 'plotly')){stop('The figure you supplied to add data to must inherit class plotly')}
+    fig <- add2obj
+    ### Get the dimensions of the visual box and check if any data lies outside:
+    xrng <- fig$x$layoutAttrs[[1]]$scene$xaxis$range
+    x_inbound <- (range(dat$x)[1] >=  xrng[1]) & (range(dat$x)[2] <=  xrng[2])
+    yrng <- fig$x$layoutAttrs[[1]]$scene$yaxis$range
+    y_inbound <- (range(dat$y)[1] >=  yrng[1]) & (range(dat$y)[2] <=  yrng[2])
+    zrng <- fig$x$layoutAttrs[[1]]$scene$zaxis$range
+    z_inbound <- (range(dat$z)[1] >=  zrng[1]) & (range(dat$z)[2] <=  zrng[2])
+    if(any(!c(x_inbound, y_inbound, z_inbound))){
+      warning('There are points to be added that lie outside the visual box of the present figure. You need to create the previous figure with a larger visual box, otherwise those points will not be plotted.')
+    }
+  }
+  ### Plot points:
+  if(is.null(pointSize)){pointSize <- 3}   # Adapt pointsize
+  fig <- plotly::add_trace(fig,
+                           x = dat$x,
+                           y = dat$y,
+                           z = dat$z,
+                           mode = "markers",
+                           type = "scatter3d",
+                           marker = list(
+                             size = pointSize,
+                             color = mktransp(dat$pointC, alpha = pointTrans)    # one color per point
+                           )
+  )
+
+
+  #*********************************************************************************
+  #   PLOT LINEAR FIT   ####
+  #*********************************************************************************
+  ### Check what to plot:
+  if(plotFit[1]!='no'){
+    ### Prepare grid for plotting:
+    x.pred <- seq(min(dat$x), max(dat$x), length.out = 100)
+    y.pred <- seq(min(dat$y), max(dat$y), length.out = 100)
+    xy.grid <- expand.grid("x"=x.pred, "y"=y.pred)
+    ### Iterate through the catVar levels:
+    for(i in 1:nlevels(dat$catV)){
+
+      #****************************************
+      ### In case there is only 1 catVar level:
+      if(nlevels(dat$catV)==1){
+        if(plotFit[1]=='lin'){
+          ### Fit model for coefficients:
+          lm.z <- lm(z ~ x + y, dat)
+          ### Predict z values:
+          z.pred <- matrix(predict(lm.z, newdata = data.frame("x"=xy.grid$x, "y"=xy.grid$y)), ncol = length(x.pred), byrow = TRUE)
+
+        }else if(plotFit[1]=='int'){
+          ### Fit model for coefficients:
+          lm.z <- lm(z ~ x * y, dat)
+          ### Predict z values:
+          z.pred <- matrix(predict(lm.z, newdata = data.frame("x"=xy.grid$x, "y"=xy.grid$y)), ncol = length(x.pred), byrow = TRUE)
+        }
+        #****************************************
+
+      }else if(plotFit[1]=='lin'){
+        ### Fit model for coefficients:
+        lm.z <- lm(z ~ x + y + catV, dat)
+        ### Predict z values:
+        z.pred <- matrix(predict(lm.z, newdata = data.frame("x"=xy.grid$x, "y"=xy.grid$y, "catV"=levels(dat$catV)[i])), ncol = length(x.pred), byrow = TRUE)
+
+      }else if(plotFit[1]=='int'){
+        ### Fit model for coefficients:
+        lm.z <- lm(z ~ x * y + catV, dat)
+        ### Predict z values:
+        z.pred <- matrix(predict(lm.z, newdata = data.frame("x"=xy.grid$x, "y"=xy.grid$y, "catV"=levels(dat$catV)[i])), ncol = length(x.pred), byrow = TRUE)
+
+      }else if(plotFit[1]=='int2'){
+        ### Fit model for coefficients:
+        lm.z <- lm(z ~ x + y + catV + catV:x + catV:y, dat)
+        ### Predict z values:
+        z.pred <- matrix(predict(lm.z, newdata = data.frame("x"=xy.grid$x, "y"=xy.grid$y, "catV"=levels(dat$catV)[i])), ncol = length(x.pred), byrow = TRUE)
+
+      }else if(plotFit[1]=='int3'){
+        ### Fit model for coefficients:
+        lm.z <- lm(z ~ x * y * catV, dat)
+        ### Predict z values:
+        z.pred <- matrix(predict(lm.z, newdata = data.frame("x"=xy.grid$x, "y"=xy.grid$y, "catV"=levels(dat$catV)[i])), ncol = length(x.pred), byrow = TRUE)
+      }
+      ### Set surface color:
+      srfCl <- ifelse(test = nlevels(dat$catV) > 1, yes = i, no = "steelblue")
+      ### Plot surface of fit:
+      fig <- plotly::add_surface(fig,
+                                 x = x.pred,
+                                 y = y.pred,
+                                 z = z.pred,             # make it semi-transparent
+                                 surfacecolor = matrix(1, nrow = length(x.pred), ncol = length(y.pred)),  # constant colour
+                                 colorscale = list(c(0, mktransp(srfCl, alpha = planeTrans)), c(1, mktransp(srfCl, alpha = planeTrans))),   # single solid color
+                                 showscale = FALSE,          # hide color bar
+                                 inherit = FALSE   # Necessary to avoid unnecessary warning
+      )
+    }
+  }
+  ### Return object:
+  return(fig)
+}
+
+### Function to plot empty 3d coordinate system (only intended to be used inside nice3DPlot_plotly):
+.coorSystem3D_plotly <- function(axesNames, axesLeng, plotlyAxes, addgrid, rngs) {
+  ### Replicate plotlyAxes argument:
+  plotlyAxes <- rep(plotlyAxes, length.out=3)
+  ### Draw empty plot:
+  fig <- plotly::plot_ly(type = "scatter3d", mode='markers')
+  fig <- plotly::layout(fig,
+                        scene = list(
+                          xaxis = list(range = rngs[[1]], title = axesNames[1], visible=plotlyAxes[1]),
+                          yaxis = list(range = rngs[[2]], title = axesNames[2], visible=plotlyAxes[2]),
+                          zaxis = list(range = rngs[[3]], title = axesNames[3], visible=plotlyAxes[3]),
+                          aspectmode = "manual",   # Force the axes to have same scale
+                          aspectratio = list(x = abs(diff(rngs[[1]])),
+                                             y = abs(diff(rngs[[2]])),
+                                             z = abs(diff(rngs[[3]])))   # Force the axes to have same scale
+                        )
+  )
+  ### Add axes lines:
+  fig <- plotly::add_trace(fig,
+                           x = c(0, axesLeng[1], NA, 0, 0, NA, 0, 0),
+                           y = c(0, 0, NA, 0, axesLeng[2], NA, 0, 0),
+                           z = c(0, 0, NA, 0, 0, NA, 0, axesLeng[3]),
+                           type = "scatter3d",
+                           mode = "lines",
+                           line = list(color = "black",width = 6)  # optional thickness
+  )
+  ### Add axes text:
+  fig <- plotly::add_trace(fig,
+                           x = c(axesLeng[1], 0, 0),
+                           y = c(0, axesLeng[2], 0),
+                           z = c(0, 0, axesLeng[3]),
+                           text = axesNames,
+                           mode = "text",
+                           type = "scatter3d",
+                           textposition = 'top center'   # optional positioning
+  )
+  ### Add grid on floor:
+  if(addgrid){
+    axres <- 10
+    x <- seq(0,axesLeng[1], length.out = axres)[-1]
+    y <- seq(0,axesLeng[2],length.out = axres)[-1]
+    ### Loop trough lines:
+    for(i in 1:length(x)){
+      ### Draw x line:
+      fig <- plotly::add_trace(fig,
+                               x = c(0, max(x)),
+                               y=rep(y[i], 2),
+                               z=0,
+                               mode='lines', type='scatter3d',
+                               line = list(color = "lightgrey",width = 1))
+      ### Draw y line:
+      fig <- plotly::add_trace(fig,
+                               x = rep(x[i], 2),
+                               y= c(0, max(y)),
+                               z=0,
+                               mode='lines', type='scatter3d',
+                               line = list(color = "lightgrey",width = 1))
+    }
+  }
+  ### Return object:
+  return(fig)
+}
+
+
+#*********************************************************************************
 #   MIXED MODEL DGP   ####
 #*********************************************************************************
 mmdgp <- function(n=200, nC=5, sd_S=3, sd_C=5, sd_e=2, b0=50, tb=c(0,4,10,4,0),
