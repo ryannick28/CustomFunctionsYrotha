@@ -11,7 +11,7 @@ asArguments(...)
 \item{...}{The named arguments which will be store in the global environment.}
 }
 \examples{
-asArguments(a=1, b=1:10, d=list('a', 10, TRUE))
+asArguments(a=1, b=1:10, d=list('a', 10, TRUE), gg)
 ls()
 }
 

@@ -56,11 +56,12 @@ setUpGraph <- function(row=2, col=2){
 #   ASSIGN ARGUMENTS OF FUNCTION TO WORK INSIDE FUNCTION   ####
 #*********************************************************************************
 asArguments <- function(...){
-  argmns <- list(...)
+  argmns <- as.list(substitute(list(...)))[-1]   # Get the arguments without evaluating them
+  if(is.null(names(argmns))){stop('At least one argument with an explicit assignment must be present (e.g. x = 1)')}
+  argmns <- argmns[names(argmns)!='']   # Remove arguments without name
   list2env(argmns, envir = .GlobalEnv)   # Add arguments to global environment
   invisible()   # So that no output is printed
 }
-
 
 #*********************************************************************************
 #   NICE UNIVARIATE PLOT   ####
