@@ -1059,7 +1059,15 @@ nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 
                    "y"=range(c(0, dat$y, axesLeng[2])),
                    "z"=range(c(0, dat$z, axesLeng[3])))
     }else{
-      if(!inherits(rngs, 'list') | length(rngs)!= 3){stop('rngs must be a list of length 3.')}
+      if(inherits(rngs, c('numeric', 'integer'))){
+        ### Create rng list:
+        rngs <- list("x"=c(-abs(rngs[1]), abs(rngs[1])),
+                     "y"=c(-abs(rngs[1]), abs(rngs[1])),
+                     "z"=c(-abs(rngs[1]), abs(rngs[1])))
+      }else{
+        ### Check if its a list:
+        if(!inherits(rngs, 'list') | length(rngs)!= 3){stop('rngs must either be a number or a list of length 3.')}
+      }
     }
     ### Empty coordinate system:
     fig <- .coorSystem3D_plotly(axesNames = axesNames, axesLeng = axesLeng,

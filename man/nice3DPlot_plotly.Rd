@@ -39,9 +39,9 @@ plotlyAxes = FALSE, addgrid = TRUE)
 
   \item{add2obj}{An existing plotly 3d-plot object into which the data should be plotted.}
 
-  \item{rngs}{An optional list of length three in which the ranges of the visual box of the plotly plot can be defined. The three entries in the list contain the ranges (each one being a vector of length 2) of the x, y and z-directions (in this order). In plotly 3d plots, only points are visualized that lie within this visual box.}
+  \item{rngs}{Either a number or a list of length three in which the ranges of the visual box of the plotly plot can be defined. If supplied as a single number, then the ranges will be set for each axis as c(-rngs, rngs). If supplied as a list, then the three entries in the list contain the ranges (each one being a vector of length 2) of the x, y and z-directions (in this order). In plotly 3d plots, only points are visualized that lie within this visual box.}
 
-  \item{plotlyAxes}{A logical value indicating whether the default axes used in plotly should be visualized.}
+  \item{plotlyAxes}{A logical value indicating whether the default axes used in plotly should be visualized. If some added data lies outside the visual box of the current plot, then a warning will be displayed.}
 
   \item{addgrid}{A logical value indicating whether a grey grid should be visualized spanning the x and y axis.}
 }
