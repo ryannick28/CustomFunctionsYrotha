@@ -987,7 +987,7 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
 #*********************************************************************************
 #   NICE 3D PLOT (PLOTLY)   ####
 #*********************************************************************************
-nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 'int3'), catVar = factor(1), pointCol = 1, colRamp = NULL, pointSize = NULL, pointTrans = 255, planeTrans=100, axesNames = NULL, axesLeng = NULL, axeLeng_fac = 1.1, visBox_fac = 100, add2obj = NULL, rngs = NULL, plotlyAxes=FALSE, addgrid = TRUE){
+nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 'int3'), catVar = factor(1), pointCol = 1, colRamp = NULL, pointSize = NULL, pointTrans = 255, planeTrans=100, axesNames = NULL, axesLeng = NULL, axeLeng_fac = 1.1, add2obj = NULL, rngs = NULL, plotlyAxes=FALSE, addgrid = TRUE){
   #*********************************************************************************
   #   TEST CONDITIONS   ####
   #*********************************************************************************
@@ -1055,9 +1055,9 @@ nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 
   if(is.null(add2obj)){
     ### Calculate ranges for box:
     if(is.null(rngs)){
-      rngs <- list("x"= c(-abs(max(dat$x, na.rm=TRUE)), abs(max(dat$x, na.rm=TRUE))) * visBox_fac,
-                   "y"= c(-abs(max(dat$y, na.rm=TRUE)), abs(max(dat$y, na.rm=TRUE))) * visBox_fac,
-                   "z"= c(-abs(max(dat$z, na.rm=TRUE)), abs(max(dat$z, na.rm=TRUE))) * visBox_fac)
+      rngs <- list("x"=range(c(0, dat$x, axesLeng[1])),
+                   "y"=range(c(0, dat$y, axesLeng[2])),
+                   "z"=range(c(0, dat$z, axesLeng[3])))
     }else{
       if(!inherits(rngs, 'list') | length(rngs)!= 3){stop('rngs must be a list of length 3.')}
     }
