@@ -987,7 +987,7 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
 #*********************************************************************************
 #   NICE 3D PLOT (PLOTLY)   ####
 #*********************************************************************************
-nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 'int3'), catVar = factor(1), pointCol = 1, colRamp = NULL, pointSize = NULL, pointTrans = 255, planeTrans=100, axesNames = NULL, axesLeng = NULL, add2obj = NULL, rngs = NULL, plotlyAxes=FALSE, addgrid = TRUE){
+nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 'int3'), catVar = factor(1), pointCol = 1, colRamp = NULL, pointSize = NULL, pointTrans = 255, planeTrans=100, axesNames = NULL, axesLeng = NULL, axeLeng_fac = 1.1, add2obj = NULL, rngs = NULL, plotlyAxes=FALSE, addgrid = TRUE){
   #*********************************************************************************
   #   TEST CONDITIONS   ####
   #*********************************************************************************
@@ -1045,7 +1045,7 @@ nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 
   #*********************************************************************************
   ### Set axis-length if not provided:
   if(is.null(axesLeng)){
-    axesLeng <- rep(max(c(max(dat$x), max(dat$y), max(dat$z)))*1.5, 3)   # Set axes length based on data
+    axesLeng <- rep(max(c(max(dat$x), max(dat$y), max(dat$z)))*axeLeng_fac, 3)   # Set axes length based on data
     axesLeng[axesLeng <= 0] <- 1   # Set negative axes length to 1
   }else{
     if(any(axesLeng <= 0)){stop("Specified axes lengths must all be positive.")}

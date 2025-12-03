@@ -9,7 +9,7 @@ This function creates a nice plot of 3D-data. It is an adaptation of my original
 nice3DPlot_plotly(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 'int3'),
 catVar = factor(1), pointCol = 1, colRamp = NULL, pointSize = NULL,
 pointTrans = 255, planeTrans = 100, axesNames = NULL,
-axesLeng = NULL, add2obj = NULL, rngs = NULL,
+axesLeng = NULL, axeLeng_fac = 1.1, add2obj = NULL, rngs = NULL,
 plotlyAxes = FALSE, addgrid = TRUE)
 }
 
@@ -34,6 +34,8 @@ plotlyAxes = FALSE, addgrid = TRUE)
   \item{axesNames}{An optional vector of length 3, giving the axes names of the x, y and z axis (in this order).}
 
   \item{axesLeng}{Manually set axes length. Will be extended to a vector of length three assigning the lengths of the x, y and z axis (in this order).}
+
+  \item{axeLeng_fac}{A scaling factor which increases the axes lengths.}
 
   \item{add2obj}{An existing plotly 3d-plot object into which the data should be plotted.}
 
