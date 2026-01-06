@@ -1894,7 +1894,7 @@ flatten <- function(x) {
 #*********************************************************************************
 #   LIST VECTOR IN LATEX TEXT    ####
 #*********************************************************************************
-latexvec <- function(x, colps = ", ", fincolps = " and ", usetxttt = TRUE, fxundscr = TRUE){
+latexvec <- function(x, s = ", ", sfin = " and ", usetxttt = TRUE, fxundscr = TRUE){
   ### Make sure x is character:
   x <- as.character(x)
   ### x must have at least length of two:
@@ -1907,8 +1907,8 @@ latexvec <- function(x, colps = ", ", fincolps = " and ", usetxttt = TRUE, fxund
   x1 <- x[1:(length(x)-1)]
   x2 <- x[length(x)]
   ### Merge accordingly:
-  x1m <- paste(x1, sep='', collapse = colps)
-  x <- paste(x1m, x2, sep=fincolps)
+  x1m <- paste(x1, sep='', collapse = s)
+  x <- paste(x1m, x2, sep = sfin)
   ### Fix underscores:
   if(fxundscr){
     x <- gsub('_', replacement = '\\\\_', x)
