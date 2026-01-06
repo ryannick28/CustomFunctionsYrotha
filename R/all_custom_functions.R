@@ -1889,3 +1889,30 @@ flatten <- function(x) {
   if (!inherits(x, "list")) return(list(x))
   else return(unlist(c(lapply(x, flatten)), recursive = FALSE))
 }
+
+
+#*********************************************************************************
+#   LIST VECTOR IN LATEX TEXT    ####
+#*********************************************************************************
+latexvec <- function(x, colps = ", ", fincolps = " and ", usetxttt = TRUE, fxundscr = TRUE){
+  ### Make sure x is character:
+  x <- as.character(x)
+  ### x must have at least length of two:
+  if(length(x) < 2) stop('Length of supplied vector must be at least two.')
+  ### Add R font:
+  if(usetxttt){
+    x <- paste('\\texttt{', x, '}',sep='')
+  }
+  ### Separate from last element:
+  x1 <- x[1:(length(x)-1)]
+  x2 <- x[length(x)]
+  ### Merge accordingly:
+  x1m <- paste(x1, sep='', collapse = colps)
+  x <- paste(x1m, x2, sep=fincolps)
+  ### Fix underscores:
+  if(fxundscr){
+    x <- gsub('_', replacement = '\\\\_', x)
+  }
+  ### Return:
+  return(x)
+}
