@@ -1897,18 +1897,19 @@ flatten <- function(x) {
 latexvec <- function(x, s = ", ", sfin = " and ", usetxttt = TRUE, fxundscr = TRUE){
   ### Make sure x is character:
   x <- as.character(x)
-  ### x must have at least length of two:
-  if(length(x) < 2) stop('Length of supplied vector must be at least two.')
   ### Add R font:
   if(usetxttt){
     x <- paste('\\texttt{', x, '}',sep='')
   }
-  ### Separate from last element:
-  x1 <- x[1:(length(x)-1)]
-  x2 <- x[length(x)]
-  ### Merge accordingly:
-  x1m <- paste(x1, sep='', collapse = s)
-  x <- paste(x1m, x2, sep = sfin)
+  ### Preprocess vector:
+  if(length(x) > 1){
+    ### Separate from last element:
+    x1 <- x[1:(length(x)-1)]
+    x2 <- x[length(x)]
+    ### Merge accordingly:
+    x1m <- paste(x1, sep='', collapse = s)
+    x <- paste(x1m, x2, sep = sfin)
+  }
   ### Fix underscores:
   if(fxundscr){
     x <- gsub('_', replacement = '\\\\_', x)
