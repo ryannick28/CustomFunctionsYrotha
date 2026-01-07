@@ -6,11 +6,11 @@ Creates a violin plot of a numeric variable and marks the mean value. Can split 
 }
 \usage{
 niceUnivPlot(numVar, catVar = NULL, pairedVar = NULL, violin = TRUE,
-fxdCol = NULL, showMean = TRUE, plot.points = TRUE, bw = 'nrd0',
+pointCol = NULL, showMean = TRUE, plot.points = TRUE, bw = 'nrd0',
 jitFactor = 0.2, add.ylim = 0, ylim.cust = NULL, xlab = NULL,
 ylab = NULL, densScl = 0.5, main = NULL, sigGroup = FALSE, sigMu = NULL,
 multCmp = FALSE, pairCol = NULL, add.lgnd = FALSE, add = FALSE, lnk.means = NULL,
-lnk.means.lwd = 2, pair.lwd = 2, point.ColPalette = NULL, bgalph = 100,
+lnk.means.lwd = 2, pair.lwd = 2, fxdCol = NULL, bgalph = 100,
 pair_legend = TRUE, pair_legendPos = "topleft", ...)
 }
 \arguments{
@@ -22,7 +22,7 @@ pair_legend = TRUE, pair_legendPos = "topleft", ...)
 
   \item{violin}{A logical value indicating whether the violin plot should be drawn.}
 
-  \item{fxdCol}{One colour in which to plot the points, densities and mean lines. In the meantime I have added the point.ColPalette argument which can do the same and more than fxdCol. I've kept the fxdCol argument to prevent errors written with older versions of the function.}
+  \item{pointCol}{A vector indicating the colour(s) in which to plot the points. It can be a single colour or a vector ideally of the same length as numVar. If pointCol is supplied as a factor then it will be turned into a numeric vector. If numVar is supplied as a table then pointCol must either have length 1 or the same length as there are rows in numVar. This will overwrite any input to the fxdCol argument.}
 
   \item{showMean}{A logical value indicating whether the mean value should be indicated in plot.}
 
@@ -60,7 +60,7 @@ pair_legend = TRUE, pair_legendPos = "topleft", ...)
 
   \item{lnk.means.lwd}{Line width of lines linking the mean values}
   \item{pair.lwd}{Line width of lines linking the individual cases}
-  \item{point.ColPalette}{Colour palette that will be used to plot the points (and the violin and mean lines). As a default the hcl.points "dynamic" palette is used with as many colours as there are levels of catVar (or one colour if catVar is not supplied). If point.ColPalette is supplied then it will be repeated by the number of levels of catvar to make sure that there are enough colours for all catvar levels.}
+  \item{fxdCol}{Colour palette that will be used to plot the points, the violin lines and the mean lines). As a default the hcl.points "dynamic" palette is used with as many colours as there are levels of catVar (or one colour if catVar is not supplied). If point.ColPalette is supplied then it will be extended in length to the number of levels of catvar to make sure that there are enough colours for all catvar levels.}
   \item{bgalph}{A transparency factor used for the background of plotted points (only relevant if a pch symbol with a background argument is chosen in the ... argument). Ranges from 0 (completely transparent) to 255 (no transparency).}
   \item{pair_legend}{A logical indicating whether a legend should be drawn in case a suitable pairCol vector is supplied.}
   \item{pair_legendPos}{The position of the legend for the pairCol vector.}

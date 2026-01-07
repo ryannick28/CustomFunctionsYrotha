@@ -67,12 +67,12 @@ asArguments <- function(...){
 #*********************************************************************************
 #   NICE UNIVARIATE PLOT   ####
 #*********************************************************************************
-niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCol=NULL,
+niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, pointCol=NULL,
                          showMean=TRUE, plot.points=TRUE, bw='nrd0', jitFactor=0.2,
                          add.ylim=0, ylim.cust=NULL, xlab=NULL, ylab=NULL, densScl=0.5,
                          main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE,
                          pairCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL,
-                         lnk.means.lwd=2, pair.lwd=2, point.ColPalette=NULL, bgalph=100,
+                         lnk.means.lwd=2, pair.lwd=2, fxdCol=NULL, bgalph=100,
                          pair_legend=TRUE, pair_legendPos='topleft', ...){
 
 
@@ -83,6 +83,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   catVar.nm <- ''
   numVar.nm <- deparse(substitute(numVar))
   paircol.nm <- deparse(substitute(pairCol))
+  ### Turn custom point color to numeric if its a factor:
+  if(inherits(pointCol, what = 'factor')){pointCol <- as.numeric(pointCol)}
   ### Check if input is matrix-like object:
   if(inherits(numVar, what = c('matrix', 'data.frame'))){
     ### Check some requirements:
@@ -112,6 +114,15 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
         pairCol <- do.call(rbind, laps)$prCol
       }
     }
+    ### Check if pointCol is supplied as vector:
+    if(length(pointCol) > 1){
+      ### Check if correct length:
+      stopifnot(length(pointCol)==nrow(numVar))
+      ### Get into wide format:
+      laps <- lapply(colnms, function(x){data.frame(poCol=pointCol, value=numVar[,x])})
+      ### Extract pointCol:
+      pointCol <- do.call(rbind, laps)$poCol
+    }
     ### Get to "wide" format:
     laps <- lapply(colnms, function(x){data.frame(value=numVar[,x], varNm=x)})
     ### Extract num and catVar:
@@ -121,18 +132,20 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
     ### Check some requirements:
     stopifnot(is.numeric(numVar))
     stopifnot(is.null(ylim.cust) | length(ylim.cust)==2)   # Check valid entries for ylim.cust
+    if(length(pointCol) > 1 & length(pointCol)!=length(numVar)){warning('The supplied custom point color is a vector larger than 1 but it does not have the same length as the number of points. It will be repeated when plotting the points.')}
     ### Generate catvar:
     catVar.nm <- deparse(substitute(catVar))   # Get name of catVar
     if(is.null(catVar)){
       catVar <- factor(rep(1,length(numVar)))   # 1-level factor
     }else{
       stopifnot(length(catVar)==length(numVar))   # Make sure lengths are same
-      catVar <- as.factor(catVar)   # I use as.factor so that non-present levels are removed. (in older version I deliberately removed them with factor())
+      catVar <- as.factor(catVar)   # I use as.factor so that non-present levels are not removed. (in older version I deliberately removed them with factor())
     }
   }
   ### Set ylim:
   ylms <- c(min(numVar, na.rm = TRUE), max(numVar, na.rm = TRUE))
   ylms <- ylms + c(-add.ylim, add.ylim)   # Add the add.ylim
+
 
 
   #*********************************************************************************
@@ -238,10 +251,10 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
     ylab <- numVar.nm
   }
   ### Set colour:
-  if(is.null(point.ColPalette)){
+  if(is.null(fxdCol)){
     pointPal <- hcl.colors(n = nlevels(catVar), palette = 'dynamic')
   }else{
-    pointPal <- rep(point.ColPalette, nlevels(catVar))
+    pointPal <- rep(fxdCol, length.out=nlevels(catVar))
   }
   ### Start plot (empty):
   if(!add){
@@ -256,12 +269,12 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   }
   ### Add points:
   ### Set background of points:
-  bgcol0 <- if(is.null(fxdCol)){pointPal[as.numeric(catVar)]}else{fxdCol}
+  bgcol0 <- if(is.null(pointCol)){pointPal[as.numeric(catVar)]}else{pointCol}
   bgcol <- mktransp(color=bgcol0, alpha=bgalph)
   if(plot.points){
     points(x = jitter(as.numeric(catVar), factor = jitFactor),
            y = numVar,
-           col = if(is.null(fxdCol)){pointPal[as.numeric(catVar)]}else{fxdCol},
+           col = if(is.null(pointCol)){pointPal[as.numeric(catVar)]}else{pointCol},
            bg = bgcol,
            ...)
   }
@@ -273,7 +286,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   if(nlevels(catVar) > 1 & add.lgnd){   # Only needed with multiple levels
     legend('bottomright', legend = levels(catVar),
            pch=1,
-           col=if(is.null(fxdCol)){1:nlevels(catVar)}else{fxdCol})
+           col=pointPal)
   }
 
 
@@ -360,8 +373,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
     cexD <- densScl/maxD
     ### Now plot the densities:
     for(i in 1:nlevels(catVar)){
-      lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col= if(is.null(fxdCol)){pointPal[i]}else{fxdCol}, lwd=3)
-      lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=if(is.null(fxdCol)){pointPal[i]}else{fxdCol}, lwd=3)
+      lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col= pointPal[i], lwd=3)
+      lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=pointPal[i], lwd=3)
     }
   }
 
@@ -373,7 +386,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, fxdCo
   if(showMean){
     for(i in 1:nlevels(catVar)){
       mVal <-  mean(numVar[as.numeric(catVar)==i], na.rm = TRUE)
-      segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = if(is.null(fxdCol)){pointPal[i]}else{fxdCol}, lwd = 3)
+      segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = pointPal[i], lwd = 3)
     }
   }
   ### Add mean connections:
