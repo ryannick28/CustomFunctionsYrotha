@@ -453,7 +453,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
   #   PREPARE DATA   ####
   #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   ### Make sure x is a data frame:
-  x <- data.frame(x)
+  x <- data.frame(x, check.names = FALSE)
   ### Check some things about exclude option:
   if(any(exclude %in% colnames(x))){   # In case of manually selecting vars
     if(!all(exclude %in% colnames(x))){warning('Not all variables to exclude are present in the data')}
@@ -481,6 +481,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     if(inherits(a, 'character')) {rval <- factor(a)}else{rval <- a}
   })
   x <- do.call(data.frame, lfac)
+  colnames(x) <- names(lfac)   # Make sure names don't change
   ### Reorder columns to have factors together:
   if(!keepOrder){
     fac_id <- sapply(x, inherits, what='factor')   # Indices
@@ -1438,11 +1439,11 @@ wideToLong <- function(x, nRep=NULL, ind='T*_', indCust=NULL,
     di <- di[, match(allc, colnames(di))]
     ### In case of non numeric turn to character:
     if(!allnum){
-      di <- data.frame(lapply(di, as.character))
+      di <- data.frame(lapply(di, as.character), check.names=FALSE)
       ### Check if factor:
       if(trn2fac){
         ### Turn each column to factor with all found levels:
-        di <- data.frame(lapply(di, function(z) factor(z, levels = allevels) ))
+        di <- data.frame(lapply(di, function(z) factor(z, levels = allevels) ), check.names=FALSE)
       }
     }
     ### Store data:
@@ -1525,7 +1526,7 @@ niceNaPlot <- function(x, IDvar=NULL, show_xlab=TRUE, forceUnaggr=FALSE,
     x[,IDvar] <- NULL
   }
   ### Create NA table:
-  x <- data.frame(is.na(x)*1)
+  x <- data.frame(is.na(x)*1, check.names=FALSE)
   ### Remove duplicates to make clustering more efficient:
   ### Get each row as one number:
   x$dupIdentifierNiceNA_YR <- apply(x, 1, function(z) paste(z, collapse = '') )
@@ -1687,7 +1688,7 @@ longToWide <- function(x, IDvar, repColnm, repVars, colNmStr='', verbose.mssg=TR
     djL <- list()
     for(j in 1:ncol(dwr)){
       ### wide data format:
-      dj <- do.call(data.frame, as.list(dwr[,j]))
+      dj <- data.frame(as.list(dwr[,j]), check.names=FALSE)
       ### Add appropriate colnames:
       cn0 <- expand.grid(colnames(dwr)[j], lvs)
       cn1 <- do.call(paste0, list(cn0[,2], colNmStr, cn0[,1]))
@@ -1850,7 +1851,7 @@ standizDat <- function(x, chngName = TRUE, onlyCenter = FALSE){
   ### Lapply call:
   lap_res <- lapply(x, lapp_f)
   ### combine to dataframe:
-  rval <- do.call(data.frame, lap_res)
+  rval <- data.frame(lap_res, check.names=FALSE)
   return(rval)
 }
 
@@ -1880,7 +1881,7 @@ rmOutliers <- function(x, chngName = TRUE){
   ### Lapply call:
   lap_res <- lapply(x, lapp_f)
   ### combine to dataframe:
-  rval <- do.call(data.frame, lap_res)
+  rval <- data.frame(lap_res, check.names=FALSE)
   return(rval)
 }
 
