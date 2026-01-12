@@ -64,7 +64,7 @@ pair_legend = TRUE, pair_legendPos = "topleft", ...)
   \item{bgalph}{A transparency factor used for the background of plotted points (only relevant if a pch symbol with a background argument is chosen in the ... argument). Ranges from 0 (completely transparent) to 255 (no transparency).}
   \item{pair_legend}{A logical indicating whether a legend should be drawn in case a suitable pairCol vector is supplied.}
   \item{pair_legendPos}{The position of the legend for the pairCol vector.}
-  \item{...}{Arguments to be passed to the points() call inside the function, where the points are plotted.}
+  \item{...}{Arguments to be passed to the plot() and points() call inside the function, where the basic plot structure is defined and the points are plotted.}
 }
 \examples{
 niceUnivPlot(iris$Sepal.Length)

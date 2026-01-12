@@ -265,7 +265,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
          xaxt = 'n',
          ylab = ylab,
          xlab = xlab,
-         main = ifelse(main.nm=='NULL', paste0(numVar.nm, ' Plot'), main))
+         main = ifelse(main.nm=='NULL', paste0(numVar.nm, ' Plot'), main),
+         ...)
   }
   ### Add points:
   ### Set background of points:
