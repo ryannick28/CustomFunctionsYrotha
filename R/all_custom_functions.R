@@ -272,8 +272,10 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
   ### Set background of points:
   bgcol0 <- if(is.null(pointCol)){pointPal[as.numeric(catVar)]}else{pointCol}
   bgcol <- mktransp(color=bgcol0, alpha=bgalph)
+  ### X-coordinates of points:
+  xpnts <- jitter(as.numeric(catVar), factor = jitFactor)
   if(plot.points){
-    points(x = jitter(as.numeric(catVar), factor = jitFactor),
+    points(x = xpnts,
            y = numVar,
            col = if(is.null(pointCol)){pointPal[as.numeric(catVar)]}else{pointCol},
            bg = bgcol,
@@ -322,14 +324,14 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
       }
     }else{pCol <- pairCol}   # When pairCol is one fixed colour
     ### Draw lines per case in for-loop:
-    dd.0 <- data.frame(numVar, catVar, pairedVar, pCol)
+    dd.0 <- data.frame(numVar, xpnts, catVar, pairedVar, pCol)
     for(i in 1:nlevels(pairedVar)){
       dd <- dd.0[as.numeric(dd.0$pairedVar)==i,]   # Select entries of case i
       dd <- dd[order(dd$catVar), ]   # Make sure order of catVar is correct
       ### Check whether pCol values are all equal for case:
       if(length(unique(dd$pCol)) != 1){warning('There are cases with different values of the pairCol factor.')}
       ### Plot line:
-      lines(x = dd$catVar, y = dd$numVar, col=dd$pCol[1], lwd=pair.lwd)
+      lines(x = dd$xpnts, y = dd$numVar, col=dd$pCol[1], lwd=pair.lwd)
     }
     ### Add a legend:
     if(leg_dr & pair_legend){

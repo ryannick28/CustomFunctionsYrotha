@@ -22,7 +22,7 @@ pair_legend = TRUE, pair_legendPos = "topleft", ...)
 
   \item{violin}{A logical value indicating whether the violin plot should be drawn.}
 
-  \item{pointCol}{A vector indicating the colour(s) in which to plot the points. It can be a single colour or a vector ideally of the same length as numVar. If pointCol is supplied as a factor then it will be turned into a numeric vector. If numVar is supplied as a table then pointCol must either have length 1 or the same length as there are rows in numVar. This will overwrite any input to the fxdCol argument.}
+  \item{pointCol}{A vector indicating the colour(s) in which to plot the points. It can be a single colour or a vector ideally of the same length as numVar. If pointCol is supplied as a factor then it will be turned into a numeric vector. If numVar is supplied as a table then pointCol must either have length 1 or the same length as there are rows in numVar. pointCol will overwrite any input to the fxdCol argument.}
 
   \item{showMean}{A logical value indicating whether the mean value should be indicated in plot.}
 
