@@ -26,7 +26,7 @@ descTable(x, numDesc1 = c("median", "mean"), numDesc2 = c("quartile13", "sd"),
 For non-numeric variables, the function automatically turns them into a
 factor (using as.factor) and returns the number of cases and relative proportion
 for each factor level. For numeric variables, the "quartile13" option returns
-the first and third quartiles in bracktes, while the the "sd" option returns
+the first and third quartiles in brackets, while the "sd" option returns
 the estimated standard deviation.
 }
 
