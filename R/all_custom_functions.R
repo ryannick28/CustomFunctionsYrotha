@@ -1934,3 +1934,103 @@ latexvec <- function(x, s = ", ", sfin = " and ", usetxttt = TRUE, fxundscr = TR
   ### Return:
   return(x)
 }
+
+
+#*********************************************************************************
+#   DESCRIPTIVE STATISTICS TABLE    ####
+#*********************************************************************************
+descTable <- function(x, numDesc1 = c("median", "mean"),
+                      numDesc2 = c("quartile13", "sd"),
+                      showMiss = TRUE, boldVarnmsLtx = FALSE,
+                      addIndetLtx = FALSE, escPercLtx = FALSE){
+  ### Make sure correct format:
+  x <- as.data.frame(x)
+  ### Get arguments:
+  numDesc1 <- match.arg(numDesc1)
+  numDesc2 <- match.arg(numDesc2)
+  ### Loop through columns:
+  descL <- list()
+  for(i in 1:ncol(x)){
+    ### Get variable:
+    vi <- x[,i]
+    ### Get name:
+    nmi <- colnames(x)[i]
+    ### Process according to type:
+    if(inherits(vi, c('numeric', 'integer'))){
+      ### Get number of missings:
+      nmiss <- sum(is.na(vi))
+      ### Get descriptives:
+      ### First statistic:
+      if(numDesc1 == 'median'){
+        de1 <- round(median(vi, na.rm = TRUE), 2)
+      }else if(numDesc1 == 'mean'){
+        de1 <- round(mean(vi, na.rm=TRUE), 2)
+      }
+      ### Second statistic:
+      if(numDesc2 == 'quartile13'){
+        de20 <- round(quantile(vi, probs = c(0.25, 0.75), na.rm = TRUE), 2)
+        de2 <- paste0(' (', paste0(de20, collapse = ', '), ')')
+      }else if(numDesc2 == 'sd'){
+        de2 <- paste0(' (', round(sd(vi, na.rm = TRUE), 2), ')')
+      }
+      ### Merge together:
+      ### Upper table:
+      ### Make variable name bold:
+      if(boldVarnmsLtx){nmi <- paste0('\\textbf{', nmi, '}')}
+      dupp <- data.frame(nmi, paste0(de1, de2), check.names = FALSE)
+      colnames(dupp) <- paste0('C', 1:ncol(dupp))
+      ### Bottom table:
+      if(nmiss > 0){
+        dbot <- data.frame('(missing)', nmiss, check.names = FALSE)
+        colnames(dbot) <- colnames(dupp)
+        di <- rbind(dupp, dbot)
+      }else{
+        di <- dupp
+      }
+      ### Store:
+      descL[[i]] <- di
+      #****************
+    }else{
+      ### Treat like factor:
+      ### Make sure is factor:
+      vi <- as.factor(vi)   # Overwrite
+      ### Get numbers:
+      nums <- table(vi, useNA = ifelse(showMiss, yes = 'ifany', no = 'no'))
+      names(nums)[is.na(names(nums))] <- '(missing)'
+      ### Get percentiles:
+      per0 <- nums/(sum(!is.na(vi)))
+      per <- round(per0, 2)
+      ### Paste together:
+      pst0 <- paste0(' (', per, ifelse(escPercLtx, '\\%', '%'), ')')
+      ### Remove percentile for missings:
+      pst0[which(names(per)=='(missing)')] <- ''
+      ### Paste again:
+      pst <- paste0(nums, pst0)
+      ### Set up table:
+      ### Bottom table:
+      ### Check to add indent:
+      if(addIndetLtx){
+        horstrut <- '\\rule[0pt]{\\baselineskip}{0pt}'   # Horizontal strut
+        lvlnms <- paste0(horstrut, names(nums))
+      }else{lvlnms <- names(nums)}
+      ### Create table:
+      dbot <- data.frame(lvlnms, pst, check.names = FALSE)
+      ### Upper table:
+      ### Make variable name bold:
+      if(boldVarnmsLtx){nmi <- paste0('\\textbf{', nmi, '}')}
+      dupp <- data.frame(nmi, '', check.names = FALSE)
+      ### Change colnames:
+      colnames(dbot) <- colnames(dupp) <- paste0('C', 1:ncol(dbot))
+      ### Combine and store:
+      di <- rbind(dupp, dbot)
+      descL[[i]] <- di
+    }
+  }
+  ### Merge everything together:
+  dmrg <- do.call(rbind, descL)
+  ### Adapt colnames:
+  nrw <- paste0('N = ', nrow(x))   # How many cases
+  colnames(dmrg) <- c('Variable', nrw)
+  ### Return:
+  return(dmrg)
+}
