@@ -1942,7 +1942,8 @@ latexvec <- function(x, s = ", ", sfin = " and ", usetxttt = TRUE, fxundscr = TR
 descTable <- function(x, numDesc1 = c("median", "mean"),
                       numDesc2 = c("quartile13", "sd"),
                       showMiss = TRUE, boldVarnmsLtx = FALSE,
-                      addIndetLtx = FALSE, escPercLtx = FALSE){
+                      addIndetLtx = FALSE, escPercLtx = FALSE, rndPer = 1,
+                      rndNum1 = 2, rndNum2 = 1){
   ### Make sure correct format:
   x <- as.data.frame(x)
   ### Get arguments:
@@ -1962,16 +1963,16 @@ descTable <- function(x, numDesc1 = c("median", "mean"),
       ### Get descriptives:
       ### First statistic:
       if(numDesc1 == 'median'){
-        de1 <- round(median(vi, na.rm = TRUE), 2)
+        de1 <- round(median(vi, na.rm = TRUE), rndNum1)
       }else if(numDesc1 == 'mean'){
-        de1 <- round(mean(vi, na.rm=TRUE), 2)
+        de1 <- round(mean(vi, na.rm=TRUE), rndNum1)
       }
       ### Second statistic:
       if(numDesc2 == 'quartile13'){
-        de20 <- round(quantile(vi, probs = c(0.25, 0.75), na.rm = TRUE), 2)
+        de20 <- round(quantile(vi, probs = c(0.25, 0.75), na.rm = TRUE), rndNum2)
         de2 <- paste0(' (', paste0(de20, collapse = ', '), ')')
       }else if(numDesc2 == 'sd'){
-        de2 <- paste0(' (', round(sd(vi, na.rm = TRUE), 2), ')')
+        de2 <- paste0(' (', round(sd(vi, na.rm = TRUE), rndNum2), ')')
       }
       ### Merge together:
       ### Upper table:
@@ -1998,8 +1999,8 @@ descTable <- function(x, numDesc1 = c("median", "mean"),
       nums <- table(vi, useNA = ifelse(showMiss, yes = 'ifany', no = 'no'))
       names(nums)[is.na(names(nums))] <- '(missing)'
       ### Get percentiles:
-      per0 <- nums/(sum(!is.na(vi)))
-      per <- round(per0, 2)
+      per0 <- 100*(nums/(sum(!is.na(vi))))
+      per <- round(per0, rndPer)
       ### Paste together:
       pst0 <- paste0(' (', per, ifelse(escPercLtx, '\\%', '%'), ')')
       ### Remove percentile for missings:
