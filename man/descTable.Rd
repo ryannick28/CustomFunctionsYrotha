@@ -19,7 +19,7 @@ descTable(x, numDesc1 = c("median", "mean"), numDesc2 = c("quartile13", "sd"),
 \item{boldVarnmsLtx}{A logical value which determines whether the variable names should be printed bold in a latex table.}
 \item{addIndetLtx}{A logical value which determines whether there should be some indentation for the level names of factors in a latex table.}
 \item{escPercLtx}{A logical value which determines whether for printing in latex the percent signs should be escaped using backward slashes.}
-\item{rndPer}{The number of decimal places to round the relative proportions (in percent).}
+\item{rndPer}{The number of decimal places to round the relative proportions.}
 \item{rndNum1}{The number of decimal places to round the main descriptive statistic of numeric variables.}
 \item{rndNum2}{The number of decimal places to round the secondary descriptive statistic of numeric variables.}
 }
