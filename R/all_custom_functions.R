@@ -1982,7 +1982,14 @@ descTable <- function(x, numDesc1 = c("median", "mean"),
       colnames(dupp) <- paste0('C', 1:ncol(dupp))
       ### Bottom table:
       if(nmiss > 0){
-        dbot <- data.frame('(missing)', nmiss, check.names = FALSE)
+        if(addIndetLtx){
+          ### Add strut to missing name:
+          horstrut <- '\\rule[0pt]{\\baselineskip}{0pt}'   # Horizontal strut
+          mss_name <- paste0(horstrut, '(missing)')
+        }else{
+          mss_name <- '(missing)'
+        }
+        dbot <- data.frame(mss_name, nmiss, check.names = FALSE)
         colnames(dbot) <- colnames(dupp)
         di <- rbind(dupp, dbot)
       }else{
