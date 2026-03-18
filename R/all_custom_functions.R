@@ -1942,8 +1942,8 @@ latexvec <- function(x, s = ", ", sfin = " and ", usetxttt = TRUE, fxundscr = TR
 descTable <- function(x, numDesc1 = c("median", "mean"),
                       numDesc2 = c("quartile13", "sd"),
                       showMiss = TRUE, boldVarnmsLtx = FALSE,
-                      addIndetLtx = FALSE, escPercLtx = FALSE, rndPer = 1,
-                      rndNum1 = 2, rndNum2 = 1){
+                      addIndentLtx = FALSE, escPercLtx = FALSE, rndPer = 1,
+                      rndNum1 = 2, rndNum2 = 1, msschar = "(missings)"){
   ### Make sure correct format:
   x <- as.data.frame(x)
   ### Get arguments:
@@ -1982,12 +1982,12 @@ descTable <- function(x, numDesc1 = c("median", "mean"),
       colnames(dupp) <- paste0('C', 1:ncol(dupp))
       ### Bottom table:
       if(nmiss > 0){
-        if(addIndetLtx){
+        if(addIndentLtx){
           ### Add strut to missing name:
           horstrut <- '\\rule[0pt]{1em}{0pt}'   # Horizontal strut
-          mss_name <- paste0(horstrut, '(missing)')
+          mss_name <- paste0(horstrut, msschar)
         }else{
-          mss_name <- '(missing)'
+          mss_name <- msschar
         }
         dbot <- data.frame(mss_name, nmiss, check.names = FALSE)
         colnames(dbot) <- colnames(dupp)
@@ -2004,20 +2004,20 @@ descTable <- function(x, numDesc1 = c("median", "mean"),
       vi <- as.factor(vi)   # Overwrite
       ### Get numbers:
       nums <- table(vi, useNA = ifelse(showMiss, yes = 'ifany', no = 'no'))
-      names(nums)[is.na(names(nums))] <- '(missing)'
+      names(nums)[is.na(names(nums))] <- msschar
       ### Get percentiles:
       per0 <- 100*(nums/(sum(!is.na(vi))))
       per <- round(per0, rndPer)
       ### Paste together:
       pst0 <- paste0(' (', per, ifelse(escPercLtx, '\\%', '%'), ')')
       ### Remove percentile for missings:
-      pst0[which(names(per)=='(missing)')] <- ''
+      pst0[which(names(per)==msschar)] <- ''
       ### Paste again:
       pst <- paste0(nums, pst0)
       ### Set up table:
       ### Bottom table:
       ### Check to add indent:
-      if(addIndetLtx){
+      if(addIndentLtx){
         horstrut <- '\\rule[0pt]{1em}{0pt}'   # Horizontal strut
         lvlnms <- paste0(horstrut, names(nums))
       }else{lvlnms <- names(nums)}

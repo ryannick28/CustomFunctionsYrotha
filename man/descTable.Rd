@@ -7,8 +7,9 @@ The function creates a table of descriptive statistics and allows certain modifi
 
 \usage{
 descTable(x, numDesc1 = c("median", "mean"), numDesc2 = c("quartile13", "sd"),
-          showMiss = TRUE, boldVarnmsLtx = FALSE, addIndetLtx = FALSE,
-          escPercLtx = FALSE, rndPer = 1, rndNum1 = 2, rndNum2 = 1)
+          showMiss = TRUE, boldVarnmsLtx = FALSE, addIndentLtx = FALSE,
+          escPercLtx = FALSE, rndPer = 1, rndNum1 = 2, rndNum2 = 1,
+          msschar = "(missings)")
 }
 
 \arguments{
@@ -17,11 +18,12 @@ descTable(x, numDesc1 = c("median", "mean"), numDesc2 = c("quartile13", "sd"),
 \item{numDesc2}{The secondary descriptive statistic to be computed for numeric variables (presented in brackets).}
 \item{showMiss}{Logical value indicating whether the numbers of missing observations should be presented.}
 \item{boldVarnmsLtx}{A logical value which determines whether the variable names should be printed bold in a latex table.}
-\item{addIndetLtx}{A logical value which determines whether there should be some indentation for the level names of factors in a latex table.}
+\item{addIndentLtx}{A logical value which determines whether there should be some indentation for the level names of factors in a latex table.}
 \item{escPercLtx}{A logical value which determines whether for printing in latex the percent signs should be escaped using backward slashes.}
 \item{rndPer}{The number of decimal places to round the relative proportions.}
 \item{rndNum1}{The number of decimal places to round the main descriptive statistic of numeric variables.}
 \item{rndNum2}{The number of decimal places to round the secondary descriptive statistic of numeric variables.}
+\item{msschar}{The name of the table entry showing the numbers of missings.}
 }
 
 
@@ -30,9 +32,7 @@ For non-numeric variables, the function automatically turns them into a
 factor (using as.factor) and returns the number of cases and relative proportion
 for each factor level. For numeric variables, the "quartile13" option returns
 the first and third quartiles in brackets, while the "sd" option returns
-the estimated standard deviation. If you use the latex options to add for
-example indents or escape percentages, remember that you must use
-sanitize.text.function = function(x){x} when printing the xtable.
+the estimated standard deviation.
 
 
 }
@@ -44,7 +44,7 @@ Returns a data frame containing the descriptive statistics.
 \examples{
 descTable(x = iris)
 ### For latex:
-descTable(x = iris, boldVarnmsLtx = TRUE, addIndetLtx = TRUE,
+descTable(x = iris, boldVarnmsLtx = TRUE, addIndentLtx = TRUE,
           escPercLtx = TRUE)
 }
 
