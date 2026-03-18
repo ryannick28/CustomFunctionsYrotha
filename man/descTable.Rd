@@ -30,7 +30,11 @@ For non-numeric variables, the function automatically turns them into a
 factor (using as.factor) and returns the number of cases and relative proportion
 for each factor level. For numeric variables, the "quartile13" option returns
 the first and third quartiles in brackets, while the "sd" option returns
-the estimated standard deviation.
+the estimated standard deviation. If you use the latex options to add for
+example indents or escape percentages, remember that you must use
+sanitize.text.function = function(x){x} when printing the xtable.
+
+
 }
 
 \value{

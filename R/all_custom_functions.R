@@ -1984,7 +1984,7 @@ descTable <- function(x, numDesc1 = c("median", "mean"),
       if(nmiss > 0){
         if(addIndetLtx){
           ### Add strut to missing name:
-          horstrut <- '\\rule[0pt]{\\baselineskip}{0pt}'   # Horizontal strut
+          horstrut <- '\\rule[0pt]{1em}{0pt}'   # Horizontal strut
           mss_name <- paste0(horstrut, '(missing)')
         }else{
           mss_name <- '(missing)'
@@ -2018,7 +2018,7 @@ descTable <- function(x, numDesc1 = c("median", "mean"),
       ### Bottom table:
       ### Check to add indent:
       if(addIndetLtx){
-        horstrut <- '\\rule[0pt]{\\baselineskip}{0pt}'   # Horizontal strut
+        horstrut <- '\\rule[0pt]{1em}{0pt}'   # Horizontal strut
         lvlnms <- paste0(horstrut, names(nums))
       }else{lvlnms <- names(nums)}
       ### Create table:
