@@ -60,7 +60,7 @@ pair_legend = TRUE, pair_legendPos = "topleft", ...)
 
   \item{lnk.means.lwd}{Line width of lines linking the mean values}
   \item{pair.lwd}{Line width of lines linking the individual cases}
-  \item{fxdCol}{Colour palette that will be used to plot the points, the violin lines and the mean lines). As a default the hcl.points "dynamic" palette is used with as many colours as there are levels of catVar (or one colour if catVar is not supplied). If point.ColPalette is supplied then it will be extended in length to the number of levels of catvar to make sure that there are enough colours for all catvar levels.}
+  \item{fxdCol}{Colour palette that will be used to plot the points, the violin lines and the mean lines). As a default the hcl.points "dynamic" palette is used with as many colours as there are levels of catVar (or one colour if catVar is not supplied). If fxdCol is supplied then it will be extended in length to the number of levels of catvar to make sure that there are enough colours for all catvar levels.}
   \item{bgalph}{A transparency factor used for the background of plotted points (only relevant if a pch symbol with a background argument is chosen in the ... argument). Ranges from 0 (completely transparent) to 255 (no transparency).}
   \item{pair_legend}{A logical indicating whether a legend should be drawn in case a suitable pairCol vector is supplied.}
   \item{pair_legendPos}{The position of the legend for the pairCol vector.}
