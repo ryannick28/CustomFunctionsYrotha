@@ -7,9 +7,9 @@ The function creates a table of descriptive statistics and allows certain modifi
 
 \usage{
 descTable(x, numDesc1 = c("median", "mean"), numDesc2 = c("quartile13", "sd"),
-          showMiss = TRUE, boldVarnmsLtx = FALSE, addIndentLtx = FALSE,
-          escPercLtx = FALSE, rndPer = 1, rndNum1 = 2, rndNum2 = 1,
-          msschar = "(missings)")
+          showMiss = TRUE, showZeroMiss = FALSE, boldVarnmsLtx = FALSE,
+          addIndentLtx = FALSE, escPercLtx = FALSE, rndPer = 1, rndNum1 = 2,
+          rndNum2 = 1, msschar = "(missings)")
 }
 
 \arguments{
@@ -17,6 +17,7 @@ descTable(x, numDesc1 = c("median", "mean"), numDesc2 = c("quartile13", "sd"),
 \item{numDesc1}{The main descriptive statistic to be computed for numeric variables.}
 \item{numDesc2}{The secondary descriptive statistic to be computed for numeric variables (presented in brackets).}
 \item{showMiss}{Logical value indicating whether the numbers of missing observations should be presented.}
+\item{showZeroMiss}{A locial value which determines whether zero missings should be indicated (per default missings are only shown if there are any). This option is only relevant when showMiss is TRUE.}
 \item{boldVarnmsLtx}{A logical value which determines whether the variable names should be printed bold in a latex table.}
 \item{addIndentLtx}{A logical value which determines whether there should be some indentation for the level names of factors in a latex table.}
 \item{escPercLtx}{A logical value which determines whether for printing in latex the percent signs should be escaped using backward slashes.}

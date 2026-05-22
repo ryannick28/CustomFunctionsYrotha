@@ -1941,7 +1941,7 @@ latexvec <- function(x, s = ", ", sfin = " and ", usetxttt = TRUE, fxundscr = TR
 #*********************************************************************************
 descTable <- function(x, numDesc1 = c("median", "mean"),
                       numDesc2 = c("quartile13", "sd"),
-                      showMiss = TRUE, boldVarnmsLtx = FALSE,
+                      showMiss = TRUE, showZeroMiss = FALSE, boldVarnmsLtx = FALSE,
                       addIndentLtx = FALSE, escPercLtx = FALSE, rndPer = 1,
                       rndNum1 = 2, rndNum2 = 1, msschar = "(missings)"){
   ### Make sure correct format:
@@ -1981,7 +1981,7 @@ descTable <- function(x, numDesc1 = c("median", "mean"),
       dupp <- data.frame(nmi, paste0(de1, de2), check.names = FALSE)
       colnames(dupp) <- paste0('C', 1:ncol(dupp))
       ### Bottom table:
-      if(nmiss > 0){
+      if(showMiss & (nmiss > 0 | showZeroMiss)){
         if(addIndentLtx){
           ### Add strut to missing name:
           horstrut <- '\\rule[0pt]{1em}{0pt}'   # Horizontal strut
@@ -2002,8 +2002,18 @@ descTable <- function(x, numDesc1 = c("median", "mean"),
       ### Treat like factor:
       ### Make sure is factor:
       vi <- as.factor(vi)   # Overwrite
+      ### First set na policy:
+      if(showMiss){
+        if(showZeroMiss){
+          napol <- 'always'
+        }else{
+          napol <- 'ifany'
+        }
+      }else{
+        napol <- 'no'
+      }
       ### Get numbers:
-      nums <- table(vi, useNA = ifelse(showMiss, yes = 'ifany', no = 'no'))
+      nums <- table(vi, useNA = napol)
       names(nums)[is.na(names(nums))] <- msschar
       ### Get percentiles:
       per0 <- 100*(nums/(sum(!is.na(vi))))
