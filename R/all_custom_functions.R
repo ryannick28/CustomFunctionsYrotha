@@ -69,11 +69,12 @@ asArguments <- function(...){
 #*********************************************************************************
 niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, pointCol=NULL,
                          showMean=TRUE, plot.points=TRUE, bw='nrd0', jitFactor=0.2,
-                         add.ylim=0, ylim.cust=NULL, xlab=NULL, ylab=NULL, densScl=0.5,
-                         main=NULL, sigGroup=FALSE, sigMu=NULL, multCmp=FALSE,
-                         pairCol=NULL, add.lgnd=FALSE, add=FALSE, lnk.means=NULL,
-                         lnk.means.lwd=2, pair.lwd=2, fxdCol=NULL, bgalph=100,
-                         pair_legend=TRUE, pair_legendPos='topleft', ...){
+                         add.ylim=0, ylim.cust=NULL, xlim.cust=NULL, xlab=NULL,
+                         ylab=NULL, densScl=0.5, main=NULL, sigGroup=FALSE,
+                         sigMu=NULL, multCmp=FALSE, pairCol=NULL, add.lgnd=FALSE,
+                         add=FALSE, lnk.means=NULL, lnk.means.lwd=2, pair.lwd=2,
+                         fxdCol=NULL, bgalph=100, pair_legend=TRUE,
+                         pair_legendPos='topleft', ...){
 
 
   #*********************************************************************************
@@ -243,6 +244,12 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
   if(!is.null(ylim.cust)){
     ylms <- ylim.cust
   }
+  ### Plugin custom xlim:
+  if(!is.null(xlim.cust)){
+    xlms <- xlim.cust
+  }else{
+    xlms <- c(0,nlevels(catVar)+1)
+  }
   ### Plugin custom axes labels:
   if(is.null(xlab)){
     xlab <- ifelse(catVar.nm=='NULL', '', catVar.nm)
@@ -260,7 +267,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
   if(!add){
     plot(x=1,y=1,
          type='n',
-         xlim = c(0,nlevels(catVar)+1),
+         xlim = xlms,
          ylim = ylms,
          xaxt = 'n',
          ylab = ylab,
@@ -443,7 +450,6 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
     }
   }
 }
-
 
 
 #*********************************************************************************
