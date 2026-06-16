@@ -1945,16 +1945,94 @@ latexvec <- function(x, s = ", ", sfin = " and ", usetxttt = TRUE, fxundscr = TR
 #*********************************************************************************
 #   DESCRIPTIVE STATISTICS TABLE    ####
 #*********************************************************************************
-descTable <- function(x, numDesc1 = c("median", "mean"),
+descTable <- function(x, indx=list("All observations"=1:nrow(x)), numDesc1 = c("median", "mean"),
                       numDesc2 = c("quartile13", "sd"),
                       showMiss = TRUE, showZeroMiss = FALSE, boldVarnmsLtx = FALSE,
                       addIndentLtx = FALSE, escPercLtx = FALSE, rndPer = 1,
                       rndNum1 = 2, rndNum2 = 1, msschar = "(missings)"){
-  ### Make sure correct format:
-  x <- as.data.frame(x)
+  ### Check if indx argument is correct:
+  if(!is.list(indx)){stop('indx must be supplied as a list. See help page.')}
+  stopifnot(length(unique(names(indx))) == length(indx))   # Unique names
   ### Get arguments:
   numDesc1 <- match.arg(numDesc1)
   numDesc2 <- match.arg(numDesc2)
+  ### Check if there are multiple indeces in list:
+  multind <- length(indx) > 1
+  ### Loop through indeces and get desctables:
+  descres <- list()
+  for(i in 1:length(indx)){
+    ### Get data:
+    di <- x[indx[[i]],]
+    ### Get descriptive table:
+    desci <- .descTableSimp(x = di, numDesc1 = numDesc1, numDesc2 = numDesc2,
+                            showMiss = showMiss,
+                            showZeroMiss = ifelse(multind, yes = TRUE, no = showZeroMiss),    # Need to force here for later merging (all tables must have same rows)
+                            boldVarnmsLtx = boldVarnmsLtx, addIndentLtx = addIndentLtx,
+                            escPercLtx = escPercLtx, rndPer = rndPer,
+                            rndNum1 = rndNum1, rndNum2 = rndNum2,
+                            msschar = ifelse(multind, yes = paste0('YRCustomInd', msschar), no = msschar))   # Adding unique identifier because need to make sure that I can find those rows later
+    ### Store it:
+    descres[[i]] <- desci
+  }
+  #### Merge the descriptive tables if there is more than one:
+  if(multind){
+    ### Process in loop:
+    for(i in 1:length(descres)){
+      ### Adapt colnames:
+      colnames(descres[[i]]) <- paste0(a=c('', paste0(names(indx)[i], ' (')),
+                                       b=colnames(descres[[i]]),
+                                       c=c('', ')'))
+    }
+    ### Merge:
+    dmrg0 <- do.call(cbind, descres)
+    ### Remove duplicate columns:
+    alldups <- duplicated(colnames(dmrg0)) |
+      duplicated(colnames(dmrg0), fromLast = TRUE)
+    ### Check that all are the same:
+    tst <- Reduce(f = function(a,b){
+      stopifnot(identical(a,b))
+      b
+    }, x = as.list(dmrg0[, alldups]))
+    ### Remove duplicates:
+    dmrg <- dmrg0[,!duplicated(colnames(dmrg0))]
+    ### Remove missing rows with no missings at all:
+    if(showMiss & !showZeroMiss){
+      ### Find missing row with zero missings:
+      ### Get missing rows indices:
+      mssind <- grep('YRCustomInd', dmrg$Variable)
+      ### Check that it makes sense:
+      stopifnot(length(mssind) == ncol(x))
+      ### Check if any missings:
+      mssrm <- NA
+      for(i in 1:length(mssind)){
+        ### Get row:
+        ri <- dmrg[mssind[i], -1]
+        ### Check if any missings:
+        mssrm[i] <- apply(ri, 1, function(x)all(x==0))
+      }
+      ### Remove unneeded rows:
+      dmrg <- dmrg[setdiff(1:nrow(dmrg), mssind[mssrm]), ]   # Overwrite
+      ### Remove the miss indicator:
+      dmrg$Variable <- gsub(pattern = 'YRCustomInd', replacement = '', x = dmrg$Variable)
+    }
+    ### Store:
+    rval <- dmrg
+  }else{
+    ### Nothing to do:
+    rval <- descres[[1]]
+  }
+  ### Return object:
+  return(rval)
+}
+
+### Simple desctable function for repeated use inside the descTable function:
+.descTableSimp <- function(x, numDesc1,
+                           numDesc2,
+                           showMiss, showZeroMiss, boldVarnmsLtx,
+                           addIndentLtx, escPercLtx, rndPer,
+                           rndNum1, rndNum2, msschar){
+  ### Make sure correct format:
+  x <- as.data.frame(x)
   ### Loop through columns:
   descL <- list()
   for(i in 1:ncol(x)){

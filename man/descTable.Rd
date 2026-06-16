@@ -6,14 +6,17 @@ The function creates a table of descriptive statistics and allows certain modifi
 }
 
 \usage{
-descTable(x, numDesc1 = c("median", "mean"), numDesc2 = c("quartile13", "sd"),
-          showMiss = TRUE, showZeroMiss = FALSE, boldVarnmsLtx = FALSE,
-          addIndentLtx = FALSE, escPercLtx = FALSE, rndPer = 1, rndNum1 = 2,
-          rndNum2 = 1, msschar = "(missings)")
+descTable(x, indx = list("All observations" = 1:nrow(x)),
+                      numDesc1 = c("median", "mean"),
+                      numDesc2 = c("quartile13", "sd"), showMiss = TRUE,
+                      showZeroMiss = FALSE, boldVarnmsLtx = FALSE,
+                      addIndentLtx = FALSE, escPercLtx = FALSE, rndPer = 1,
+                      rndNum1 = 2, rndNum2 = 1, msschar = "(missings)")
 }
 
 \arguments{
 \item{x}{A data table. It will be turned into a data frame within the function using as.data.frame.}
+\item{indx}{A list with which subgroups can be defined for which descriptive statistics should be generated. Per default, all observations are included. If indx has a length larger than one, then a merged descriptive table will be generated (see example below).}
 \item{numDesc1}{The main descriptive statistic to be computed for numeric variables.}
 \item{numDesc2}{The secondary descriptive statistic to be computed for numeric variables (presented in brackets).}
 \item{showMiss}{Logical value indicating whether the numbers of missing observations should be presented.}
@@ -47,5 +50,10 @@ descTable(x = iris)
 ### For latex:
 descTable(x = iris, boldVarnmsLtx = TRUE, addIndentLtx = TRUE,
           escPercLtx = TRUE)
+### Multiple groups and showing missings:
+a <- iris
+a[100, 1] <- NA
+descTable(x = a, indx = list("all obs" = 1:nrow(a),
+          "only setosa" = which(a$Species=="setosa")))
 }
 
