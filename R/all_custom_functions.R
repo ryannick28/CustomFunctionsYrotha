@@ -565,7 +565,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     ### Add density:
     if(density){
       tryd <- try(d <- density(vx, na.rm = TRUE), silent = TRUE)
-      if (class(tryd) != 'try-error') {
+      if (!inherits(tryd, "try-error")) {
         d$y <- d$y/max(d$y)*max(y)
         lines(d, col='darkblue')
       }
@@ -635,7 +635,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
     ### Loess line (only for numerics):
     if(loess & !fac_id[rw] & !fac_id[cl]){
       tryd <- try(lml <- suppressWarnings(loess(vy ~ vx, degree = 1, family = "symmetric")), silent=TRUE)
-      if(class(tryd)!='try-error'){   # In case of no error
+      if(!inherits(tryd, "try-error")){   # In case of no error
         tempx <- data.frame(vx = seq(min(vx, na.rm = TRUE),
                                      max(vx, na.rm = TRUE), length.out = 50))
         pred <- predict(lml, newdata = tempx)
@@ -667,7 +667,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       cex <- poscex[psymbs %in% star] * cex.offdiag
     }, silent = TRUE)
     ### In case of error:
-    if(class(tryd)=='try-error'){
+    if(inherits(tryd, "try-error")){
       txt <- 'Err'
       cex <- 1
     }
@@ -697,7 +697,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       cex <- poscex[psymbs %in% star] * cex.offdiag
     }, silent = TRUE)
     ### In case of error:
-    if(class(tryd)=='try-error'){
+    if(inherits(tryd, "try-error")){
       txt <- 'Err'
       cex <- 1
     }
@@ -727,7 +727,7 @@ nicePairsPlot <- function(x, catVar = NULL, breaks = "Sturges", density = FALSE,
       cex <- poscex[psymbs %in% star] * cex.offdiag
     }, silent = TRUE)
     ### In case of error:
-    if(class(tryd)=='try-error'){
+    if(inherits(tryd, "try-error")){
       txt <- 'Err'
       cex <- 1
     }
