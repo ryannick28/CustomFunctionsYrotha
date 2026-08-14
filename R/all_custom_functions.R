@@ -68,7 +68,8 @@ asArguments <- function(...){
 #   NICE UNIVARIATE PLOT   ####
 #*********************************************************************************
 niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, pointCol=NULL,
-                         showMean=TRUE, plot.points=TRUE, bw='nrd0', jitFactor=0.2,
+                         showMean=TRUE, showMean.leng = 0.3, showMean.lwd = 3,
+                         plot.points=TRUE, bw='nrd0', jitFactor=0.2,
                          add.ylim=0, ylim.cust=NULL, xlim.cust=NULL, xlab=NULL,
                          ylab=NULL, densScl=0.5, main=NULL, sigGroup=FALSE,
                          sigMu=NULL, multCmp=FALSE, pairCol=NULL, add.lgnd=FALSE,
@@ -396,7 +397,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
   if(showMean){
     for(i in 1:nlevels(catVar)){
       mVal <-  mean(numVar[as.numeric(catVar)==i], na.rm = TRUE)
-      segments(x0 = i-0.3, y0 = mVal, x1 = i+0.3, y1 = mVal, col = pointPal[i], lwd = 3)
+      segments(x0 = i-showMean.leng, y0 = mVal, x1 = i+showMean.leng, y1 = mVal,
+               col = pointPal[i], lwd = showMean.lwd)
     }
   }
   ### Add mean connections:
@@ -1010,7 +1012,11 @@ nice3DPlot <- function(X = NULL, whatToPlot = c('P','D','PD'), plotFit = c('no',
 #*********************************************************************************
 #   NICE 3D PLOT (PLOTLY)   ####
 #*********************************************************************************
-nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 'int3'), catVar = factor(1), pointCol = 1, colRamp = NULL, pointSize = NULL, pointTrans = 255, planeTrans=100, axesNames = NULL, axesLeng = NULL, axeLeng_fac = 1.1, add2obj = NULL, rngs = NULL, plotlyAxes=FALSE, addgrid = TRUE){
+nice3DPlot_plotly <- function(X = NULL, plotFit = c('no', 'lin', 'int', 'int2', 'int3'),
+                              catVar = factor(1), pointCol = 1, colRamp = NULL, pointSize = NULL,
+                              pointTrans = 255, planeTrans=100, axesNames = NULL, axesLeng = NULL,
+                              axeLeng_fac = 1.1, add2obj = NULL, rngs = NULL, plotlyAxes=FALSE,
+                              addgrid = TRUE){
   #*********************************************************************************
   #   TEST CONDITIONS   ####
   #*********************************************************************************
