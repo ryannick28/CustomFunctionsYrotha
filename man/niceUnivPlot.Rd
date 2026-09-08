@@ -6,9 +6,9 @@ Creates a violin plot of a numeric variable and marks the mean value. Can split 
 }
 \usage{
 niceUnivPlot(numVar, catVar = NULL, pairedVar = NULL, violin = TRUE,
-pointCol = NULL, showMean = TRUE, showMean.leng = 0.3, showMean.lwd = 3,
-plot.points = TRUE, bw = 'nrd0', jitFactor = 0.2, add.ylim = 0,
-ylim.cust = NULL, xlim.cust = NULL, xlab = NULL, ylab = NULL,
+violinPolyg = FALSE, pointCol = NULL, showMean = TRUE, showMean.leng = 0.3,
+showMean.lwd = 3, plot.points = TRUE, bw = 'nrd0', jitFactor = 0.2,
+add.ylim = 0, ylim.cust = NULL, xlim.cust = NULL, xlab = NULL, ylab = NULL,
 densScl = 0.5, main = NULL, sigGroup = FALSE, sigMu = NULL,
 multCmp = FALSE, pairCol = NULL, add.lgnd = FALSE, add = FALSE, lnk.means = NULL,
 lnk.means.lwd = 2, pair.lwd = 2, fxdCol = NULL, bgalph = 100,
@@ -22,6 +22,8 @@ pair_legend = TRUE, pair_legendPos = "topleft", ...)
   \item{pairedVar}{A factor indicating a grouping variable for repeated measures (e.g. person ID). If provided together with a catVar, lines will be plotted indicating the profile of individual cases. Additionally, performed group comparisons will switch to paired Wilcoxon tests. If numVar is supplied as a table then pairedVar should be supplied as a factor with same length as the number of rows in numVar (since a wide format is assumed in that case).}
 
   \item{violin}{A logical value indicating whether the violin plot should be drawn.}
+
+  \item{violinPolyg}{A logical value indicating whether the area inside the violin lines should be colored.}
 
   \item{pointCol}{A vector indicating the colour(s) in which to plot the points. It can be a single colour or a vector ideally of the same length as numVar. If pointCol is supplied as a factor then it will be turned into a numeric vector. If numVar is supplied as a table then pointCol must either have length 1 or the same length as there are rows in numVar. pointCol will overwrite any input to the fxdCol argument.}
 

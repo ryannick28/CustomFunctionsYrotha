@@ -67,8 +67,8 @@ asArguments <- function(...){
 #*********************************************************************************
 #   NICE UNIVARIATE PLOT   ####
 #*********************************************************************************
-niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, pointCol=NULL,
-                         showMean=TRUE, showMean.leng = 0.3, showMean.lwd = 3,
+niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, violinPolyg = FALSE,
+                         pointCol=NULL, showMean=TRUE, showMean.leng = 0.3, showMean.lwd = 3,
                          plot.points=TRUE, bw='nrd0', jitFactor=0.2,
                          add.ylim=0, ylim.cust=NULL, xlim.cust=NULL, xlab=NULL,
                          ylab=NULL, densScl=0.5, main=NULL, sigGroup=FALSE,
@@ -237,7 +237,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
 
 
   #*********************************************************************************
-  #   PLOT POINTS   ####
+  #   PREPARE PLOT   ####
   #*********************************************************************************
   ### Get title name:
   main.nm <- deparse(substitute(main))
@@ -276,6 +276,67 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
          main = ifelse(main.nm=='NULL', paste0(numVar.nm, ' Plot'), main),
          ...)
   }
+  ### Add x-axis labels:
+  if(!catVar.nm=='NULL' & !add){
+    axis(1, at = 1:nlevels(catVar), labels = levels(catVar))
+  }
+  ### Add legend:
+  if(nlevels(catVar) > 1 & add.lgnd){   # Only needed with multiple levels
+    legend('bottomright', legend = levels(catVar),
+           pch=1,
+           col=pointPal)
+  }
+
+
+  #*********************************************************************************
+  #   ADD VIOLIN LINES   ####
+  #*********************************************************************************
+  ### Add the violin lines:
+  if(violin){
+    L <- list()
+    for(i in 1:nlevels(catVar)){
+      numi_noNA <- numVar[as.numeric(catVar)==i][!is.na(numVar[as.numeric(catVar)==i])]   # Create Na free version for if statement
+      if((length(numi_noNA) > 1) &
+         (sum(duplicated(numi_noNA))  != length(numi_noNA)-1  )){   # Only proceed if at least two values available and there are different values
+        d <- density(numVar[as.numeric(catVar)==i], na.rm = TRUE, bw = bw)
+        ### Get min and max value of numVar:
+        minNum.i <- min(numVar[as.numeric(catVar)==i], na.rm = TRUE)
+        maxNum.i <- max(numVar[as.numeric(catVar)==i], na.rm = TRUE)
+        ### Remove density values falling outside the min-max range:
+        denx <- d$x[d$x > minNum.i & d$x < maxNum.i]
+        deny <- d$y[d$x > minNum.i & d$x < maxNum.i]
+        ### Turn density values at each end to zero to cut off the density curve:
+        deny[1] <- 0
+        deny[length(deny)] <- 0
+        L[[i]] <- data.frame(xd=denx, yd=deny)
+      }else{
+        L[[i]] <- data.frame(xd=NA, yd=NA)
+      }
+    }
+    names(L) <- levels(catVar)
+    ### We have to scale the densities, need the maximum value for that:
+    maxD <- max(do.call(c, lapply(L, function(x){x$yd})), na.rm=TRUE)
+    cexD <- densScl/maxD
+    ### Now plot the densities:
+    for(i in 1:nlevels(catVar)){
+      ### Polygon or lines:
+      if(violinPolyg){
+        ### Polygon:
+        xpoly <- c(L[[i]]$yd*cexD + i, rev(-L[[i]]$yd)*cexD + i)
+        ypoly <- c(L[[i]]$xd, rev(L[[i]]$xd))
+        polygon(x = xpoly, y = ypoly, col=pointPal[i], border = pointPal[i])
+      }else{
+        ### Otherwise lines:
+        lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col= pointPal[i], lwd=3)
+        lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=pointPal[i], lwd=3)
+      }
+    }
+  }
+
+
+  #*********************************************************************************
+  #   PLOT POINTS   ####
+  #*********************************************************************************
   ### Add points:
   ### Set background of points:
   bgcol0 <- if(is.null(pointCol)){pointPal[as.numeric(catVar)]}else{pointCol}
@@ -288,16 +349,6 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
            col = if(is.null(pointCol)){pointPal[as.numeric(catVar)]}else{pointCol},
            bg = bgcol,
            ...)
-  }
-  ### Add x-axis labels:
-  if(!catVar.nm=='NULL' & !add){
-    axis(1, at = 1:nlevels(catVar), labels = levels(catVar))
-  }
-  ### Add legend:
-  if(nlevels(catVar) > 1 & add.lgnd){   # Only needed with multiple levels
-    legend('bottomright', legend = levels(catVar),
-           pch=1,
-           col=pointPal)
   }
 
 
@@ -349,43 +400,6 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, point
       }else if(is.numeric(pairCol)){
         legend(pair_legendPos, title = paircol.nm, legend = levels(pCol_ct), lty=1, col=br_ramp(10)[1:nlevels(pCol_ct)])
       }
-    }
-  }
-
-
-  #*********************************************************************************
-  #   ADD VIOLIN LINES   ####
-  #*********************************************************************************
-  ### Add the violin lines:
-  if(violin){
-    L <- list()
-    for(i in 1:nlevels(catVar)){
-      numi_noNA <- numVar[as.numeric(catVar)==i][!is.na(numVar[as.numeric(catVar)==i])]   # Create Na free version for if statement
-      if((length(numi_noNA) > 1) &
-         (sum(duplicated(numi_noNA))  != length(numi_noNA)-1  )){   # Only proceed if at least two values available and there are different values
-        d <- density(numVar[as.numeric(catVar)==i], na.rm = TRUE, bw = bw)
-        ### Get min and max value of numVar:
-        minNum.i <- min(numVar[as.numeric(catVar)==i], na.rm = TRUE)
-        maxNum.i <- max(numVar[as.numeric(catVar)==i], na.rm = TRUE)
-        ### Remove density values falling outside the min-max range:
-        denx <- d$x[d$x > minNum.i & d$x < maxNum.i]
-        deny <- d$y[d$x > minNum.i & d$x < maxNum.i]
-        ### Turn density values at each end to zero to cut off the density curve:
-        deny[1] <- 0
-        deny[length(deny)] <- 0
-        L[[i]] <- data.frame(xd=denx, yd=deny)
-      }else{
-        L[[i]] <- data.frame(xd=NA, yd=NA)
-      }
-    }
-    names(L) <- levels(catVar)
-    ### We have to scale the densities, need the maximum value for that:
-    maxD <- max(do.call(c, lapply(L, function(x){x$yd})), na.rm=TRUE)
-    cexD <- densScl/maxD
-    ### Now plot the densities:
-    for(i in 1:nlevels(catVar)){
-      lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col= pointPal[i], lwd=3)
-      lines((-L[[i]]$yd)*cexD + i, L[[i]]$xd, col=pointPal[i], lwd=3)
     }
   }
 
