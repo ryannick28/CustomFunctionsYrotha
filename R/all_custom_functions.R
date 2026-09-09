@@ -75,7 +75,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, violi
                          sigMu=NULL, multCmp=FALSE, pairCol=NULL, add.lgnd=FALSE,
                          add=FALSE, lnk.means=NULL, lnk.means.lwd=2, pair.lwd=2,
                          fxdCol=NULL, bgalph=100, pair_legend=TRUE,
-                         pair_legendPos='topleft', ...){
+                         pair_legendPos='topleft', polygAlph = 100, ...){
 
 
   #*********************************************************************************
@@ -289,9 +289,9 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, violi
 
 
   #*********************************************************************************
-  #   ADD VIOLIN LINES   ####
+  #   ADD VIOLINS   ####
   #*********************************************************************************
-  ### Add the violin lines:
+  ### Add the violins:
   if(violin){
     L <- list()
     for(i in 1:nlevels(catVar)){
@@ -324,7 +324,8 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, violi
         ### Polygon:
         xpoly <- c(L[[i]]$yd*cexD + i, rev(-L[[i]]$yd)*cexD + i)
         ypoly <- c(L[[i]]$xd, rev(L[[i]]$xd))
-        polygon(x = xpoly, y = ypoly, col=pointPal[i], border = pointPal[i])
+        polygon(x = xpoly, y = ypoly, col = mktransp(pointPal[i], alpha = polygAlph),
+                border = mktransp(pointPal[i], alpha = polygAlph))
       }else{
         ### Otherwise lines:
         lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col= pointPal[i], lwd=3)

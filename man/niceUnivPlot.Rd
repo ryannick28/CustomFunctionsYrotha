@@ -12,7 +12,7 @@ add.ylim = 0, ylim.cust = NULL, xlim.cust = NULL, xlab = NULL, ylab = NULL,
 densScl = 0.5, main = NULL, sigGroup = FALSE, sigMu = NULL,
 multCmp = FALSE, pairCol = NULL, add.lgnd = FALSE, add = FALSE, lnk.means = NULL,
 lnk.means.lwd = 2, pair.lwd = 2, fxdCol = NULL, bgalph = 100,
-pair_legend = TRUE, pair_legendPos = "topleft", ...)
+pair_legend = TRUE, pair_legendPos = "topleft", polygAlph = 100, ...)
 }
 \arguments{
   \item{numVar}{The numeric vector to be plotted. numVar can also be supplied as a table (matrix or data.frame). In that case every column is plotted separately.}
@@ -23,7 +23,7 @@ pair_legend = TRUE, pair_legendPos = "topleft", ...)
 
   \item{violin}{A logical value indicating whether the violin plot should be drawn.}
 
-  \item{violinPolyg}{A logical value indicating whether the area inside the violin lines should be colored.}
+  \item{violinPolyg}{A logical value indicating whether the area inside the violin lines should be colored (draw polygon).}
 
   \item{pointCol}{A vector indicating the colour(s) in which to plot the points. It can be a single colour or a vector ideally of the same length as numVar. If pointCol is supplied as a factor then it will be turned into a numeric vector. If numVar is supplied as a table then pointCol must either have length 1 or the same length as there are rows in numVar. pointCol will overwrite any input to the fxdCol argument.}
 
@@ -73,6 +73,7 @@ pair_legend = TRUE, pair_legendPos = "topleft", ...)
   \item{bgalph}{A transparency factor used for the background of plotted points (only relevant if a pch symbol with a background argument is chosen in the ... argument). Ranges from 0 (completely transparent) to 255 (no transparency).}
   \item{pair_legend}{A logical indicating whether a legend should be drawn in case a suitable pairCol vector is supplied.}
   \item{pair_legendPos}{The position of the legend for the pairCol vector.}
+  \item{polygAlph}{The alpha value to make the shading of the violin area transparent.}
   \item{...}{Arguments to be passed to the plot() and points() call inside the function, where the basic plot structure is defined and the points are plotted.}
 }
 \examples{
