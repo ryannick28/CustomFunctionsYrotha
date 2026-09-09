@@ -325,7 +325,7 @@ niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, violi
         xpoly <- c(L[[i]]$yd*cexD + i, rev(-L[[i]]$yd)*cexD + i)
         ypoly <- c(L[[i]]$xd, rev(L[[i]]$xd))
         polygon(x = xpoly, y = ypoly, col = mktransp(pointPal[i], alpha = polygAlph),
-                border = par('bg'))
+                border = mktransp(pointPal[i], alpha = polygAlph))
       }else{
         ### Otherwise lines:
         lines(L[[i]]$yd*cexD + i, L[[i]]$xd, col= pointPal[i], lwd=3)
