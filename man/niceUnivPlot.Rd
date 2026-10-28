@@ -6,7 +6,7 @@ Creates a violin plot of a numeric variable and marks the mean value. Can split 
 }
 \usage{
 niceUnivPlot(numVar, catVar = NULL, pairedVar = NULL, violin = TRUE,
-violinPolyg = FALSE, pointCol = NULL, showMean = TRUE, showMean.leng = 0.3,
+violinPolyg = TRUE, pointCol = NULL, showMean = TRUE, showMean.leng = 0.3,
 showMean.lwd = 3, plot.points = TRUE, bw = 'nrd0', jitFactor = 0.2,
 add.ylim = 0, ylim.cust = NULL, xlim.cust = NULL, xlab = NULL, ylab = NULL,
 densScl = 0.5, main = NULL, sigGroup = FALSE, sigMu = NULL,

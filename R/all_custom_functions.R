@@ -67,7 +67,7 @@ asArguments <- function(...){
 #*********************************************************************************
 #   NICE UNIVARIATE PLOT   ####
 #*********************************************************************************
-niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, violinPolyg = FALSE,
+niceUnivPlot <- function(numVar, catVar=NULL, pairedVar=NULL, violin=TRUE, violinPolyg = TRUE,
                          pointCol=NULL, showMean=TRUE, showMean.leng = 0.3, showMean.lwd = 3,
                          plot.points=TRUE, bw='nrd0', jitFactor=0.2,
                          add.ylim=0, ylim.cust=NULL, xlim.cust=NULL, xlab=NULL,
