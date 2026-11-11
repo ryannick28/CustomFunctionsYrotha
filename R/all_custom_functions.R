@@ -2157,3 +2157,40 @@ descTable <- function(x, indx=list("All observations"=1:nrow(x)), numDesc1 = c("
   ### Return:
   return(dmrg)
 }
+
+
+
+#*********************************************************************************
+#   SEND AI PROMPT TO LOCAL MODEL    ####
+#*********************************************************************************
+aiprompt <- function(prmt, openFile = FALSE,
+                     reqaddr="http://localhost:11434/api/generate",
+                     modl="qwen3.5:9b",
+                     temp_md = paste0(tempdir(), "/R_aipromptOutput.md"),
+                     temp_pdf = paste0(tempdir(), "/R_aipromptOutput.pdf")){
+  ### Send promt to AI model:
+  response <- httr2::req_perform(
+    httr2::req_body_json(req = httr2::request(reqaddr), data = list(
+      model = modl,
+      prompt = prmt,
+      stream = FALSE)))
+  ### Extract answer:
+  result <- httr2::resp_body_json(response)
+  answ <- result$response
+  ### Collapse into a single character string if it's a vector:
+  markdown_text <- paste("\n\n\n\n\n ------------- \n\n\n\n\n",
+                         answ, collapse = "")
+  ### Write text to md file:
+  cat(markdown_text, file = temp_md, append = TRUE)
+  ### Render the markdown file to PDF using pandoc/latex:
+  rmarkdown::render(
+    input = temp_md,
+    output_format = rmarkdown::pdf_document(latex_engine = "xelatex"),
+    output_file = temp_pdf,
+    quiet = TRUE
+  )
+  ### Open answer file:
+  if(openFile){
+    utils::browseURL(temp_pdf)
+  }
+}
