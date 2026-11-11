@@ -2167,13 +2167,17 @@ aiprompt <- function(prmt, openFile = FALSE,
                      reqaddr="http://localhost:11434/api/generate",
                      modl="qwen3.5:9b",
                      temp_md = paste0(tempdir(), "/R_aipromptOutput.md"),
-                     temp_pdf = paste0(tempdir(), "/R_aipromptOutput.pdf")){
+                     temp_pdf = paste0(tempdir(), "/R_aipromptOutput.pdf"),
+                     timeoutsec = 120, ctxtwindow = 2^12){
   ### Send promt to AI model:
-  response <- httr2::req_perform(
-    httr2::req_body_json(req = httr2::request(reqaddr), data = list(
-      model = modl,
-      prompt = prmt,
-      stream = FALSE)))
+  req1 <- httr2::request(reqaddr)
+  req2 <- httr2::req_body_json(req = req1,
+                               data = list(model = modl,
+                                           prompt = prmt,
+                                           stream = FALSE,
+                                           options = list(num_ctx = ctxtwindow)))
+  req3 <- httr2::req_timeout(req2, seconds = timeoutsec)
+  response <- httr2::req_perform(req3)
   ### Extract answer:
   result <- httr2::resp_body_json(response)
   answ <- result$response
