@@ -2163,12 +2163,20 @@ descTable <- function(x, indx=list("All observations"=1:nrow(x)), numDesc1 = c("
 #*********************************************************************************
 #   SEND AI PROMPT TO LOCAL MODEL    ####
 #*********************************************************************************
-aiprompt <- function(prmt, openFile = FALSE,
+aiprompt <- function(prmt, openFile = FALSE, dat = NULL,
                      reqaddr="http://localhost:11434/api/generate",
                      modl="qwen3.5:9b",
                      temp_md = paste0(tempdir(), "/R_aipromptOutput.md"),
                      temp_pdf = paste0(tempdir(), "/R_aipromptOutput.pdf"),
-                     timeoutsec = 120, ctxtwindow = 2^12){
+                     timeoutsec = 300, ctxtwindow = 2^12){
+  ### Prepare prompt:
+  if(!is.null(dat)){
+    ### Turn data to text:
+    dat_txt <- paste(utils::capture.output(print(dat, row.names = FALSE)),
+                     collapse = "\n")
+    ### Add data text to prompt:
+    prmt <- paste0(prmt, "\n\n", dat_txt)
+  }
   ### Send promt to AI model:
   req1 <- httr2::request(reqaddr)
   req2 <- httr2::req_body_json(req = req1,
