@@ -2167,7 +2167,7 @@ aiprompt <- function(prmt, openFile = FALSE, dat = NULL,
                      reqaddr="http://localhost:11434/api/generate",
                      modl="qwen3.5:9b",
                      temp_md = paste0(tempdir(), "/R_aipromptOutput.md"),
-                     temp_pdf = paste0(tempdir(), "/R_aipromptOutput.pdf"),
+                     temp_html = paste0(tempdir(), "/R_aipromptOutput.html"),
                      timeoutsec = 300, ctxtwindow = 2^12){
   ### Prepare prompt:
   if(!is.null(dat)){
@@ -2197,12 +2197,12 @@ aiprompt <- function(prmt, openFile = FALSE, dat = NULL,
   ### Render the markdown file to PDF using pandoc/latex:
   rmarkdown::render(
     input = temp_md,
-    output_format = rmarkdown::pdf_document(latex_engine = "xelatex"),
-    output_file = temp_pdf,
+    output_format = "html_document",
+    output_file = temp_html,
     quiet = TRUE
   )
   ### Open answer file:
   if(openFile){
-    utils::browseURL(temp_pdf)
+    utils::browseURL(temp_html)
   }
 }

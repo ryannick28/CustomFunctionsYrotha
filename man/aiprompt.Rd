@@ -10,7 +10,7 @@ aiprompt(prmt, openFile = FALSE, dat = NULL,
                      reqaddr="http://localhost:11434/api/generate",
                      modl="qwen3.5:9b",
                      temp_md = paste0(tempdir(), "/R_aipromptOutput.md"),
-                     temp_pdf = paste0(tempdir(), "/R_aipromptOutput.pdf"),
+                     temp_html = paste0(tempdir(), "/R_aipromptOutput.html"),
                      timeoutsec = 300, ctxtwindow = 2^12)
 }
 \arguments{
@@ -23,7 +23,7 @@ end of the prompt}
 \item{modl}{The name of the model in ollama to be used.}
 \item{temp_md}{The name of the markdown file in which the generated
 response is stored. If the file exists already, then the response is appended.}
-\item{temp_pdf}{The name of the pdf file (rendered from the markdown file)
+\item{temp_html}{The name of the html file (rendered from the markdown file)
 which contains the answer.}
 \item{timeoutsec}{Seconds to wait before timeout happens.}
 \item{ctxtwindow}{Amount of tokens defining the context size.}
