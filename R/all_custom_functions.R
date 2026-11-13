@@ -2163,9 +2163,9 @@ descTable <- function(x, indx=list("All observations"=1:nrow(x)), numDesc1 = c("
 #*********************************************************************************
 #   SEND AI PROMPT TO LOCAL MODEL    ####
 #*********************************************************************************
-aiprompt <- function(prmt, openFile = FALSE, dat = NULL,
+aiprompt <- function(prmt, openFile = TRUE, dat = NULL,
                      reqaddr="http://localhost:11434/api/generate",
-                     modl="qwen3.5:9b",
+                     modl="gpt-oss:20b",
                      temp_md = paste0(tempdir(), "/R_aipromptOutput.rmd"),
                      timeoutsec = 300, ctxtwindow = 2^12){
   ### Prepare prompt:
@@ -2189,7 +2189,7 @@ aiprompt <- function(prmt, openFile = FALSE, dat = NULL,
   result <- httr2::resp_body_json(response)
   answ <- result$response
   ### Collapse into a single character string if it's a vector:
-  markdown_text <- paste("------------- \n\n\n\n\n",
+  markdown_text <- paste("\n\n\n\n\n ------------- \n\n\n\n\n",
                          answ, collapse = "")
   ### Write text to md file:
   cat(markdown_text, file = temp_md, append = TRUE)
@@ -2197,5 +2197,7 @@ aiprompt <- function(prmt, openFile = FALSE, dat = NULL,
   if(openFile){
     utils::browseURL(temp_md)
   }
+  ### Return result for inspection:
+  return(invisible(result))
 }
 

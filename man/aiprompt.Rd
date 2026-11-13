@@ -6,9 +6,9 @@ The function sends a prompt to a local AI model and stores the answer
 in a file.
 }
 \usage{
-aiprompt(prmt, openFile = FALSE, dat = NULL,
+aiprompt(prmt, openFile = TRUE, dat = NULL,
                      reqaddr="http://localhost:11434/api/generate",
-                     modl="qwen3.5:9b",
+                     modl="gpt-oss:20b",
                      temp_md = paste0(tempdir(), "/R_aipromptOutput.rmd"),
                      timeoutsec = 300, ctxtwindow = 2^12)
 }
