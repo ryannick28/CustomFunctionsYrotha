@@ -22,7 +22,8 @@ Imports:
     stats,
     graphics,
     htmlwidgets,
-    utils
+    utils,
+    rmarkdown
 Suggests:
     rgl,
     png,

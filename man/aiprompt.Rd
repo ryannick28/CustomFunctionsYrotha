@@ -6,7 +6,7 @@ The function sends a prompt to a local AI model and stores the answer
 in a file.
 }
 \usage{
-aiprompt(prmt, openFile = TRUE, dat = NULL,
+aiprompt(prmt, openFile = TRUE, dat = NULL, openPdf = FALSE,
                      reqaddr="http://localhost:11434/api/generate",
                      modl="gpt-oss:20b",
                      temp_md = paste0(tempdir(), "/R_aipromptOutput.rmd"),
@@ -18,6 +18,8 @@ aiprompt(prmt, openFile = TRUE, dat = NULL,
 should be automatically opened.}
 \item{dat}{An optional R object whose text when printed will be attached at the
 end of the prompt}
+\item{openPdf}{Logical indicating whether the answer should also be rendered
+and opened as a pdf file.}
 \item{reqaddr}{The http address of the local AI model.}
 \item{modl}{The name of the model in ollama to be used.}
 \item{temp_md}{The name of the markdown file in which the generated

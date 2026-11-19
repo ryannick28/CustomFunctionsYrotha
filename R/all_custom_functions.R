@@ -2163,7 +2163,7 @@ descTable <- function(x, indx=list("All observations"=1:nrow(x)), numDesc1 = c("
 #*********************************************************************************
 #   SEND AI PROMPT TO LOCAL MODEL    ####
 #*********************************************************************************
-aiprompt <- function(prmt, openFile = TRUE, dat = NULL,
+aiprompt <- function(prmt, openFile = TRUE, dat = NULL, openPdf = FALSE,
                      reqaddr="http://localhost:11434/api/generate",
                      modl="gpt-oss:20b",
                      temp_md = paste0(tempdir(), "/R_aipromptOutput.rmd"),
@@ -2197,7 +2197,26 @@ aiprompt <- function(prmt, openFile = TRUE, dat = NULL,
   if(openFile){
     utils::browseURL(temp_md)
   }
+  ### Open answer as pdf:
+  if(openPdf){
+    renderoutp(answ = markdown_text)
+  }
   ### Return result for inspection:
   return(invisible(result))
 }
-
+### Helper function to render output:
+renderoutp <- function(answ){
+  ### Write answer to file:
+  tfln_md <- paste0(tempfile(), ".md")
+  tfln_pdf <- paste0(tempfile(), ".pdf")
+  cat(answ, file = tfln_md, append = TRUE)
+  ### Render to pdf:
+  rmarkdown::render(
+    input = tfln_md,
+    output_format = rmarkdown::pdf_document(latex_engine = "xelatex"),
+    output_file = tfln_pdf,
+    quiet = TRUE
+  )
+  ### Open pdf:
+  utils::browseURL(tfln_pdf)
+}
